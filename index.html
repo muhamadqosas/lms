@@ -1,0 +1,2069 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Dashboard Akademik — Matkul</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#FAF7F0;
+  --paper-raised:#FFFFFF;
+  --ink:#1B2B28;
+  --ink-soft:#46554F;
+  --line:#D8D0BE;
+  --line-strong:#C2B89E;
+  --forest:#2D5F5B;
+  --forest-bg:#E2EEEA;
+  --brick:#C44E3A;
+  --brick-bg:#F7E2DC;
+  --clay:#B9791E;
+  --clay-bg:#FBEEDD;
+  --amber:#A87D1F;
+  --amber-bg:#FCF3DE;
+  --slate:#6B7280;
+  --slate-bg:#EEEFF1;
+  --blue:#2C5F8A;
+  --blue-bg:#E8F0F7;
+  --purple:#7B2D8B;
+  --purple-bg:#F5E8F7;
+  --sidebar-w:270px;
+  --topbar-h:56px;
+  --radius:14px;
+  --shadow-sm: 0 1px 2px rgba(27,43,40,0.06), 0 1px 1px rgba(27,43,40,0.04);
+  --shadow-md: 0 4px 16px rgba(27,43,40,0.10), 0 1px 3px rgba(27,43,40,0.06);
+  --shadow-lg: 0 12px 32px rgba(27,43,40,0.16), 0 2px 6px rgba(27,43,40,0.08);
+}
+
+*{box-sizing:border-box; margin:0; padding:0;}
+html{-webkit-text-size-adjust:100%; scroll-behavior:smooth;}
+body{
+  background:var(--paper);
+  background-image:
+    repeating-linear-gradient(0deg,rgba(27,43,40,0.025) 0px,rgba(27,43,40,0.025) 1px,transparent 1px,transparent 32px),
+    repeating-linear-gradient(90deg,rgba(27,43,40,0.025) 0px,rgba(27,43,40,0.025) 1px,transparent 1px,transparent 32px);
+  color:var(--ink);
+  font-family:'Inter',-apple-system,sans-serif;
+  min-height:100vh;
+  display:flex;
+}
+.mono{font-family:'JetBrains Mono',monospace;}
+.display{font-family:'Space Grotesk',sans-serif;}
+
+/* ============ SIDEBAR ============ */
+.sidebar{
+  position:fixed; top:0; left:0;
+  width:var(--sidebar-w);
+  height:100vh;
+  background:var(--paper-raised);
+  border-right:1.5px solid var(--ink);
+  display:flex; flex-direction:column;
+  z-index:50;
+  overflow:hidden;
+  transition:transform 0.28s cubic-bezier(.4,0,.2,1);
+}
+.sidebar-header{
+  padding:16px 18px 12px;
+  border-bottom:1px solid var(--line);
+  flex-shrink:0;
+}
+.sidebar-logo{
+  font-family:'Space Grotesk',sans-serif;
+  font-weight:700; font-size:15px;
+  display:flex; align-items:center; gap:8px;
+  margin-bottom:4px;
+}
+.sidebar-logo-dot{
+  width:9px; height:9px; border-radius:50%;
+  background:var(--ink); flex-shrink:0;
+}
+.sidebar-sub{
+  font-family:'JetBrains Mono',monospace;
+  font-size:10.5px; color:var(--ink-soft);
+  letter-spacing:0.06em; text-transform:uppercase;
+}
+.sidebar-section-label{
+  font-family:'JetBrains Mono',monospace;
+  font-size:10px; text-transform:uppercase;
+  letter-spacing:0.09em; color:var(--ink-soft);
+  padding:12px 18px 5px;
+  border-top:1px solid var(--line);
+  flex-shrink:0;
+}
+/* Day sub-header inside sidebar */
+.sidebar-day-label{
+  font-family:'JetBrains Mono',monospace;
+  font-size:9.5px; text-transform:uppercase;
+  letter-spacing:0.1em; color:var(--ink-soft);
+  padding:8px 18px 3px 18px;
+  display:flex; align-items:center; gap:6px;
+}
+.sidebar-day-label::after{
+  content:''; flex:1; height:1px; background:var(--line);
+}
+.sidebar-day-label.today-label{color:var(--forest);}
+.sidebar-list{overflow-y:auto; flex:1;}
+.sidebar-item{
+  display:flex; align-items:center; gap:10px;
+  padding:11px 18px;
+  cursor:pointer;
+  border-left:3px solid transparent;
+  transition:all 0.14s ease;
+  text-decoration:none;
+}
+.sidebar-item:hover{background:var(--slate-bg); border-left-color:var(--line-strong);}
+.sidebar-item.active{background:var(--forest-bg); border-left-color:var(--forest);}
+.sidebar-item.active .si-name{color:var(--forest);}
+.si-icon{
+  width:30px; height:30px; border-radius:8px;
+  background:var(--slate-bg); color:var(--slate);
+  display:flex; align-items:center; justify-content:center;
+  flex-shrink:0; font-size:13px; font-weight:700;
+  font-family:'Space Grotesk',sans-serif;
+}
+.sidebar-item.active .si-icon{background:var(--forest-bg); color:var(--forest);}
+.sidebar-item.type-fast .si-icon{background:var(--blue-bg); color:var(--blue);}
+.sidebar-item.type-fast.active .si-icon{background:var(--forest-bg); color:var(--forest);}
+/* Today's class highlight in sidebar */
+.sidebar-item.today-class{border-left-color:var(--amber);}
+.sidebar-item.today-class .si-icon{background:var(--amber-bg); color:var(--amber);}
+.sidebar-item.today-class.active .si-icon{background:var(--forest-bg); color:var(--forest);}
+.sidebar-item.today-class.active{border-left-color:var(--forest);}
+.si-info{min-width:0; flex:1;}
+.si-name{
+  font-weight:600; font-size:13px;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  color:var(--ink);
+}
+.si-meta{
+  font-family:'JetBrains Mono',monospace;
+  font-size:10.5px; color:var(--ink-soft);
+  margin-top:1px;
+}
+.si-badge{
+  font-family:'JetBrains Mono',monospace;
+  font-size:10px; font-weight:600;
+  padding:2px 6px; border-radius:5px;
+  background:var(--brick-bg); color:var(--brick);
+  flex-shrink:0;
+}
+.si-badge.zero{background:var(--slate-bg); color:var(--slate);}
+
+/* ============ TOPBAR ============ */
+.topbar{
+  position:fixed; top:0;
+  left:var(--sidebar-w); right:0;
+  height:var(--topbar-h);
+  background:var(--paper-raised);
+  border-bottom:1.5px solid var(--ink);
+  display:flex; align-items:center;
+  padding:0 20px; gap:12px;
+  z-index:40;
+}
+.topbar-hamburger{
+  display:none;
+  width:34px; height:34px;
+  border:1.5px solid var(--line-strong); border-radius:8px;
+  background:transparent; cursor:pointer;
+  align-items:center; justify-content:center;
+  flex-shrink:0;
+}
+.topbar-hamburger svg{width:18px; height:18px;}
+.topbar-breadcrumb{
+  font-family:'Space Grotesk',sans-serif;
+  font-size:14px; font-weight:600;
+  flex:1; min-width:0;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+.topbar-breadcrumb span{color:var(--ink-soft); font-weight:500; margin:0 5px;}
+.topbar-clock{
+  font-family:'JetBrains Mono',monospace;
+  font-size:13px; color:var(--ink-soft);
+  flex-shrink:0;
+}
+
+/* ============ MAIN CONTENT ============ */
+.main{
+  margin-left:var(--sidebar-w);
+  margin-top:var(--topbar-h);
+  flex:1; min-width:0;
+  padding:28px 24px 64px;
+}
+
+/* ============ VIEWS ============ */
+.view{display:none;}
+.view.active{display:block;}
+
+/* ============ DASHBOARD: STATUS BAR ============ */
+.dash-status-bar{
+  display:flex; align-items:center; gap:10px;
+  background:var(--paper-raised);
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  padding:12px 18px;
+  margin-bottom:14px;
+  box-shadow:var(--shadow-sm);
+  flex-wrap:wrap;
+}
+.dsb-dot{
+  width:8px; height:8px; border-radius:50%;
+  background:var(--forest); flex-shrink:0;
+  animation:pulse-green 2s ease-in-out infinite;
+}
+.dsb-dot.stale{background:var(--amber); animation:none;}
+@keyframes pulse-green{0%,100%{opacity:1;}50%{opacity:0.4;}}
+.dsb-text{
+  font-family:'JetBrains Mono',monospace;
+  font-size:11.5px; color:var(--ink-soft); flex:1;
+}
+.dsb-text strong{color:var(--ink);}
+.dsb-btn{
+  font-family:'Inter',sans-serif; font-weight:600; font-size:12px;
+  padding:6px 12px; border-radius:8px;
+  border:1.5px solid var(--line-strong);
+  background:var(--paper); cursor:pointer;
+  color:var(--ink);
+  display:inline-flex; align-items:center; gap:5px;
+  transition:all 0.14s ease; flex-shrink:0;
+}
+.dsb-btn:hover{background:var(--slate-bg); border-color:var(--ink);}
+.dsb-btn svg{width:13px; height:13px;}
+.dsb-btn.spinning svg{animation:spin 0.7s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+/* ============ DASHBOARD GRID ============ */
+.dash-grid{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:12px; margin-bottom:28px;
+}
+.dash-card{
+  background:var(--paper-raised);
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  padding:16px 18px;
+  box-shadow:var(--shadow-sm);
+}
+.dc-label{
+  font-family:'JetBrains Mono',monospace;
+  font-size:10.5px; text-transform:uppercase;
+  letter-spacing:0.06em; color:var(--ink-soft);
+  margin-bottom:6px;
+}
+.dc-value{
+  font-family:'Space Grotesk',sans-serif;
+  font-weight:700; font-size:30px; line-height:1;
+}
+.dc-value.c-forest{color:var(--forest);}
+.dc-value.c-brick{color:var(--brick);}
+.dc-value.c-blue{color:var(--blue);}
+.dc-value-label{
+  font-family:'JetBrains Mono',monospace;
+  font-size:10.5px; color:var(--ink-soft);
+  margin-top:3px; margin-bottom:12px;
+}
+.dc-sub{display:flex;align-items:center;gap:8px;margin-top:4px;flex-wrap:wrap;}
+.dc-sub-num{
+  font-family:'Space Grotesk',sans-serif;
+  font-weight:700; font-size:16px; color:var(--forest);
+}
+.dc-sub-text{font-family:'JetBrains Mono',monospace;font-size:10.5px;color:var(--ink-soft);}
+.dc-sub-divider{width:1px;height:16px;background:var(--line);flex-shrink:0;}
+
+/* ============ SORT TOGGLE ============ */
+.sort-toggle{
+  display:inline-flex; align-items:center; gap:2px;
+  background:var(--slate-bg); border:1px solid var(--line);
+  border-radius:10px; padding:3px; flex-shrink:0;
+}
+.sort-toggle-btn{
+  font-family:'Inter',sans-serif; font-weight:600; font-size:12px;
+  padding:7px 13px; border-radius:7px; border:none;
+  background:transparent; color:var(--ink-soft); cursor:pointer;
+  display:inline-flex; align-items:center; gap:6px;
+  transition:all 0.15s ease; white-space:nowrap;
+}
+.sort-toggle-btn svg{width:13px; height:13px; flex-shrink:0;}
+.sort-toggle-btn.active{
+  background:var(--paper-raised); color:var(--ink);
+  box-shadow:var(--shadow-sm);
+}
+.sort-toggle-btn:hover:not(.active){color:var(--ink);}
+
+/* ============ REKAP BY MATKUL (grouped) ============ */
+.matkul-group-head{
+  display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+  margin-bottom:8px;
+}
+.matkul-group-name{
+  font-family:'Space Grotesk',sans-serif;
+  font-weight:700; font-size:15px;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  min-width:0;
+}
+.matkul-group-meta{
+  display:flex; align-items:center; gap:10px;
+  flex:1; min-width:120px;
+}
+.matkul-group-sched{
+  font-family:'JetBrains Mono',monospace;
+  font-size:11px; color:var(--ink-soft);
+  white-space:nowrap; flex-shrink:0;
+}
+.matkul-group-count{
+  font-family:'JetBrains Mono',monospace;
+  font-size:11px; color:var(--ink-soft);
+  flex-shrink:0; white-space:nowrap;
+}
+
+/* ============ REKAP WAKTU ============ */
+.rekap-groups{display:flex; flex-direction:column; gap:14px;}
+.rekap-group-head{
+  display:flex; align-items:center; gap:10px;
+  margin-bottom:8px;
+}
+.rekap-day-pill{
+  font-family:'JetBrains Mono',monospace;
+  font-size:11px; font-weight:600;
+  padding:3px 10px; border-radius:20px;
+  text-transform:uppercase; letter-spacing:0.05em;
+  flex-shrink:0;
+}
+.rdp-today{background:var(--forest); color:#fff;}
+.rdp-tomorrow{background:var(--clay-bg); color:var(--clay);}
+.rdp-week{background:var(--slate-bg); color:var(--slate);}
+.rdp-next{background:var(--line); color:var(--ink-soft);}
+.rekap-group-title{
+  font-family:'Space Grotesk',sans-serif;
+  font-weight:700; font-size:15px;
+}
+.rekap-group-line{flex:1; height:1.5px; background:var(--line);}
+.rekap-empty{
+  font-size:13px; color:var(--ink-soft);
+  padding:10px 0; font-style:italic;
+}
+
+/* ============ MOODLE-STYLE COURSE VIEW ============ */
+.course-header{
+  background:var(--paper-raised);
+  border:1.5px solid var(--ink);
+  border-radius:var(--radius);
+  padding:20px 24px 18px;
+  margin-bottom:22px;
+  position:relative; overflow:hidden;
+}
+.course-header::before{
+  content:"";
+  position:absolute; left:0; top:0; bottom:0; width:6px;
+  background:repeating-linear-gradient(180deg,var(--ink) 0,var(--ink) 8px,transparent 8px,transparent 16px);
+}
+.course-header-inner{padding-left:14px;}
+.course-eyebrow{
+  font-family:'JetBrains Mono',monospace;
+  font-size:10.5px; letter-spacing:0.09em;
+  text-transform:uppercase; color:var(--ink-soft);
+  margin-bottom:4px;
+}
+.course-title-main{
+  font-family:'Space Grotesk',sans-serif;
+  font-weight:700; font-size:21px; margin-bottom:6px;
+}
+.course-meta-row{
+  display:flex; gap:16px; flex-wrap:wrap;
+}
+.course-meta-item{
+  font-family:'JetBrains Mono',monospace;
+  font-size:12px; color:var(--ink-soft);
+  display:flex; align-items:center; gap:5px;
+}
+.course-meta-item svg{width:13px; height:13px; flex-shrink:0;}
+.course-meta-item a{color:var(--blue); text-decoration:none;}
+.course-meta-item a:hover{text-decoration:underline;}
+
+/* Week accordion */
+.week-list{display:flex; flex-direction:column; gap:10px;}
+.week-block{
+  background:var(--paper-raised);
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  overflow:hidden;
+  box-shadow:var(--shadow-sm);
+  scroll-margin-top:calc(var(--topbar-h) + 16px);
+}
+/* Week current / ongoing highlight */
+.week-block.is-current-week{
+  border-color:var(--forest);
+  box-shadow:0 0 0 2px var(--forest-bg), var(--shadow-sm);
+}
+.week-block.is-ongoing{
+  border-color:var(--clay);
+  box-shadow:0 0 0 2px var(--clay-bg), var(--shadow-sm);
+}
+.week-header{
+  display:flex; align-items:center; gap:12px;
+  padding:14px 18px;
+  cursor:pointer;
+  transition:background 0.14s ease;
+  user-select:none;
+}
+.week-header:hover{background:var(--slate-bg);}
+.week-label{
+  font-family:'Space Grotesk',sans-serif;
+  font-weight:600; font-size:14px; flex:1;
+}
+.week-caret{
+  width:18px; height:18px; flex-shrink:0;
+  color:var(--ink-soft);
+  transition:transform 0.2s ease;
+}
+.week-block.open .week-caret{transform:rotate(180deg);}
+.week-body{
+  border-top:1px solid var(--line);
+  padding:16px 20px;
+  display:none;
+}
+.week-block.open .week-body{display:block;}
+
+/* Week badges */
+.week-status-badge{
+  font-family:'JetBrains Mono',monospace;
+  font-size:9.5px; font-weight:600;
+  padding:2px 8px; border-radius:20px;
+  text-transform:uppercase; letter-spacing:0.05em;
+  flex-shrink:0;
+}
+.wsb-current{background:var(--forest-bg); color:var(--forest);}
+.wsb-ongoing{background:#3B3F8C; color:#FFFFFF;}
+
+/* Tipe pertemuan badge (TMV/DARING/LIBUR/UTS/UAS) — warna mengikuti kalender resmi */
+.week-tipe-badge{
+  font-family:'JetBrains Mono',monospace;
+  font-size:9.5px; font-weight:700;
+  padding:2px 8px; border-radius:20px;
+  text-transform:uppercase; letter-spacing:0.04em;
+  flex-shrink:0;
+}
+.wt-TMV{background:var(--clay-bg); color:var(--clay);}
+.wt-DARING{background:var(--blue-bg); color:var(--blue);}
+.wt-LIBUR{background:var(--brick-bg); color:var(--brick);}
+.wt-UTS{background:var(--forest-bg); color:var(--forest);}
+.wt-UAS{background:#1C2A4D; color:#FFFFFF;}
+.wt-TENANG{background:#EDEAF7; color:#5B4E9C;}
+.week-pertemuan-no{
+  font-family:'JetBrains Mono',monospace;
+  font-size:11px; color:var(--ink-soft);
+  flex-shrink:0; white-space:nowrap;
+}
+
+/* Pertemuan title */
+.pertemuan-title{
+  font-family:'Space Grotesk',sans-serif;
+  font-weight:700; font-size:14px;
+  color:var(--forest); margin-bottom:6px;
+}
+.pertemuan-desc{
+  font-size:13.5px; color:var(--ink-soft);
+  margin-bottom:14px; line-height:1.6;
+}
+
+/* Activity items */
+.activity-list{display:flex; flex-direction:column; gap:0;}
+.activity-item{
+  display:flex; align-items:center; gap:12px;
+  padding:8px 10px;
+  border-bottom:1px solid var(--line);
+  cursor:pointer;
+  transition:background 0.12s ease;
+  border-radius:6px;
+  margin:0 -10px;
+}
+.activity-item:hover{background:var(--slate-bg);}
+.activity-item:last-child{border-bottom:none;}
+.ai-icon{
+  width:32px; height:32px; border-radius:8px;
+  display:flex; align-items:center; justify-content:center;
+  flex-shrink:0;
+}
+.ai-icon.type-meet{background:#E8F5E9;}
+.ai-icon.type-attend{background:#F3E5F5;}
+.ai-icon.type-pdf{background:#FBE9E7;}
+.ai-icon.type-forum{background:#E3F2FD;}
+.ai-icon.type-quiz{background:#FFF8E1;}
+.ai-icon.type-task{background:#E8F0E9;}
+.ai-icon svg{width:18px; height:18px;}
+.ai-info{flex:1; min-width:0;}
+.ai-name{
+  font-size:13.5px; font-weight:500;
+  color:var(--blue); cursor:pointer;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  text-decoration:none;
+}
+.ai-name:hover{text-decoration:underline;}
+.ai-meta{
+  font-family:'JetBrains Mono',monospace;
+  font-size:11px; color:var(--ink-soft);
+  margin-top:1px;
+}
+
+/* ============ SECTION HEADING ============ */
+.section-head{
+  display:flex; align-items:baseline; gap:10px;
+  margin-bottom:14px; padding-bottom:8px;
+  border-bottom:1.5px solid var(--ink);
+}
+.section-title{
+  font-family:'Space Grotesk',sans-serif;
+  font-weight:700; font-size:17px;
+}
+.section-count{
+  font-family:'JetBrains Mono',monospace;
+  font-size:12px; color:var(--ink-soft);
+  margin-left:auto;
+}
+
+/* ============ TASK CARDS ============ */
+.task-list{display:flex; flex-direction:column; gap:10px;}
+.task-card{
+  position:relative; background:var(--paper-raised);
+  border:1px solid var(--line); border-radius:var(--radius);
+  padding:16px 18px 16px 20px; box-shadow:var(--shadow-sm);
+  display:grid; grid-template-columns:1fr auto;
+  gap:14px; align-items:center;
+  transition:transform 0.15s ease,box-shadow 0.15s ease;
+  animation:slideIn 0.3s ease backwards;
+}
+.task-card:hover{box-shadow:var(--shadow-md); transform:translateY(-1px);}
+@keyframes slideIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+.status-ladder{display:none;}
+.task-main{min-width:0;}
+.task-top-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:5px;}
+.badge{
+  font-family:'JetBrains Mono',monospace; font-size:10.5px;
+  font-weight:600; text-transform:uppercase; letter-spacing:0.04em;
+  padding:3px 8px; border-radius:6px;
+}
+.badge.type-tugas{background:var(--blue-bg);color:var(--blue);}
+.badge.type-quiz{background:var(--clay-bg);color:var(--clay);}
+.badge.type-forum{background:var(--forest-bg);color:var(--forest);}
+.badge.status-late{background:var(--brick-bg);color:var(--brick);}
+.badge.status-urgent{background:var(--clay-bg);color:var(--clay);}
+.badge.status-soon{background:var(--amber-bg);color:var(--amber);}
+.badge.status-safe{background:var(--forest-bg);color:var(--forest);}
+.task-course{font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:15px;}
+.task-schedule{font-family:'JetBrains Mono',monospace;font-size:11.5px;color:var(--ink-soft);}
+.task-title{font-size:13.5px;color:var(--ink-soft);margin-top:3px;}
+.task-deadline-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:8px;}
+.task-deadline{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--ink-soft);}
+.task-countdown{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:13px;}
+.s-late .task-countdown{color:var(--brick);}
+.s-urgent .task-countdown{color:var(--clay);}
+.s-soon .task-countdown{color:var(--amber);}
+.s-safe .task-countdown{color:var(--forest);}
+.task-action{display:flex;flex-direction:column;align-items:flex-end;gap:8px;}
+.btn-open{
+  font-family:'Inter',sans-serif; font-weight:600; font-size:13px;
+  padding:9px 16px; border-radius:9px; border:1.5px solid var(--ink);
+  background:var(--ink); color:var(--paper); cursor:pointer;
+  white-space:nowrap; transition:all 0.15s ease;
+  display:inline-flex; align-items:center; gap:6px; text-decoration:none;
+}
+.btn-open:hover{background:#000;}
+.btn-open svg{width:13px; height:13px;}
+
+/* ============ NO-TASK COURSE CHIPS ============ */
+.notask-grid{
+  display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
+  gap:10px;
+}
+.notask-chip{
+  display:flex; align-items:center; gap:10px;
+  background:var(--paper-raised);
+  border:1px solid var(--line); border-radius:var(--radius);
+  padding:12px 14px; box-shadow:var(--shadow-sm);
+}
+.notask-icon{
+  width:32px; height:32px; border-radius:8px; flex-shrink:0;
+  background:var(--forest-bg); color:var(--forest);
+  display:flex; align-items:center; justify-content:center;
+  font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:12px;
+}
+.notask-info{min-width:0; flex:1;}
+.notask-name{font-weight:600; font-size:13px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+.notask-sched{font-family:'JetBrains Mono',monospace; font-size:10.5px; color:var(--ink-soft); margin-top:1px;}
+.notask-check{flex-shrink:0; color:var(--forest);}
+.notask-check svg{width:16px; height:16px;}
+
+/* ============ DONE TASKS ============ */
+.done-list{display:flex; flex-direction:column; gap:8px;}
+.done-card{
+  display:flex; align-items:center; gap:12px;
+  background:var(--paper-raised);
+  border:1px solid var(--line); border-radius:var(--radius);
+  padding:12px 16px; box-shadow:var(--shadow-sm);
+  opacity:0.88; cursor:pointer;
+  transition:transform 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease, border-color 0.15s ease;
+}
+.done-card:hover{opacity:1; box-shadow:var(--shadow-md); transform:translateY(-1px); border-color:var(--line-strong);}
+.done-check{
+  width:26px; height:26px; border-radius:50%; flex-shrink:0;
+  background:var(--forest-bg); color:var(--forest);
+  display:flex; align-items:center; justify-content:center;
+}
+.done-check svg{width:15px; height:15px;}
+.done-info{min-width:0; flex:1;}
+.done-course{font-family:'JetBrains Mono',monospace; font-size:10.5px; color:var(--ink-soft); text-transform:uppercase; letter-spacing:0.04em;}
+.done-title{font-size:13.5px; font-weight:500; margin-top:1px; color:var(--ink);}
+.done-chevron{flex-shrink:0; color:var(--ink-soft);}
+.done-chevron svg{width:16px; height:16px;}
+
+/* ============ DONE TASK MODAL ============ */
+.modal-overlay{
+  display:none; position:fixed; inset:0;
+  background:rgba(28,31,38,0.45);
+  z-index:300; align-items:center; justify-content:center;
+  padding:20px;
+}
+.modal-overlay.open{display:flex;}
+.modal-box{
+  background:var(--paper-raised);
+  border:1.5px solid var(--ink);
+  border-radius:var(--radius);
+  box-shadow:var(--shadow-lg);
+  width:100%; max-width:420px;
+  padding:22px 22px 20px;
+  animation:modalIn 0.2s cubic-bezier(.4,0,.2,1);
+}
+@keyframes modalIn{from{opacity:0; transform:translateY(8px) scale(0.98);} to{opacity:1; transform:translateY(0) scale(1);}}
+.modal-head{display:flex; align-items:flex-start; gap:12px; margin-bottom:14px;}
+.modal-check{
+  width:34px; height:34px; border-radius:50%; flex-shrink:0;
+  background:var(--forest-bg); color:var(--forest);
+  display:flex; align-items:center; justify-content:center;
+}
+.modal-check svg{width:18px; height:18px;}
+.modal-head-text{min-width:0; flex:1;}
+.modal-status-label{font-family:'JetBrains Mono',monospace; font-size:10.5px; color:var(--forest); text-transform:uppercase; letter-spacing:0.06em; font-weight:600;}
+.modal-title{font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:16px; margin-top:2px; line-height:1.3;}
+.modal-close{
+  width:28px; height:28px; border-radius:8px; flex-shrink:0;
+  border:1px solid var(--line); background:transparent; cursor:pointer;
+  display:flex; align-items:center; justify-content:center; color:var(--ink-soft);
+}
+.modal-close:hover{background:var(--slate-bg); color:var(--ink);}
+.modal-close svg{width:14px; height:14px;}
+.modal-divider{height:1px; background:var(--line); margin:14px 0;}
+.modal-row{display:flex; align-items:center; justify-content:space-between; gap:10px; padding:7px 0;}
+.modal-row-label{font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--ink-soft); text-transform:uppercase; letter-spacing:0.04em;}
+.modal-row-value{font-size:13px; font-weight:600; text-align:right;}
+.modal-actions{display:flex; gap:10px; margin-top:16px;}
+.modal-btn-secondary{
+  flex:1; font-family:'Inter',sans-serif; font-weight:600; font-size:13px;
+  padding:10px 14px; border-radius:9px; border:1.5px solid var(--line-strong);
+  background:transparent; color:var(--ink); cursor:pointer; text-align:center;
+}
+.modal-btn-secondary:hover{background:var(--slate-bg);}
+.modal-btn-primary{
+  flex:1; font-family:'Inter',sans-serif; font-weight:600; font-size:13px;
+  padding:10px 14px; border-radius:9px; border:1.5px solid var(--ink);
+  background:var(--ink); color:var(--paper); cursor:pointer;
+  display:inline-flex; align-items:center; justify-content:center; gap:6px;
+  text-decoration:none; text-align:center;
+}
+.modal-btn-primary:hover{background:#000;}
+.modal-btn-primary svg{width:13px; height:13px;}
+
+/* ============ OVERLAY (mobile) ============ */
+.sidebar-overlay{
+  display:none; position:fixed; inset:0;
+  background:rgba(28,31,38,0.4);
+  z-index:49;
+}
+
+/* ============ TOAST ============ */
+.toast{
+  position:fixed; bottom:20px; left:50%;
+  transform:translateX(-50%) translateY(20px);
+  background:var(--ink); color:var(--paper);
+  padding:11px 20px; border-radius:10px;
+  font-size:13px; font-weight:600;
+  font-family:'Inter',sans-serif;
+  box-shadow:var(--shadow-lg); opacity:0; pointer-events:none;
+  transition:all 0.25s ease; z-index:200;
+}
+.toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
+
+/* ============ RESPONSIVE ============ */
+
+@media(max-width:720px){
+  .sidebar{transform:translateX(-100%);}
+  .sidebar.open{transform:translateX(0);}
+  .sidebar-overlay.open{display:block;}
+  .main{margin-left:0;}
+  .topbar{left:0;}
+  .topbar-hamburger{display:flex;}
+  .task-card{grid-template-columns:1fr; padding:14px 16px 14px 18px;}
+  .task-action{flex-direction:row;align-items:center;justify-content:space-between;width:100%;margin-top:4px;}
+  .matkul-group-name{white-space:normal; overflow:visible; text-overflow:clip; flex:1 1 auto;}
+  .matkul-group-meta{flex:1 1 100%; justify-content:space-between;}
+  .matkul-group-meta .rekap-group-line{display:none;}
+}
+@media(max-width:480px){
+  .dash-grid{grid-template-columns:1fr 1fr;}
+  .main{padding:20px 14px 64px;}
+}
+</style>
+</head>
+<body>
+
+<!-- ============ SIDEBAR ============ -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <div class="sidebar-logo">
+      <div class="sidebar-logo-dot"></div>
+      Dashboard Akademik
+    </div>
+    <div class="sidebar-sub">Semester Aktif — 2025/2026</div>
+  </div>
+
+  <!-- Dashboard link -->
+  <div class="sidebar-item active" data-view="dashboard" onclick="switchView('dashboard',this,'Dashboard')">
+    <div class="si-icon">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+    </div>
+    <div class="si-info">
+      <div class="si-name">Overview</div>
+      <div class="si-meta">Semua tugas & deadline</div>
+    </div>
+  </div>
+
+  <!-- Sidebar matkul list — dirender JS -->
+  <div id="sidebarMatkulList"></div>
+</aside>
+
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
+<!-- ============ TOPBAR ============ -->
+<div class="topbar">
+  <button class="topbar-hamburger" id="hamburger" onclick="toggleSidebar()" aria-label="Menu">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+  </button>
+  <div class="topbar-breadcrumb" id="topbarBreadcrumb">
+    Dashboard <span>›</span> Overview
+  </div>
+  <div class="topbar-clock mono" id="topbarClock">--:--</div>
+</div>
+
+<!-- ============ MAIN ============ -->
+<main class="main" id="mainContent">
+
+  <!-- ===== DASHBOARD VIEW ===== -->
+  <div class="view active" id="view-dashboard">
+    <!-- Status bar -->
+    <div class="dash-status-bar" id="dashStatusBar">
+      <div class="dsb-dot" id="statusDot"></div>
+      <div class="dsb-text" id="statusText">Memuat data...</div>
+      <button class="dsb-btn" id="refreshBtn" onclick="manualRefresh()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/></svg>
+        Refresh
+      </button>
+    </div>
+
+    <!-- Stat cards -->
+    <div class="dash-grid" id="dashGrid"></div>
+
+    <!-- Rekap by waktu / matkul -->
+    <div style="margin-top:4px;">
+      <div class="section-head" style="flex-wrap:wrap; row-gap:10px;">
+        <span class="section-title">Rekap Deadline</span>
+        <span class="section-count" id="dashCount">0 aktivitas</span>
+        <div class="sort-toggle" id="sortToggle" style="margin-left:auto;">
+          <button class="sort-toggle-btn active" id="sortByTime" onclick="setDashSort('waktu')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+            Waktu
+          </button>
+          <button class="sort-toggle-btn" id="sortByMatkul" onclick="setDashSort('matkul')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+            Mata Kuliah
+          </button>
+        </div>
+      </div>
+      <div id="dashRekap" class="rekap-groups"></div>
+    </div>
+
+    <!-- Rekap tugas sudah dikerjakan -->
+    <div style="margin-top:28px;">
+      <div class="section-head">
+        <span class="section-title">Tugas Sudah Dikerjakan</span>
+        <span class="section-count" id="dashDoneCount">0 tugas</span>
+      </div>
+      <div id="dashDone" class="done-list"></div>
+    </div>
+
+    <!-- Rekap matkul tanpa tugas -->
+    <div style="margin-top:28px;">
+      <div class="section-head">
+        <span class="section-title">Mata Kuliah Tanpa Tugas Pending</span>
+        <span class="section-count" id="dashNoTaskCount">0 matkul</span>
+      </div>
+      <div id="dashNoTask" class="notask-grid"></div>
+    </div>
+  </div>
+
+  <!-- ===== COURSE VIEWS (dirender JS) ===== -->
+  <div id="courseViewsContainer"></div>
+
+</main>
+
+<div class="modal-overlay" id="doneModalOverlay" onclick="if(event.target===this) closeDoneModal()">
+  <div class="modal-box">
+    <div class="modal-head">
+      <div class="modal-check">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6 9 17l-5-5"/></svg>
+      </div>
+      <div class="modal-head-text">
+        <div class="modal-status-label">Tugas Selesai</div>
+        <div class="modal-title" id="doneModalTitle"></div>
+      </div>
+      <button class="modal-close" onclick="closeDoneModal()" aria-label="Tutup">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="modal-divider"></div>
+    <div class="modal-row">
+      <span class="modal-row-label">Mata Kuliah</span>
+      <span class="modal-row-value" id="doneModalCourse"></span>
+    </div>
+    <div class="modal-row">
+      <span class="modal-row-label">Jadwal</span>
+      <span class="modal-row-value" id="doneModalSchedule"></span>
+    </div>
+    <div class="modal-row">
+      <span class="modal-row-label">Jenis</span>
+      <span class="modal-row-value" id="doneModalType"></span>
+    </div>
+    <div class="modal-row">
+      <span class="modal-row-label">Deadline</span>
+      <span class="modal-row-value" id="doneModalDeadline"></span>
+    </div>
+    <div class="modal-actions">
+      <button class="modal-btn-secondary" onclick="closeDoneModal()">Tutup</button>
+      <a class="modal-btn-primary" id="doneModalOpenBtn" href="#" target="_blank">Buka Tugas
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17 17 7M7 7h10v10"/></svg>
+      </a>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ============================================================
+   DATA
+============================================================ */
+function isoIn(d,h=23,m=59){
+  const dt=new Date(); dt.setDate(dt.getDate()+d); dt.setHours(h,m,0,0); return dt.toISOString();
+}
+
+// Build a "D Bulan – D Bulan" week-range label relative to today.
+// weekOffset 0 = the Mon–Sun week containing today, -1 = previous week, 1 = next week, etc.
+function weekLabelIn(weekOffset){
+  const MONTHS=['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+  const now=new Date();
+  const day=now.getDay(); // 0=Minggu..6=Sabtu
+  const diffToMonday=(day===0?-6:1-day); // shift so week starts Monday
+  const monday=new Date(now); monday.setHours(0,0,0,0);
+  monday.setDate(monday.getDate()+diffToMonday+weekOffset*7);
+  const sunday=new Date(monday); sunday.setDate(sunday.getDate()+6);
+  return `${monday.getDate()} ${MONTHS[monday.getMonth()]} – ${sunday.getDate()} ${MONTHS[sunday.getMonth()]}`;
+}
+
+// Day order for sorting (Senin=1 .. Minggu=7)
+const DAY_ORDER = {Senin:1,Selasa:2,Rabu:3,Kamis:4,Jumat:5,Sabtu:6,Minggu:7};
+
+const COURSES_META = {
+  pfluida: {name:'Prak. Mekanika Fluida',    abbr:'PF', day:'Sabtu', time:'07:00', endTime:'09:30', dosen:'Prof. Dr. Agus Nugroho, M.T.',    type:'regular', lmsId:1007},
+  beton:   {name:'Struktur Beton',            abbr:'SB', day:'Sabtu', time:'09:30', endTime:'12:00', dosen:'Dr. Hendra Wijaya, S.T., M.T.',   type:'regular', lmsId:1003},
+  ppj:     {name:'Prak. Perkerasan Jalan',    abbr:'PP', day:'Sabtu', time:'12:00', endTime:'14:30', dosen:'Ir. Siti Rahayu, M.T.',            type:'regular', lmsId:1004},
+  fisika:  {name:'Praktikum Fisika Dasar 1',  abbr:'FD', day:'Sabtu', time:'14:30', endTime:'17:00', dosen:'Dr. Andi Pratama, M.Si.',          type:'regular', lmsId:1005},
+  fluida:  {name:'Mekanika Fluida',           abbr:'MF', day:'Sabtu', time:'17:00', endTime:'19:30', dosen:'Prof. Dr. Agus Nugroho, M.T.',    type:'regular', lmsId:1006},
+  struk3:  {name:'Analisa Struktur 3',        abbr:'AS', day:'Senin', time:'19:30', endTime:'22:00', dosen:'Dr. Ir. Budi Santoso, M.T.',      type:'fast',    lmsId:1001},
+  ebpre:   {name:'Estimasi Biaya Proyek',     abbr:'EB', day:'Selasa',time:'19:30', endTime:'22:00', dosen:'Ir. Rahmat Hidayat, M.M.',         type:'fast',    lmsId:1002},
+};
+
+// Sorted course order by day then time.
+// v20: diubah jadi fungsi (bukan const array beku) supaya kelas baru yang
+// muncul dari hasil scan backend (lihat ensureCourseMeta) ikut terurut,
+// bukan cuma 7 kelas dummy awal.
+function getCourseOrder(){
+  return Object.keys(COURSES_META).sort((a,b)=>{
+    const da=DAY_ORDER[COURSES_META[a].day]||9, db=DAY_ORDER[COURSES_META[b].day]||9;
+    if(da!==db) return da-db;
+    const ta=COURSES_META[a].time||'', tb=COURSES_META[b].time||'';
+    return ta.localeCompare(tb);
+  });
+}
+
+const COURSE_WEEKS = {
+  'struk3': [
+    { week:'9 Maret – 15 Maret', tipe:'TMV', pertemuanKe:1, open:true,
+      pertemuan:'Pertemuan 1', desc:'Mahasiswa dapat mengidentifikasi permasalahan analisis struktur dan pemanfaatan komputer untuk analisis struktur.',
+      items:[
+        {type:'meet', label:'Pertemuan 1 - Analisis Struktur III', url:'https://fast.mercubuana.ac.id/course/view.php?id=1001'},
+        {type:'attend', label:'Attendance Tatap Muka Virtual 1', url:'https://fast.mercubuana.ac.id/mod/attendance/view.php?id=201'},
+      ]},
+    { week:'16 Maret – 22 Maret', tipe:'LIBUR', pertemuanKe:null, open:false, pertemuan:'', desc:'', items:[] },
+    { week:'23 Maret – 29 Maret', tipe:'LIBUR', pertemuanKe:null, open:false, pertemuan:'', desc:'', items:[] },
+    { week:'30 Maret – 5 April', tipe:'DARING', pertemuanKe:2, open:false,
+      pertemuan:'Pertemuan 2', desc:'Mahasiswa dapat menerapkan metode matriks kekakuan pada analisis struktur portal sederhana.',
+      items:[
+        {type:'pdf', label:'Modul 2', meta:'PDF', url:'https://fast.mercubuana.ac.id/mod/resource/view.php?id=301'},
+        {type:'forum', label:'Forum pertemuan 2', due:'Jumat, 3 April 2026, 23:59', url:'https://fast.mercubuana.ac.id/mod/forum/view.php?id=401'},
+        {type:'quiz', label:'Quiz Analisis Matriks', due:'Dibuka 30 Mar · Tutup 30 Mei', url:'https://fast.mercubuana.ac.id/mod/quiz/view.php?id=501'},
+      ]},
+    { week:'6 April – 12 April', tipe:'TMV', pertemuanKe:3, open:false,
+      pertemuan:'Pertemuan 3', desc:'Mahasiswa dapat menyelesaikan kasus analisis struktur portal bertingkat dengan metode komputasi.',
+      items:[
+        {type:'attend', label:'Attendance Tatap Muka Virtual II', url:'https://fast.mercubuana.ac.id/mod/attendance/view.php?id=202'},
+        {type:'meet', label:'Pertemuan 2 - Analisis Struktur III', url:'https://fast.mercubuana.ac.id/course/view.php?id=1001'},
+        {type:'task', label:'Tugas Besar 2 — Analisa Portal Statis Tak Tentu', due:isoIn(2,19,30), url:'#'},
+      ]},
+    { week:'13 April – 19 April', tipe:'DARING', pertemuanKe:4, open:false, pertemuan:'', desc:'', items:[] },
+    { week:'20 April – 26 April', tipe:'TMV', pertemuanKe:5, open:false,
+      pertemuan:'Pertemuan 5', desc:'Review materi sebelum UTS. Latihan soal analisis struktur dengan beban kombinasi.',
+      items:[
+        {type:'pdf', label:'Modul 4 — Review UTS', meta:'PDF', url:'#'},
+      ]},
+    { week:'27 April – 3 Mei', tipe:'DARING', pertemuanKe:6, open:false, pertemuan:'', desc:'', items:[] },
+    { week:'4 Mei – 10 Mei', tipe:'TMV', pertemuanKe:7, open:false, pertemuan:'', desc:'', items:[] },
+    { week:'11 Mei – 17 Mei', tipe:'TENANG', pertemuanKe:null, open:true,
+      pertemuan:'Minggu Tenang', desc:'Minggu tenang sebelum UTS. Tidak ada perkuliahan — gunakan waktu ini untuk review materi.',
+      items:[]},
+    { week:'18 Mei – 24 Mei', tipe:'UTS', pertemuanKe:8, open:false,
+      pertemuan:'Pertemuan 8 — UTS', desc:'Ujian Tengah Semester. Jadwal mengikuti pengumuman resmi di SIA.',
+      items:[
+        {type:'forum', label:'Forum Diskusi — Studi Kasus Retak Lentur', due:isoIn(9,9,30), url:'#'},
+      ]},
+    { week:'25 Mei – 31 Mei', tipe:'TMV', pertemuanKe:9, open:false, pertemuan:'', desc:'', items:[] },
+    { week:'1 Juni – 7 Juni', tipe:'DARING', pertemuanKe:10, open:false, pertemuan:'', desc:'', items:[] },
+    { week:'8 Juni – 14 Juni', tipe:'TMV', pertemuanKe:11, open:false, pertemuan:'', desc:'', items:[] },
+    { week:'15 Juni – 21 Juni', tipe:'DARING', pertemuanKe:12, open:false, pertemuan:'', desc:'', items:[] },
+    { week:'22 Juni – 28 Juni', tipe:'TMV', pertemuanKe:13, open:false, pertemuan:'', desc:'', items:[] },
+    { week:'29 Juni – 5 Juli', tipe:'DARING', pertemuanKe:14, open:false, pertemuan:'', desc:'', items:[] },
+    { week:'6 Juli – 12 Juli', tipe:'TMV', pertemuanKe:15, open:false, pertemuan:'', desc:'', items:[] },
+    { week:'13 Juli – 19 Juli', tipe:'TENANG', pertemuanKe:null, open:false,
+      pertemuan:'Minggu Tenang', desc:'Minggu tenang sebelum UAS. Tidak ada perkuliahan — gunakan waktu ini untuk review materi.',
+      items:[]},
+    { week:'20 Juli – 26 Juli', tipe:'UAS', pertemuanKe:16, open:false,
+      pertemuan:'Pertemuan 16 — UAS', desc:'Ujian Akhir Semester. Jadwal mengikuti pengumuman resmi di SIA.',
+      items:[]},
+  ],
+  'ebpre': [
+    { week:'10 Maret – 16 Maret', tipe:'TMV', pertemuanKe:1, open:true,
+      pertemuan:'Pertemuan 1', desc:'Pengenalan Rekayasa Ekonomi dan Analisis Kelayakan Investasi Proyek Konstruksi.',
+      items:[
+        {type:'meet', label:'Pertemuan 1 - Estimasi Biaya Proyek', url:'https://fast.mercubuana.ac.id/course/view.php?id=1002'},
+        {type:'pdf', label:'Modul 1 — Konsep Dasar RAB', meta:'PDF', url:'#'},
+      ]},
+    { week:'17 Maret – 23 Maret', tipe:'LIBUR', pertemuanKe:null, open:false, pertemuan:'', desc:'', items:[] },
+    { week:'24 Maret – 30 Maret', tipe:'LIBUR', pertemuanKe:null, open:false, pertemuan:'', desc:'', items:[] },
+    { week:'31 Maret – 6 April', tipe:'DARING', pertemuanKe:2, open:false,
+      pertemuan:'Pertemuan 2', desc:'Analisis Harga Satuan Pekerjaan (AHSP) dan komponen biaya proyek.',
+      items:[
+        {type:'pdf', label:'Modul 2 — AHSP', meta:'PDF', url:'#'},
+        {type:'forum', label:'Diskusi Forum — Studi Kasus Estimasi Biaya Proyek Jalan Tol', due:isoIn(4,19,30), url:'#'},
+      ]},
+    { week:'7 April – 13 April', tipe:'TMV', pertemuanKe:3, open:false,
+      pertemuan:'Pertemuan 3', desc:'Penyusunan Rencana Anggaran Biaya (RAB) Proyek Gedung.',
+      items:[
+        {type:'task', label:'Tugas 2 — RAB Proyek Gedung 3 Lantai', due:isoIn(7,19,30), url:'#'},
+        {type:'meet', label:'Pertemuan 3 - Estimasi Biaya Proyek', url:'#'},
+      ]},
+    { week:'14 April – 20 April', tipe:'DARING', pertemuanKe:4, open:false, pertemuan:'', desc:'', items:[] },
+    { week:'21 April – 27 April', tipe:'TMV', pertemuanKe:5, open:false, pertemuan:'', desc:'', items:[] },
+    { week:'28 April – 4 Mei', tipe:'DARING', pertemuanKe:6, open:false, pertemuan:'', desc:'', items:[] },
+    { week:'5 Mei – 11 Mei', tipe:'TMV', pertemuanKe:7, open:false, pertemuan:'', desc:'', items:[] },
+    { week:'12 Mei – 18 Mei', tipe:'TENANG', pertemuanKe:null, open:true,
+      pertemuan:'Minggu Tenang', desc:'Minggu tenang sebelum UTS. Tidak ada perkuliahan — gunakan waktu ini untuk review materi.',
+      items:[]},
+    { week:'19 Mei – 25 Mei', tipe:'UTS', pertemuanKe:8, open:false,
+      pertemuan:'Pertemuan 8 — UTS', desc:'Ujian Tengah Semester. Jadwal mengikuti pengumuman resmi di SIA.',
+      items:[]},
+    { week:'26 Mei – 1 Juni', tipe:'TMV', pertemuanKe:9, open:false, pertemuan:'', desc:'', items:[] },
+    { week:'2 Juni – 8 Juni', tipe:'DARING', pertemuanKe:10, open:false, pertemuan:'', desc:'', items:[] },
+    { week:'9 Juni – 15 Juni', tipe:'TMV', pertemuanKe:11, open:false, pertemuan:'', desc:'', items:[] },
+    { week:'16 Juni – 22 Juni', tipe:'DARING', pertemuanKe:12, open:false, pertemuan:'', desc:'', items:[] },
+    { week:'23 Juni – 29 Juni', tipe:'TMV', pertemuanKe:13, open:false, pertemuan:'', desc:'', items:[] },
+    { week:'30 Juni – 6 Juli', tipe:'DARING', pertemuanKe:14, open:false, pertemuan:'', desc:'', items:[] },
+    { week:'7 Juli – 13 Juli', tipe:'TMV', pertemuanKe:15, open:false, pertemuan:'', desc:'', items:[] },
+    { week:'14 Juli – 20 Juli', tipe:'TENANG', pertemuanKe:null, open:false,
+      pertemuan:'Minggu Tenang', desc:'Minggu tenang sebelum UAS. Tidak ada perkuliahan — gunakan waktu ini untuk review materi.',
+      items:[]},
+    { week:'21 Juli – 27 Juli', tipe:'UAS', pertemuanKe:16, open:false,
+      pertemuan:'Pertemuan 16 — UAS', desc:'Ujian Akhir Semester. Jadwal mengikuti pengumuman resmi di SIA.',
+      items:[]},
+  ],
+  'beton': [
+    { week:'14 Maret 2026', tipe:'TMV', pertemuanKe:1, open:true,
+      pertemuan:'Pertemuan 1', desc:'Pendahuluan Struktur Beton. Sifat material beton dan baja tulangan sesuai SNI 2847:2019.',
+      items:[
+        {type:'meet', label:'Pertemuan 1 - Struktur Beton', url:'https://fast.mercubuana.ac.id/course/view.php?id=1003'},
+        {type:'pdf', label:'Modul 1 — Material Beton & Baja', meta:'PDF', url:'#'},
+      ]},
+    { week:'21 Maret 2026', tipe:'LIBUR', pertemuanKe:null, open:false, pertemuan:'', desc:'', items:[] },
+    { week:'28 Maret 2026', tipe:'TMV', pertemuanKe:2, open:false,
+      pertemuan:'Pertemuan 2', desc:'Desain penampang balok beton bertulang — metode kekuatan batas (Ultimate Strength Design).',
+      items:[
+        {type:'pdf', label:'Modul 2 — Desain Balok', meta:'PDF', url:'#'},
+        {type:'quiz', label:'Quiz 2 — Tulangan Minimum & Maksimum', due:'Dibuka 30 Mar · Tutup 30 Mei', url:'#'},
+      ]},
+    { week:'4 April 2026', tipe:'DARING', pertemuanKe:3, open:false,
+      pertemuan:'Pertemuan 3', desc:'Perhitungan tulangan lentur balok persegi dan T. Kontrol lendutan dan retak.',
+      items:[
+        {type:'task', label:'Tugas 4 — Perhitungan Tulangan Lentur Balok', due:isoIn(-1,23,59), url:'#'},
+        {type:'forum', label:'Forum Diskusi — Studi Kasus Retak Lentur', due:isoIn(9,9,30), url:'#'},
+      ]},
+    { week:'11 April 2026', tipe:'TMV', pertemuanKe:4, open:false,
+      pertemuan:'Pertemuan 4', desc:'Desain kolom pendek beton bertulang, interaksi aksial dan momen.',
+      items:[
+        {type:'pdf', label:'Modul 4 — Desain Kolom', meta:'PDF', url:'#'},
+        {type:'task', label:'Tugas 5 — Desain Kolom Persegi', due:isoIn(14,23,59), url:'#'},
+      ]},
+    { week:'18 April 2026', tipe:'DARING', pertemuanKe:5, open:false, pertemuan:'', desc:'', items:[] },
+    { week:'25 April 2026', tipe:'TMV', pertemuanKe:6, open:false, pertemuan:'', desc:'', items:[] },
+    { week:'2 Mei 2026', tipe:'DARING', pertemuanKe:7, open:false, pertemuan:'', desc:'', items:[] },
+    { week:'4 Mei – 17 Mei', displayWeek:'9 Mei 2026', tipe:'TENANG', pertemuanKe:null, open:false,
+      pertemuan:'Minggu Tenang', desc:'Minggu tenang sebelum UTS. Tidak ada perkuliahan — gunakan waktu ini untuk review materi.',
+      items:[]},
+    { week:'18 Mei – 24 Mei', displayWeek:'23 Mei 2026', tipe:'UTS', pertemuanKe:8, open:false,
+      pertemuan:'Pertemuan 8 — UTS', desc:'Ujian Tengah Semester. Jadwal mengikuti pengumuman resmi di SIA.',
+      items:[]},
+    { week:'30 Mei 2026', tipe:'TMV', pertemuanKe:9, open:false, pertemuan:'', desc:'', items:[] },
+    { week:'6 Juni 2026', tipe:'DARING', pertemuanKe:10, open:false, pertemuan:'', desc:'', items:[] },
+    { week:'13 Juni 2026', tipe:'TMV', pertemuanKe:11, open:false, pertemuan:'', desc:'', items:[] },
+    { week:'20 Juni 2026', tipe:'DARING', pertemuanKe:12, open:false, pertemuan:'', desc:'', items:[] },
+    { week:'27 Juni 2026', tipe:'TMV', pertemuanKe:13, open:false, pertemuan:'', desc:'', items:[] },
+    { week:'4 Juli 2026', tipe:'DARING', pertemuanKe:14, open:false, pertemuan:'', desc:'', items:[] },
+    { week:'11 Juli 2026', tipe:'TMV', pertemuanKe:15, open:false, pertemuan:'', desc:'', items:[] },
+    { week:'13 Juli – 19 Juli', displayWeek:'18 Juli 2026', tipe:'TENANG', pertemuanKe:null, open:false,
+      pertemuan:'Minggu Tenang', desc:'Minggu tenang sebelum UAS. Tidak ada perkuliahan — gunakan waktu ini untuk review materi.',
+      items:[]},
+    { week:'20 Juli – 26 Juli', displayWeek:'25 Juli 2026', tipe:'UAS', pertemuanKe:16, open:false,
+      pertemuan:'Pertemuan 16 — UAS', desc:'Ujian Akhir Semester. Jadwal mengikuti pengumuman resmi di SIA.',
+      items:[]},
+  ],
+  'ppj': [
+    { week:'14 Maret 2026', tipe:'TMV', pertemuanKe:1, open:true,
+      pertemuan:'Pertemuan 1', desc:'Pendahuluan Perancangan Perkerasan Jalan. Klasifikasi jenis perkerasan dan parameter desain.',
+      items:[
+        {type:'meet', label:'Pertemuan 1 - Prak. Perkerasan Jalan', url:'https://fast.mercubuana.ac.id/course/view.php?id=1004'},
+        {type:'pdf', label:'Modul 1 — Pengantar Perkerasan', meta:'PDF', url:'#'},
+      ]},
+    { week:'21 Maret 2026', tipe:'LIBUR', pertemuanKe:null, open:false, pertemuan:'', desc:'', items:[] },
+    { week:'28 Maret 2026', tipe:'TMV', pertemuanKe:2, open:false,
+      pertemuan:'Pertemuan 2', desc:'Uji Marshall dan analisis hasil pengujian campuran aspal panas (HMA).',
+      items:[
+        {type:'pdf', label:'Prosedur Uji Marshall', meta:'PDF', url:'#'},
+        {type:'task', label:'Laporan Praktikum — Uji Marshall Campuran Aspal', due:isoIn(1,17,0), url:'#'},
+        {type:'forum', label:'Forum — Perbandingan Metode Perkerasan Lentur vs Rigid', due:isoIn(-12,23,59), url:'#'},
+      ]},
+    { week:'4 April 2026', tipe:'DARING', pertemuanKe:3, open:false,
+      pertemuan:'Pertemuan 3', desc:'Pengujian CBR (California Bearing Ratio) tanah dasar dan subbase.',
+      items:[
+        {type:'pdf', label:'Prosedur Uji CBR', meta:'PDF', url:'#'},
+        {type:'meet', label:'Pertemuan 3 - Prak. Perkerasan Jalan', url:'#'},
+      ]},
+    { week:'11 April 2026', tipe:'TMV', pertemuanKe:4, open:false, pertemuan:'', desc:'', items:[] },
+    { week:'18 April 2026', tipe:'DARING', pertemuanKe:5, open:false, pertemuan:'', desc:'', items:[] },
+    { week:'25 April 2026', tipe:'TMV', pertemuanKe:6, open:false, pertemuan:'', desc:'', items:[] },
+    { week:'2 Mei 2026', tipe:'DARING', pertemuanKe:7, open:false, pertemuan:'', desc:'', items:[] },
+    { week:'4 Mei – 17 Mei', displayWeek:'9 Mei 2026', tipe:'TENANG', pertemuanKe:null, open:false,
+      pertemuan:'Minggu Tenang', desc:'Minggu tenang sebelum UTS. Tidak ada perkuliahan — gunakan waktu ini untuk review materi.',
+      items:[]},
+    { week:'18 Mei – 24 Mei', displayWeek:'23 Mei 2026', tipe:'UTS', pertemuanKe:8, open:false,
+      pertemuan:'Pertemuan 8 — UTS', desc:'Ujian Tengah Semester. Jadwal mengikuti pengumuman resmi di SIA.',
+      items:[]},
+    { week:'30 Mei 2026', tipe:'TMV', pertemuanKe:9, open:false, pertemuan:'', desc:'', items:[] },
+    { week:'6 Juni 2026', tipe:'DARING', pertemuanKe:10, open:false, pertemuan:'', desc:'', items:[] },
+    { week:'13 Juni 2026', tipe:'TMV', pertemuanKe:11, open:false, pertemuan:'', desc:'', items:[] },
+    { week:'20 Juni 2026', tipe:'DARING', pertemuanKe:12, open:false, pertemuan:'', desc:'', items:[] },
+    { week:'27 Juni 2026', tipe:'TMV', pertemuanKe:13, open:false, pertemuan:'', desc:'', items:[] },
+    { week:'4 Juli 2026', tipe:'DARING', pertemuanKe:14, open:false, pertemuan:'', desc:'', items:[] },
+    { week:'11 Juli 2026', tipe:'TMV', pertemuanKe:15, open:false, pertemuan:'', desc:'', items:[] },
+    { week:'13 Juli – 19 Juli', displayWeek:'18 Juli 2026', tipe:'TENANG', pertemuanKe:null, open:false,
+      pertemuan:'Minggu Tenang', desc:'Minggu tenang sebelum UAS. Tidak ada perkuliahan — gunakan waktu ini untuk review materi.',
+      items:[]},
+    { week:'20 Juli – 26 Juli', displayWeek:'25 Juli 2026', tipe:'UAS', pertemuanKe:16, open:false,
+      pertemuan:'Pertemuan 16 — UAS', desc:'Ujian Akhir Semester. Jadwal mengikuti pengumuman resmi di SIA.',
+      items:[]},
+  ],
+  'fisika': [
+    { week:'14 Maret 2026', tipe:'TMV', pertemuanKe:1, open:true,
+      pertemuan:'Pertemuan 1', desc:'Pendahuluan Praktikum Fisika Dasar 1. Keselamatan laboratorium dan metode pengukuran dasar.',
+      items:[
+        {type:'meet', label:'Pertemuan 1 - Praktikum Fisika Dasar 1', url:'https://fast.mercubuana.ac.id/course/view.php?id=1005'},
+        {type:'pdf', label:'Panduan K3 Laboratorium', meta:'PDF', url:'#'},
+      ]},
+    { week:'21 Maret 2026', tipe:'LIBUR', pertemuanKe:null, open:false, pertemuan:'', desc:'', items:[] },
+    { week:'28 Maret 2026', tipe:'TMV', pertemuanKe:2, open:false,
+      pertemuan:'Pertemuan 2', desc:'Pengukuran besaran fisika: panjang, massa, waktu.',
+      items:[
+        {type:'pdf', label:'Modul 2 — Pengukuran Dasar', meta:'PDF', url:'#'},
+        {type:'task', label:'Laporan Praktikum — Gerak Lurus Berubah Beraturan', due:isoIn(-5,14,30), url:'#'},
+      ]},
+    { week:'4 April 2026', tipe:'DARING', pertemuanKe:3, open:false,
+      pertemuan:'Pertemuan 3', desc:'Pengukuran dan ketidakpastian pengukuran. Propagasi galat.',
+      items:[
+        {type:'task', label:'Laporan Praktikum — Pengukuran dan Ketidakpastian', due:isoIn(5,14,30), url:'#'},
+      ]},
+    { week:'11 April 2026', tipe:'TMV', pertemuanKe:4, open:false, pertemuan:'', desc:'', items:[] },
+    { week:'18 April 2026', tipe:'DARING', pertemuanKe:5, open:false, pertemuan:'', desc:'', items:[] },
+    { week:'25 April 2026', tipe:'TMV', pertemuanKe:6, open:false, pertemuan:'', desc:'', items:[] },
+    { week:'2 Mei 2026', tipe:'DARING', pertemuanKe:7, open:false, pertemuan:'', desc:'', items:[] },
+    { week:'4 Mei – 17 Mei', displayWeek:'9 Mei 2026', tipe:'TENANG', pertemuanKe:null, open:false,
+      pertemuan:'Minggu Tenang', desc:'Minggu tenang sebelum UTS. Tidak ada perkuliahan — gunakan waktu ini untuk review materi.',
+      items:[]},
+    { week:'18 Mei – 24 Mei', displayWeek:'23 Mei 2026', tipe:'UTS', pertemuanKe:8, open:false,
+      pertemuan:'Pertemuan 8 — UTS', desc:'Ujian Tengah Semester. Jadwal mengikuti pengumuman resmi di SIA.',
+      items:[]},
+    { week:'30 Mei 2026', tipe:'TMV', pertemuanKe:9, open:false, pertemuan:'', desc:'', items:[] },
+    { week:'6 Juni 2026', tipe:'DARING', pertemuanKe:10, open:false, pertemuan:'', desc:'', items:[] },
+    { week:'13 Juni 2026', tipe:'TMV', pertemuanKe:11, open:false, pertemuan:'', desc:'', items:[] },
+    { week:'20 Juni 2026', tipe:'DARING', pertemuanKe:12, open:false, pertemuan:'', desc:'', items:[] },
+    { week:'27 Juni 2026', tipe:'TMV', pertemuanKe:13, open:false, pertemuan:'', desc:'', items:[] },
+    { week:'4 Juli 2026', tipe:'DARING', pertemuanKe:14, open:false, pertemuan:'', desc:'', items:[] },
+    { week:'11 Juli 2026', tipe:'TMV', pertemuanKe:15, open:false, pertemuan:'', desc:'', items:[] },
+    { week:'13 Juli – 19 Juli', displayWeek:'18 Juli 2026', tipe:'TENANG', pertemuanKe:null, open:false,
+      pertemuan:'Minggu Tenang', desc:'Minggu tenang sebelum UAS. Tidak ada perkuliahan — gunakan waktu ini untuk review materi.',
+      items:[]},
+    { week:'20 Juli – 26 Juli', displayWeek:'25 Juli 2026', tipe:'UAS', pertemuanKe:16, open:false,
+      pertemuan:'Pertemuan 16 — UAS', desc:'Ujian Akhir Semester. Jadwal mengikuti pengumuman resmi di SIA.',
+      items:[]},
+  ],
+  'fluida': [
+    { week:'14 Maret 2026', tipe:'TMV', pertemuanKe:1, open:true,
+      pertemuan:'Pertemuan 1', desc:'Pendahuluan Mekanika Fluida. Sifat-sifat fluida: viskositas, tegangan permukaan.',
+      items:[
+        {type:'meet', label:'Pertemuan 1 - Mekanika Fluida', url:'https://fast.mercubuana.ac.id/course/view.php?id=1006'},
+        {type:'pdf', label:'Modul 1 — Sifat Fluida', meta:'PDF', url:'#'},
+      ]},
+    { week:'21 Maret 2026', tipe:'LIBUR', pertemuanKe:null, open:false, pertemuan:'', desc:'', items:[] },
+    { week:'28 Maret 2026', tipe:'TMV', pertemuanKe:2, open:false,
+      pertemuan:'Pertemuan 2', desc:'Statika fluida: tekanan hidrostatis.',
+      items:[
+        {type:'pdf', label:'Modul 2 — Statika Fluida', meta:'PDF', url:'#'},
+        {type:'quiz', label:'Quiz 2 — Statika Fluida', due:isoIn(-7,21,0), url:'#'},
+      ]},
+    { week:'4 April 2026', tipe:'DARING', pertemuanKe:3, open:false,
+      pertemuan:'Pertemuan 3', desc:'Aliran fluida berdimensi. Persamaan kontinuitas, Bernoulli.',
+      items:[
+        {type:'quiz', label:'Quiz 3 — Aliran Berdimensi & Bilangan Reynolds', due:isoIn(0,21,0), url:'#'},
+        {type:'pdf', label:'Modul 3 — Aliran Fluida', meta:'PDF', url:'#'},
+      ]},
+    { week:'11 April 2026', tipe:'TMV', pertemuanKe:4, open:false,
+      pertemuan:'Pertemuan 4', desc:'Aliran dalam saluran tertutup (pipa): Darcy-Weisbach.',
+      items:[
+        {type:'pdf', label:'Modul 4 — Aliran Pipa', meta:'PDF', url:'#'},
+        {type:'forum', label:'Diskusi — Penerapan Bernoulli dalam Teknik Sipil', due:isoIn(10,21,0), url:'#'},
+      ]},
+    { week:'18 April 2026', tipe:'DARING', pertemuanKe:5, open:false, pertemuan:'', desc:'', items:[] },
+    { week:'25 April 2026', tipe:'TMV', pertemuanKe:6, open:false, pertemuan:'', desc:'', items:[] },
+    { week:'2 Mei 2026', tipe:'DARING', pertemuanKe:7, open:false, pertemuan:'', desc:'', items:[] },
+    { week:'4 Mei – 17 Mei', displayWeek:'9 Mei 2026', tipe:'TENANG', pertemuanKe:null, open:false,
+      pertemuan:'Minggu Tenang', desc:'Minggu tenang sebelum UTS. Tidak ada perkuliahan — gunakan waktu ini untuk review materi.',
+      items:[]},
+    { week:'18 Mei – 24 Mei', displayWeek:'23 Mei 2026', tipe:'UTS', pertemuanKe:8, open:false,
+      pertemuan:'Pertemuan 8 — UTS', desc:'Ujian Tengah Semester. Jadwal mengikuti pengumuman resmi di SIA.',
+      items:[]},
+    { week:'30 Mei 2026', tipe:'TMV', pertemuanKe:9, open:false, pertemuan:'', desc:'', items:[] },
+    { week:'6 Juni 2026', tipe:'DARING', pertemuanKe:10, open:false, pertemuan:'', desc:'', items:[] },
+    { week:'13 Juni 2026', tipe:'TMV', pertemuanKe:11, open:false, pertemuan:'', desc:'', items:[] },
+    { week:'20 Juni 2026', tipe:'DARING', pertemuanKe:12, open:false, pertemuan:'', desc:'', items:[] },
+    { week:'27 Juni 2026', tipe:'TMV', pertemuanKe:13, open:false, pertemuan:'', desc:'', items:[] },
+    { week:'4 Juli 2026', tipe:'DARING', pertemuanKe:14, open:false, pertemuan:'', desc:'', items:[] },
+    { week:'11 Juli 2026', tipe:'TMV', pertemuanKe:15, open:false, pertemuan:'', desc:'', items:[] },
+    { week:'13 Juli – 19 Juli', displayWeek:'18 Juli 2026', tipe:'TENANG', pertemuanKe:null, open:false,
+      pertemuan:'Minggu Tenang', desc:'Minggu tenang sebelum UAS. Tidak ada perkuliahan — gunakan waktu ini untuk review materi.',
+      items:[]},
+    { week:'20 Juli – 26 Juli', displayWeek:'25 Juli 2026', tipe:'UAS', pertemuanKe:16, open:false,
+      pertemuan:'Pertemuan 16 — UAS', desc:'Ujian Akhir Semester. Jadwal mengikuti pengumuman resmi di SIA.',
+      items:[]},
+  ],
+  'pfluida': [
+    { week:'14 Maret 2026', tipe:'TMV', pertemuanKe:1, open:true,
+      pertemuan:'Pertemuan 1', desc:'Pendahuluan Praktikum Mekanika Fluida. Pengenalan alat dan prosedur keselamatan.',
+      items:[
+        {type:'meet', label:'Pertemuan 1 - Prak. Mekanika Fluida', url:'https://fast.mercubuana.ac.id/course/view.php?id=1007'},
+        {type:'pdf', label:'Panduan Praktikum & K3 Lab', meta:'PDF', url:'#'},
+      ]},
+    { week:'21 Maret 2026', tipe:'LIBUR', pertemuanKe:null, open:false, pertemuan:'', desc:'', items:[] },
+    { week:'28 Maret 2026', tipe:'TMV', pertemuanKe:2, open:false,
+      pertemuan:'Pertemuan 2', desc:'Pengukuran viskositas fluida menggunakan viskometer.',
+      items:[
+        {type:'pdf', label:'Modul 2 — Pengukuran Viskositas', meta:'PDF', url:'#'},
+      ]},
+    { week:'4 April 2026', tipe:'DARING', pertemuanKe:3, open:false,
+      pertemuan:'Pertemuan 3', desc:'Pengujian aliran melalui venturimeter dan orifice.',
+      items:[
+        {type:'pdf', label:'Modul 3 — Venturimeter', meta:'PDF', url:'#'},
+      ]},
+    { week:'11 April 2026', tipe:'TMV', pertemuanKe:4, open:false, pertemuan:'', desc:'', items:[] },
+    { week:'18 April 2026', tipe:'DARING', pertemuanKe:5, open:false, pertemuan:'', desc:'', items:[] },
+    { week:'25 April 2026', tipe:'TMV', pertemuanKe:6, open:false, pertemuan:'', desc:'', items:[] },
+    { week:'2 Mei 2026', tipe:'DARING', pertemuanKe:7, open:false, pertemuan:'', desc:'', items:[] },
+    { week:'4 Mei – 17 Mei', displayWeek:'9 Mei 2026', tipe:'TENANG', pertemuanKe:null, open:false,
+      pertemuan:'Minggu Tenang', desc:'Minggu tenang sebelum UTS. Tidak ada perkuliahan — gunakan waktu ini untuk review materi.',
+      items:[]},
+    { week:'18 Mei – 24 Mei', displayWeek:'23 Mei 2026', tipe:'UTS', pertemuanKe:8, open:false,
+      pertemuan:'Pertemuan 8 — UTS', desc:'Ujian Tengah Semester. Jadwal mengikuti pengumuman resmi di SIA.',
+      items:[]},
+    { week:'30 Mei 2026', tipe:'TMV', pertemuanKe:9, open:false, pertemuan:'', desc:'', items:[] },
+    { week:'6 Juni 2026', tipe:'DARING', pertemuanKe:10, open:false, pertemuan:'', desc:'', items:[] },
+    { week:'13 Juni 2026', tipe:'TMV', pertemuanKe:11, open:false, pertemuan:'', desc:'', items:[] },
+    { week:'20 Juni 2026', tipe:'DARING', pertemuanKe:12, open:false, pertemuan:'', desc:'', items:[] },
+    { week:'27 Juni 2026', tipe:'TMV', pertemuanKe:13, open:false, pertemuan:'', desc:'', items:[] },
+    { week:'4 Juli 2026', tipe:'DARING', pertemuanKe:14, open:false, pertemuan:'', desc:'', items:[] },
+    { week:'11 Juli 2026', tipe:'TMV', pertemuanKe:15, open:false, pertemuan:'', desc:'', items:[] },
+    { week:'13 Juli – 19 Juli', displayWeek:'18 Juli 2026', tipe:'TENANG', pertemuanKe:null, open:false,
+      pertemuan:'Minggu Tenang', desc:'Minggu tenang sebelum UAS. Tidak ada perkuliahan — gunakan waktu ini untuk review materi.',
+      items:[]},
+    { week:'20 Juli – 26 Juli', displayWeek:'25 Juli 2026', tipe:'UAS', pertemuanKe:16, open:false,
+      pertemuan:'Pertemuan 16 — UAS', desc:'Ujian Akhir Semester. Jadwal mengikuti pengumuman resmi di SIA.',
+      items:[]},
+  ],
+};
+
+// v20: data dummy dihapus. ACTIVITIES sekarang kosong sampai user klik
+// Refresh (manualRefresh -> hit backend /api/scan) atau sampai ada hasil
+// scan sebelumnya yang dimuat otomatis dari /api/last-scan saat load.
+let ACTIVITIES = [];
+
+/* ============================================================
+   INTEGRASI BACKEND (/api/scan, /api/last-scan)
+   Base tugas persis mengikuti fast_learning_automation.py:
+   setiap task punya site, course_name, task_name, task_link,
+   task_type (ASSIGNMENT/QUIZ/FORUM), deadline, submitted.
+============================================================ */
+const TASKTYPE_TO_ACTTYPE = {ASSIGNMENT:'tugas', QUIZ:'quiz', FORUM:'forum'};
+
+// Warna badge dipakai bergantian untuk kelas yang baru ditemukan dari scan
+// (tidak ada di COURSES_META dummy awal), supaya tetap konsisten per kelas.
+const AUTO_COLOR_ABBR = ['AU','BX','CY','DZ','EW','FV','GT','HS'];
+
+function slugifyCourseName(name){
+  return 'auto_' + String(name).toLowerCase()
+    .replace(/[^a-z0-9]+/g,'_').replace(/^_+|_+$/g,'').slice(0,40);
+}
+
+// Cari/registrasikan entri COURSES_META untuk sebuah course_name dari hasil
+// scan. Kalau course itu belum dikenal (bukan salah satu dari struk3/ebpre
+// dsb.), bikin entri baru on-the-fly dari clean_course_name yang sudah
+// dihitung backend (format: "Nama Kelas — Hari HH:MM").
+function ensureCourseMeta(courseNameRaw, courseNameClean){
+  // Coba cocokkan ke entri statis dulu lewat lmsId/nama, biar kelas FAST
+  // yang memang sudah didefinisikan (struk3, ebpre) tetap pakai entri lama.
+  const existingId = Object.keys(COURSES_META).find(id=>{
+    const m=COURSES_META[id];
+    return m.name && courseNameRaw && courseNameRaw.toUpperCase().includes(m.name.toUpperCase());
+  });
+  if(existingId) return existingId;
+
+  const id = slugifyCourseName(courseNameRaw);
+  if(COURSES_META[id]) return id;
+
+  // Pecah "Nama — Hari HH:MM" hasil clean_course_name
+  let name=courseNameClean||courseNameRaw, day='', time='';
+  const m=/^(.*?)\s*—\s*(\w+)\s+(\d{1,2}:\d{2})$/.exec(courseNameClean||'');
+  if(m){ name=m[1]; day=m[2]; time=m[3]; }
+
+  const idx=Object.keys(COURSES_META).length % AUTO_COLOR_ABBR.length;
+  COURSES_META[id] = {
+    name: name || courseNameRaw,
+    abbr: AUTO_COLOR_ABBR[idx],
+    day: day || '-',
+    time: time || '-',
+    endTime: '',
+    dosen: '',       // tidak tersedia dari hasil scan
+    type: 'auto',
+    lmsId: null,
+  };
+  return id;
+}
+
+// Ubah list tasks dari /api/scan (bentuknya = TaskItem dari
+// fast_learning_automation.py, tidak diubah) jadi ACTIVITIES.
+function mapApiTasksToActivities(tasks){
+  return (tasks||[]).map((t,i)=>{
+    const courseId = ensureCourseMeta(t.course_name, t.course_clean);
+    return {
+      id: `${t.site}-${i}`,
+      courseId,
+      type: TASKTYPE_TO_ACTTYPE[t.task_type] || 'tugas',
+      title: t.task_name,
+      deadline: t.deadline_iso || null,   // null = tidak ada/terparse deadline
+      status: t.submitted ? 'done' : 'pending',
+      url: t.task_link || '#',
+    };
+  });
+}
+
+function applyScanResult(data){
+  ACTIVITIES = mapApiTasksToActivities(data.tasks);
+  lastRefresh = data.scanned_at ? new Date(data.scanned_at) : new Date();
+}
+
+/* ============================================================
+   HELPERS
+============================================================ */
+function esc(s){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));}
+
+function fmtDeadline(iso){
+  if(!iso) return 'Tidak ada deadline';
+  const d=new Date(iso);
+  return d.toLocaleDateString('id-ID',{day:'numeric',month:'short'})+ ', ' +
+         d.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'});
+}
+
+// Forum di LMS tidak memiliki deadline bawaan. Untuk item ACTIVITIES bertipe
+// forum, deadline efektifnya dihitung dari akhir rentang "sedang berlangsung"
+// pada minggu pertemuan terkait di COURSE_WEEKS (dicocokkan lewat judul),
+// bukan dari field deadline statis. Untuk tipe lain (tugas/quiz) deadline
+// selalu sudah tersedia dari hasil scan LMS, jadi dipakai apa adanya.
+function getEffectiveDeadline(act){
+  if(act.type!=='forum') return act.deadline;
+  const weeks=COURSE_WEEKS[act.courseId]||[];
+  for(const w of weeks){
+    const match=(w.items||[]).find(it=>it.type==='forum' && it.label===act.title);
+    if(match){
+      const range=parseWeekRange(w.week);
+      if(range) return range.end.toISOString();
+    }
+  }
+  return act.deadline;
+}
+// null deadline (tugas tanpa deadline dari hasil scan) diurutkan ke akhir,
+// bukan ke awal seperti kalau new Date(null) dianggap epoch 1970.
+function sortKeyDeadline(iso){
+  if(!iso) return Infinity;
+  const t=new Date(iso).getTime();
+  return isNaN(t) ? Infinity : t;
+}
+function bucket(iso){
+  if(!iso) return 'safe';
+  const diff=(new Date(iso)-new Date())/36e5;
+  if(diff<0) return 'late';
+  if(diff<72) return 'urgent';
+  if(diff<168) return 'soon';
+  return 'safe';
+}
+function countdown(iso){
+  if(!iso) return '—';
+  const abs=Math.abs(new Date(iso)-new Date());
+  const d=Math.floor(abs/864e5), h=Math.floor((abs%864e5)/36e5), m=Math.floor((abs%36e5)/6e4);
+  const str=d>0?`${d} hari ${h} jam`:h>0?`${h} jam ${m} menit`:`${m} menit`;
+  return (new Date(iso)<new Date()?'Terlambat ':'Sisa ')+str;
+}
+function typeBadge(t){return{tugas:'Tugas',quiz:'Quiz',forum:'Forum'}[t]||t;}
+function statusBadge(b){return{late:'Terlambat',urgent:'< 3 hari',soon:'< 7 hari',safe:'Aman'}[b];}
+
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove('show'),2200);
+}
+
+// Return today's day name in Indonesian
+function todayDayName(){
+  const days=['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
+  return days[new Date().getDay()];
+}
+
+// Is a course currently in session right now?
+function isCourseOngoing(meta){
+  const now=new Date();
+  const todayName=todayDayName();
+  if(meta.day!==todayName) return false;
+  const [sh,sm]=meta.time.split(':').map(Number);
+  const [eh,em]=meta.endTime.split(':').map(Number);
+  const startMin=sh*60+sm, endMin=eh*60+em;
+  const nowMin=now.getHours()*60+now.getMinutes();
+  return nowMin>=startMin && nowMin<endMin;
+}
+
+// Is today a class day for this course?
+function isTodayCourse(meta){ return meta.day===todayDayName(); }
+
+/* Parse week string like "6 April – 12 April" into Date range.
+   We try to extract start/end and add current year */
+function parseWeekRange(weekStr){
+  try{
+    const MONTHS={Januari:0,Februari:1,Maret:2,April:3,Mei:4,Juni:5,Juli:6,Agustus:7,September:8,Oktober:9,November:10,Desember:11};
+    const year=new Date().getFullYear();
+    // Format tanpa "–": satu tanggal saja, contoh "14 Maret 2026" (dipakai untuk
+    // kelas Sabtu yang pertemuannya per-hari). Rentang aktifnya dihitung dari
+    // tanggal pertemuan itu sendiri sampai +7 hari (mis. pertemuan 27 Juni ->
+    // aktif 27 Juni – 3 Juli), bukan dibulatkan ke Senin–Minggu.
+    if(!weekStr.includes('–')){
+      const sp=weekStr.trim().split(' ');
+      const day=parseInt(sp[0]);
+      const month=MONTHS[sp[1]];
+      const start=new Date(year, month, day, 0, 0, 0);
+      const end=new Date(start); end.setDate(end.getDate()+7); end.setHours(23,59,59,0);
+      return {start:start, end:end};
+    }
+    // Format: "D Bulan – D Bulan" or "D – D Bulan"
+    const parts=weekStr.split('–').map(s=>s.trim());
+    let startDate,endDate;
+    // Try to parse end date first (has full "D Bulan")
+    const endParts=parts[1].split(' ');
+    const endDay=parseInt(endParts[0]);
+    const endMonth=MONTHS[endParts[1]]??MONTHS[endParts[1]];
+    endDate=new Date(year, endMonth, endDay, 23, 59, 59);
+    // Start date
+    const startParts=parts[0].split(' ');
+    const startDay=parseInt(startParts[0]);
+    const startMonth= startParts.length>1 ? (MONTHS[startParts[1]]??endMonth) : endMonth;
+    startDate=new Date(year, startMonth, startDay, 0, 0, 0);
+    return {start:startDate, end:endDate};
+  }catch(e){return null;}
+}
+
+function isCurrentWeek(weekStr){
+  const range=parseWeekRange(weekStr);
+  if(!range) return false;
+  const now=new Date();
+  return now>=range.start && now<=range.end;
+}
+
+/* ============================================================
+   STATUS BAR
+============================================================ */
+let lastRefresh=null;
+function updateStatusBar(){
+  const dot=document.getElementById('statusDot');
+  const txt=document.getElementById('statusText');
+  if(!lastRefresh){
+    dot.className='dsb-dot';
+    txt.innerHTML='<strong>Memuat...</strong>';
+    return;
+  }
+  const now=new Date();
+  const ageMin=Math.floor((now-lastRefresh)/60000);
+  const timeStr=lastRefresh.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'});
+  // Refresh sekarang sengaja jarang (cuma 30 menit sebelum tiap kelas + manual),
+  // jadi "stale" cuma ditandai kalau sudah lebih dari 24 jam (kemungkinan tab
+  // dibiarkan terbuka berhari-hari), bukan tiap kali jeda beberapa menit.
+  const stale=ageMin>=60*24;
+  dot.className='dsb-dot'+(stale?' stale':'');
+
+  const ageStr=ageMin===0?'baru saja':ageMin<60?`${ageMin} menit lalu`:`${Math.floor(ageMin/60)} jam lalu`;
+
+  const nextTrig=getNextScheduledTrigger();
+  let nextStr='';
+  if(nextTrig){
+    const sameDay=nextTrig.toDateString()===now.toDateString();
+    const timePart=nextTrig.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'});
+    nextStr=sameDay
+      ? ` · refresh otomatis berikutnya ${timePart}`
+      : ` · refresh otomatis berikutnya ${nextTrig.toLocaleDateString('id-ID',{weekday:'short'})} ${timePart}`;
+  }
+
+  txt.innerHTML=stale
+    ? `<strong>Sudah lama tidak refresh</strong> — terakhir ${timeStr} (${ageStr})${nextStr}`
+    : `<strong>Live</strong> — terakhir refresh ${timeStr} · ${ageStr}${nextStr}`;
+}
+
+async function manualRefresh(){
+  const btn=document.getElementById('refreshBtn');
+  btn.classList.add('spinning');
+  btn.disabled=true;
+  showToast('🔄 Scan dijalankan — browser Chrome akan terbuka sebentar...');
+  try{
+    const res=await fetch('/api/scan', {method:'POST'});
+    const data=await res.json();
+    if(res.status===409){
+      showToast('⏳ Scan lain sedang berjalan, coba lagi sebentar.');
+      return;
+    }
+    if(data.status==='error'){
+      showToast('✗ Scan gagal: '+(data.error||'unknown error'));
+      return;
+    }
+    applyScanResult(data);
+    updateStatusBar();
+    renderCourseViewsDOM();
+    renderDashboard();
+    renderSidebar();
+    showToast(`✓ Data diperbarui — ${ACTIVITIES.length} tugas ditemukan`);
+  }catch(err){
+    showToast('✗ Gagal menghubungi server: '+err.message);
+  }finally{
+    btn.classList.remove('spinning');
+    btn.disabled=false;
+  }
+}
+
+// Muat hasil scan terakhir (kalau ada) tanpa perlu klik Refresh, dipanggil
+// sekali saat dashboard pertama kali dibuka.
+async function loadLastScan(){
+  try{
+    const res=await fetch('/api/last-scan');
+    const data=await res.json();
+    if(data.status==='done' && data.tasks && data.tasks.length){
+      applyScanResult(data);
+      renderCourseViewsDOM();
+      renderDashboard();
+      renderSidebar();
+      updateStatusBar();
+      showToast(`📂 Memuat hasil scan sebelumnya (${ACTIVITIES.length} tugas)`);
+    }
+  }catch(err){
+    // Backend belum jalan / belum ada hasil — biarkan dashboard tampil kosong.
+  }
+}
+
+/* ============================================================
+   RENDER SIDEBAR (sorted by day & time)
+============================================================ */
+function renderSidebar(){
+  const container=document.getElementById('sidebarMatkulList');
+  const today=todayDayName();
+
+  // Get pending counts
+  function pendingCount(cId){
+    return ACTIVITIES.filter(a=>a.courseId===cId&&a.status==='pending').length;
+  }
+
+  function renderItem(id){
+    const m=COURSES_META[id];
+    const cnt=pendingCount(id);
+    const ongoing=isCourseOngoing(m);
+    const todayClass=isTodayCourse(m);
+    let itemClass='sidebar-item';
+    if(m.type==='fast') itemClass+=' type-fast';
+    if(todayClass && !ongoing) itemClass+=' today-class';
+
+    const metaExtra=ongoing
+      ? `<span style="color:#3B3F8C;font-weight:700;"> · Berlangsung</span>`
+      : '';
+
+    return `
+      <div class="${itemClass}" data-view="course-${id}" onclick="switchView('course-${id}',this,'${esc(m.name)}')">
+        <div class="si-icon">${esc(m.abbr)}</div>
+        <div class="si-info">
+          <div class="si-name">${esc(m.name)}</div>
+          <div class="si-meta">${esc(m.day)} · ${esc(m.time)}${metaExtra}</div>
+        </div>
+        <span class="si-badge${cnt===0?' zero':''}" id="badge-${id}">${cnt}</span>
+      </div>
+    `;
+  }
+
+  let html='';
+
+  // ===== Fast Learning: single section, one course per day, sorted by day =====
+  const fastIds=getCourseOrder().filter(id=>COURSES_META[id].type==='fast')
+    .sort((a,b)=>(DAY_ORDER[COURSES_META[a].day]||9)-(DAY_ORDER[COURSES_META[b].day]||9));
+  if(fastIds.length){
+    html+=`<div class="sidebar-section-label">⚡ Fast Learning</div>`;
+    fastIds.forEach(id=>{ html+=renderItem(id); });
+  }
+
+  // ===== Ruang Kelas: grouped per day, as before =====
+  const regularByDay={};
+  getCourseOrder().forEach(id=>{
+    const m=COURSES_META[id];
+    if(m.type==='fast') return;
+    if(!regularByDay[m.day]) regularByDay[m.day]=[];
+    regularByDay[m.day].push(id);
+  });
+  const daysSorted=Object.keys(regularByDay).sort((a,b)=>(DAY_ORDER[a]||9)-(DAY_ORDER[b]||9));
+
+  daysSorted.forEach(day=>{
+    const isToday=day===today;
+    const groupLabel=isToday ? `🏫 Ruang Kelas — ${day} (Hari ini)` : `🏫 Ruang Kelas — ${day}`;
+
+    html+=`<div class="sidebar-section-label">${groupLabel}</div>`;
+    if(isToday){
+      html+=`<div class="sidebar-day-label today-label">Hari ini</div>`;
+    }
+
+    regularByDay[day].forEach(id=>{ html+=renderItem(id); });
+  });
+
+  container.innerHTML=html;
+}
+
+/* ============================================================
+   RENDER COURSE VIEWS (dynamic)
+============================================================ */
+function renderCourseViewsDOM(){
+  const container=document.getElementById('courseViewsContainer');
+  let html='';
+  getCourseOrder().forEach(id=>{
+    const m=COURSES_META[id];
+    const eyebrow=m.type==='fast'?`Fast Learning · ${m.day}`:`Ruang Kelas · ${m.day}`;
+    const lmsUrl=`https://fast.mercubuana.ac.id/course/view.php?id=${m.lmsId}`;
+    html+=`
+    <div class="view" id="view-course-${id}">
+      <div class="course-header">
+        <div class="course-header-inner">
+          <div class="course-eyebrow">${esc(eyebrow)}</div>
+          <div class="course-title-main">${esc(m.name)}</div>
+          <div class="course-meta-row">
+            <div class="course-meta-item">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+              ${esc(m.day)}, ${esc(m.time)} – ${esc(m.endTime)}
+            </div>
+            <div class="course-meta-item">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+              ${esc(m.dosen)}
+            </div>
+            ${m.lmsId?`<div class="course-meta-item">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14 21 3"/></svg>
+              <a href="${lmsUrl}" target="_blank">fast.mercubuana.ac.id/course/…${m.lmsId}</a>
+            </div>`:''}
+          </div>
+        </div>
+      </div>
+      <div class="week-list" id="weeks-${id}"></div>
+    </div>`;
+  });
+  container.innerHTML=html;
+}
+
+/* ============================================================
+   RENDER COURSE WEEKS with current-week badges
+============================================================ */
+function renderCourseWeeks(courseId){
+  const weeks=COURSE_WEEKS[courseId]||[];
+  const container=document.getElementById('weeks-'+courseId);
+  if(!container) return;
+  container.innerHTML=weeks.map((w,wi)=>{
+    // "Sedang berlangsung" = today falls within this pertemuan's 7-day active
+    // range (from its class day through the following week), regardless of
+    // which day of the week it is today.
+    const ongoing=isCurrentWeek(w.week);
+    const hasContent = !!(w.pertemuan || w.desc || (w.items && w.items.length));
+
+    let blockClass='week-block';
+    if(ongoing || hasContent) blockClass+=' open';
+    if(ongoing) blockClass+=' is-ongoing';
+
+    let badge='';
+    if(ongoing) badge=`<span class="week-status-badge wsb-ongoing">⚡ Sedang berlangsung</span>`;
+
+    // Nomor pertemuan ke-berapa, diambil dari kalender resmi (acuan: PDF kalender
+    // perkuliahan hybrid, kolom hari sesuai jadwal matkul ini).
+    const pertLabel = (w.pertemuanKe!=null) ? `<span class="week-pertemuan-no">P${esc(String(w.pertemuanKe))}</span>` : (w.tipe==='LIBUR' ? `<span class="week-pertemuan-no">Libur</span>` : (w.tipe==='TENANG' ? `<span class="week-pertemuan-no">Tenang</span>` : ''));
+    const tipeBadge = w.tipe ? `<span class="week-tipe-badge wt-${esc(w.tipe)}">${esc(w.tipe)}</span>` : '';
+
+    // Forum di LMS tidak memiliki deadline bawaan, jadi kita hitung sendiri:
+    // batas akhir mengerjakan forum = akhir rentang "sedang berlangsung" pada
+    // minggu pertemuan itu (untuk Sabtu ini otomatis ikut aturan +7 hari dari
+    // tanggal pertemuan, karena dihitung lewat parseWeekRange yang sama).
+    const weekRange = parseWeekRange(w.week);
+    const itemsWithForumDeadline = (w.items||[]).map(it=>{
+      if(it.type==='forum' && weekRange){
+        return {...it, due: weekRange.end.toISOString()};
+      }
+      return it;
+    });
+
+    return `
+    <div class="${blockClass}" id="wb-${courseId}-${wi}">
+      <div class="week-header" onclick="toggleWeek('${courseId}',${wi})">
+        <span class="week-label">${esc(w.displayWeek || w.week)}</span>
+        ${tipeBadge}
+        ${pertLabel}
+        ${badge}
+        <svg class="week-caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="m6 9 6 6 6-6"/></svg>
+      </div>
+      <div class="week-body">
+        ${w.pertemuan?`<div class="pertemuan-title">${esc(w.pertemuan)}</div>`:''}
+        ${w.desc?`<div class="pertemuan-desc">${esc(w.desc)}</div>`:''}
+        ${itemsWithForumDeadline.length?`<div class="activity-list">${itemsWithForumDeadline.map(it=>renderActivityItem(it)).join('')}</div>`:''}
+        ${(!w.pertemuan&&!w.items.length)?`<div style="color:var(--ink-soft);font-size:13px;padding:4px 0;">Tidak ada materi pada minggu ini.</div>`:''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderActivityItem(it){
+  const iconMap={
+    meet:`<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2E7D32" stroke-width="2"><path d="m15 10 4.553-2.277A1 1 0 0 1 21 8.618v6.764a1 1 0 0 1-1.447.894L15 14M5 18h8a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2z"/></svg>`,
+    attend:`<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#7B1FA2" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>`,
+    pdf:`<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#C62828" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>`,
+    forum:`<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1565C0" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>`,
+    quiz:`<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#F57F17" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M9 10h6M9 14h4"/></svg>`,
+    task:`<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2D5F3E" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>`,
+  };
+  const dueStr = it.due
+    ? (it.due.includes('T') ? `Due: ${fmtDeadline(it.due)}` : it.due)
+    : '';
+  const isOverdue = it.due && it.due.includes('T') && new Date(it.due)<new Date();
+  return `<div class="activity-item" onclick="openActivity('${esc(it.url)}','${esc(it.label)}')">
+    <div class="ai-icon type-${it.type}">${iconMap[it.type]||''}</div>
+    <div class="ai-info">
+      <div class="ai-name">${esc(it.label)}${it.meta?' <span style="font-size:10.5px;background:var(--brick-bg);color:var(--brick);padding:1px 5px;border-radius:4px;font-family:JetBrains Mono,monospace;font-weight:600;">'+esc(it.meta)+'</span>':''}</div>
+      ${dueStr?`<div class="ai-meta" style="${isOverdue?'color:var(--brick);':''}">${esc(dueStr)}</div>`:''}
+    </div>
+  </div>`;
+}
+
+/* ============================================================
+   RENDER DASHBOARD
+============================================================ */
+let dashSortMode='waktu'; // 'waktu' | 'matkul'
+
+function setDashSort(mode){
+  dashSortMode=mode;
+  document.getElementById('sortByTime').classList.toggle('active', mode==='waktu');
+  document.getElementById('sortByMatkul').classList.toggle('active', mode==='matkul');
+  renderDashboard();
+}
+
+function renderDashboard(){
+  const pending=ACTIVITIES.filter(a=>a.status==='pending');
+  const late=pending.filter(a=>bucket(getEffectiveDeadline(a))==='late').length;
+  const done=ACTIVITIES.filter(a=>a.status==='done');
+  document.getElementById('dashGrid').innerHTML=`
+    <div class="dash-card">
+      <div class="dc-label">Total Tugas &mdash; ${pending.length + done.length}</div>
+      <div class="dc-value c-brick">${pending.length}</div>
+      <div class="dc-value-label">belum dikerjakan</div>
+      <div class="dc-sub">
+        <span class="dc-sub-num">${done.length}</span>
+        <span class="dc-sub-text">sudah dikerjakan</span>
+      </div>
+    </div>
+  `;
+
+  const sorted=pending.slice().sort((a,b)=>sortKeyDeadline(getEffectiveDeadline(a))-sortKeyDeadline(getEffectiveDeadline(b)));
+  document.getElementById('dashCount').textContent=`${sorted.length} aktivitas`;
+
+  const rekapEl=document.getElementById('dashRekap');
+
+  function renderTaskCard(act,i){
+    const c=COURSES_META[act.courseId];
+    const effDeadline=getEffectiveDeadline(act);
+    const bk=bucket(effDeadline);
+    return `<div class="task-card s-${bk}" style="animation-delay:${i*0.04}s">
+      <div class="status-ladder"></div>
+      <div class="task-main">
+        <div class="task-top-row">
+          <span class="badge type-${act.type}">${typeBadge(act.type)}</span>
+          <span class="badge status-${bk}">${statusBadge(bk)}</span>
+        </div>
+        <div class="task-course">${esc(c.name)}</div>
+        <div class="task-schedule">${c.day}, ${c.time}</div>
+        <div class="task-title">${esc(act.title)}</div>
+        <div class="task-deadline-row">
+          <span class="task-deadline">Deadline: ${fmtDeadline(effDeadline)}</span>
+          <span class="task-countdown">${countdown(effDeadline)}</span>
+        </div>
+      </div>
+      <div class="task-action">
+        <a class="btn-open" href="${act.url}" target="_blank">Buka Tugas
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17 17 7M7 7h10v10"/></svg>
+        </a>
+      </div>
+    </div>`;
+  }
+
+  if(dashSortMode==='matkul'){
+    // Group pending tasks by course, ordered by COURSE_ORDER (day & time), each group's tasks sorted by deadline
+    const byCourse={};
+    sorted.forEach(act=>{ (byCourse[act.courseId]=byCourse[act.courseId]||[]).push(act); });
+    const courseIds=getCourseOrder().filter(id=>byCourse[id] && byCourse[id].length);
+
+    rekapEl.innerHTML=courseIds.map(cId=>{
+      const c=COURSES_META[cId];
+      const items=byCourse[cId];
+      return `
+      <div class="rekap-groups" style="margin-bottom:0;">
+        <div class="matkul-group-head">
+          <span class="rekap-day-pill" style="background:var(--forest-bg);color:var(--forest);">${esc(c.abbr)}</span>
+          <span class="matkul-group-name">${esc(c.name)}</span>
+          <div class="matkul-group-meta">
+            <span class="matkul-group-sched">${esc(c.day)} · ${esc(c.time)}</span>
+            <div class="rekap-group-line"></div>
+            <span class="matkul-group-count">${items.length} item</span>
+          </div>
+        </div>
+        <div class="task-list">
+          ${items.map((act,i)=>renderTaskCard(act,i)).join('')}
+        </div>
+      </div>`;
+    }).join('');
+
+    if(!courseIds.length){
+      rekapEl.innerHTML=`<div class="rekap-empty">🎉 Tidak ada aktivitas pending.</div>`;
+    }
+  } else {
+    // Group by time bracket
+    const now=new Date();
+    const todayStart=new Date(now); todayStart.setHours(0,0,0,0);
+    const todayEnd=new Date(now); todayEnd.setHours(23,59,59,999);
+    const tomorrowStart=new Date(todayStart); tomorrowStart.setDate(tomorrowStart.getDate()+1);
+    const tomorrowEnd=new Date(todayEnd); tomorrowEnd.setDate(tomorrowEnd.getDate()+1);
+    const weekEnd=new Date(todayStart); weekEnd.setDate(weekEnd.getDate()+7);
+    const nextWeekEnd=new Date(todayStart); nextWeekEnd.setDate(nextWeekEnd.getDate()+14);
+
+    const groups=[
+      {key:'terlambat', pill:'rdp-today', title:'Terlambat', items:[]},
+      {key:'hari-ini',  pill:'rdp-today', title:'Deadline Hari Ini', items:[]},
+      {key:'besok',     pill:'rdp-tomorrow', title:'Besok', items:[]},
+      {key:'minggu-ini',pill:'rdp-week', title:'Minggu Ini (7 hari ke depan)', items:[]},
+      {key:'berikutnya',pill:'rdp-next', title:'Lebih dari 7 Hari', items:[]},
+      {key:'tanpa-deadline',pill:'rdp-next', title:'Tanpa Deadline', items:[]},
+    ];
+
+    sorted.forEach(act=>{
+      const eff=getEffectiveDeadline(act);
+      if(!eff){ groups[5].items.push(act); return; }
+      const d=new Date(eff);
+      if(d<now)              groups[0].items.push(act);
+      else if(d<=todayEnd)   groups[1].items.push(act);
+      else if(d<=tomorrowEnd)groups[2].items.push(act);
+      else if(d<=weekEnd)    groups[3].items.push(act);
+      else                   groups[4].items.push(act);
+    });
+
+    rekapEl.innerHTML=groups.filter(g=>g.items.length).map(g=>`
+      <div class="rekap-groups" style="margin-bottom:0;">
+        <div class="rekap-group-head">
+          <span class="rekap-day-pill ${g.pill}">${g.key==='terlambat'?'⚠ ':''} ${esc(g.title)}</span>
+          <div class="rekap-group-line"></div>
+          <span style="font-family:JetBrains Mono,monospace;font-size:11px;color:var(--ink-soft);flex-shrink:0;">${g.items.length} item</span>
+        </div>
+        <div class="task-list">
+          ${g.items.map((act,i)=>renderTaskCard(act,i)).join('')}
+        </div>
+      </div>
+    `).join('');
+
+    if(!groups.some(g=>g.items.length)){
+      rekapEl.innerHTML=`<div class="rekap-empty">🎉 Tidak ada aktivitas pending.</div>`;
+    }
+  }
+
+  // ===== Rekap matkul tanpa tugas pending =====
+  const courseIdsWithPending=new Set(pending.map(a=>a.courseId));
+  const coursesWithoutTask=getCourseOrder().filter(id=>!courseIdsWithPending.has(id));
+  const noTaskEl=document.getElementById('dashNoTask');
+  document.getElementById('dashNoTaskCount').textContent=`${coursesWithoutTask.length} matkul`;
+  noTaskEl.innerHTML=coursesWithoutTask.length
+    ? coursesWithoutTask.map(id=>{
+        const c=COURSES_META[id];
+        return `<div class="notask-chip">
+          <div class="notask-icon">${esc(c.abbr)}</div>
+          <div class="notask-info">
+            <div class="notask-name">${esc(c.name)}</div>
+            <div class="notask-sched">${esc(c.day)} · ${esc(c.time)}</div>
+          </div>
+          <div class="notask-check">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6 9 17l-5-5"/></svg>
+          </div>
+        </div>`;
+      }).join('')
+    : `<div class="rekap-empty">Semua mata kuliah masih punya tugas pending.</div>`;
+
+  // ===== Rekap tugas sudah dikerjakan =====
+  const doneSorted=done.slice().sort((a,b)=>sortKeyDeadline(getEffectiveDeadline(b))-sortKeyDeadline(getEffectiveDeadline(a)));
+  const doneEl=document.getElementById('dashDone');
+  document.getElementById('dashDoneCount').textContent=`${doneSorted.length} tugas`;
+  doneEl.innerHTML=doneSorted.length
+    ? doneSorted.map(act=>{
+        const c=COURSES_META[act.courseId];
+        return `<div class="done-card" onclick="openDoneModal('${act.id}')">
+          <div class="done-check">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6 9 17l-5-5"/></svg>
+          </div>
+          <div class="done-info">
+            <div class="done-course">${esc(c.abbr)} · ${esc(c.name)}</div>
+            <div class="done-title">${esc(act.title)}</div>
+          </div>
+          <div class="done-chevron">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg>
+          </div>
+        </div>`;
+      }).join('')
+    : `<div class="rekap-empty">Belum ada tugas yang ditandai selesai.</div>`;
+
+  // Update status bar
+  lastRefresh=lastRefresh||new Date();
+  updateStatusBar();
+}
+
+/* ============================================================
+   INTERACTIONS
+============================================================ */
+function toggleWeek(courseId, idx){
+  const block=document.getElementById(`wb-${courseId}-${idx}`);
+  block.classList.toggle('open');
+}
+function openActivity(url, label){
+  if(url && url!=='#') window.open(url,'_blank');
+  else showToast(`📋 ${label} — URL LMS belum terhubung`);
+}
+
+function openDoneModal(actId){
+  const act=ACTIVITIES.find(a=>a.id===actId);
+  if(!act) return;
+  const c=COURSES_META[act.courseId];
+  document.getElementById('doneModalTitle').textContent=act.title;
+  document.getElementById('doneModalCourse').textContent=`${c.abbr} · ${c.name}`;
+  document.getElementById('doneModalSchedule').textContent=`${c.day}, ${c.time}`;
+  document.getElementById('doneModalType').textContent=typeBadge(act.type);
+  document.getElementById('doneModalDeadline').textContent=fmtDeadline(getEffectiveDeadline(act));
+  const openBtn=document.getElementById('doneModalOpenBtn');
+  if(act.url && act.url!=='#'){
+    openBtn.href=act.url;
+    openBtn.onclick=null;
+    openBtn.style.opacity='1';
+    openBtn.style.pointerEvents='auto';
+  } else {
+    openBtn.href='#';
+    openBtn.onclick=(e)=>{ e.preventDefault(); showToast('📋 URL LMS belum terhubung'); };
+  }
+  document.getElementById('doneModalOverlay').classList.add('open');
+}
+function closeDoneModal(){
+  document.getElementById('doneModalOverlay').classList.remove('open');
+}
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape') closeDoneModal();
+});
+
+let currentView='dashboard';
+function switchView(viewId, el, title){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.querySelectorAll('.sidebar-item').forEach(s=>s.classList.remove('active'));
+  document.getElementById('view-'+viewId).classList.add('active');
+  el.classList.add('active');
+  document.getElementById('topbarBreadcrumb').innerHTML =
+    viewId==='dashboard'
+    ? 'Dashboard <span>›</span> Overview'
+    : `Dashboard <span>›</span> ${esc(title)}`;
+  currentView=viewId;
+  if(viewId.startsWith('course-')){
+    const cId=viewId.replace('course-','');
+    renderCourseWeeks(cId);
+  }
+  if(window.innerWidth<=720) closeSidebar();
+  // Instant jump to top first (no animation) so it never races with the
+  // smooth scroll-to-ongoing-week below — html has scroll-behavior:smooth
+  // globally, so a plain scrollTo(0,0) would otherwise also animate and
+  // could "win" over the later scroll, landing back at the top.
+  window.scrollTo({top:0, left:0, behavior:'instant'});
+  if(viewId.startsWith('course-')){
+    scrollToOngoingWeek(viewId.replace('course-',''));
+  }
+}
+
+function scrollToOngoingWeek(courseId){
+  requestAnimationFrame(()=>{
+    const container=document.getElementById('weeks-'+courseId);
+    if(!container) return;
+    const target=container.querySelector('.week-block.is-ongoing');
+    if(target) target.scrollIntoView({behavior:'smooth', block:'start'});
+  });
+}
+
+function toggleSidebar(){
+  const s=document.getElementById('sidebar');
+  const o=document.getElementById('sidebarOverlay');
+  s.classList.toggle('open');
+  o.classList.toggle('open');
+}
+function closeSidebar(){
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sidebarOverlay').classList.remove('open');
+}
+
+/* ============================================================
+   CLOCK & SCHEDULED AUTO-REFRESH
+   Refresh otomatis HANYA dipicu 30 menit sebelum jam tiap matkul
+   (sesuai jadwal di COURSES_META), supaya tidak terlalu sering
+   "ngepoll" terus-menerus (hindari pola seperti bot). Selain itu,
+   refresh juga terjadi saat tombol refresh manual dipencet.
+============================================================ */
+function tickClock(){
+  const now=new Date();
+  document.getElementById('topbarClock').textContent=
+    now.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'});
+}
+tickClock();
+setInterval(tickClock,1000);
+
+// Ini BUKAN refresh data — cuma update teks "X menit lalu" & re-render
+// list dari data yang sudah ada di memori (lokal, tidak ada panggilan
+// jaringan), supaya pengelompokan deadline (terlambat/hari ini/dst) tetap
+// akurat seiring waktu berjalan.
+setInterval(()=>{
+  updateStatusBar();
+  if(currentView==='dashboard') renderDashboard();
+}, 60000);
+
+const DAY_INDEX={Minggu:0,Senin:1,Selasa:2,Rabu:3,Kamis:4,Jumat:5,Sabtu:6};
+
+// Hitung jadwal kelas berikutnya (occurrence terdekat di masa depan)
+// untuk tiap matkul, beserta waktu trigger-nya (30 menit sebelum mulai).
+function getNextClassTriggerTimes(){
+  const now=new Date();
+  return Object.keys(COURSES_META).map(id=>{
+    const c=COURSES_META[id];
+    const targetDay=DAY_INDEX[c.day];
+    const [h,m]=c.time.split(':').map(Number);
+    let d=new Date(now);
+    d.setHours(h,m,0,0);
+    const diff=(targetDay-d.getDay()+7)%7;
+    d.setDate(d.getDate()+diff);
+    if(d<=now) d.setDate(d.getDate()+7); // sudah lewat, ambil minggu depan
+    const triggerTime=new Date(d.getTime()-30*60000);
+    return {courseId:id, classTime:d, triggerTime};
+  });
+}
+
+function getNextScheduledTrigger(){
+  const now=new Date();
+  const upcoming=getNextClassTriggerTimes().map(t=>t.triggerTime).filter(t=>t>now);
+  return upcoming.length ? upcoming.reduce((a,b)=>a<b?a:b) : null;
+}
+
+// Lacak trigger yang sudah dieksekusi (per occurrence kelas) supaya tidak
+// refresh berkali-kali di dalam window 30-menit yang sama.
+const scheduledRefreshDone=new Set();
+
+function checkScheduledRefresh(){
+  const now=new Date();
+  getNextClassTriggerTimes().forEach(({courseId,classTime,triggerTime})=>{
+    const key=courseId+'|'+classTime.toISOString();
+    if(now>=triggerTime && now<classTime && !scheduledRefreshDone.has(key)){
+      scheduledRefreshDone.add(key);
+      lastRefresh=new Date();
+      renderDashboard();
+      renderSidebar();
+      updateStatusBar();
+      const c=COURSES_META[courseId];
+      showToast(`🔄 Auto-refresh — ${c.abbr} mulai 30 menit lagi`);
+    }
+  });
+}
+// Cek tiap menit apakah sudah masuk window 30-menit-sebelum-kelas manapun.
+// Pengecekan ini ringan & lokal (cuma bandingin jam), bukan hit ke server.
+setInterval(checkScheduledRefresh, 60000);
+checkScheduledRefresh();
+
+/* ============================================================
+   INIT
+============================================================ */
+renderCourseViewsDOM();
+renderSidebar();
+renderDashboard();
+updateStatusBar(); // lastRefresh masih null di sini -> tampil "Memuat..."
+loadLastScan();     // ambil hasil scan terakhir dari backend (kalau ada)
+</script>
+</body>
+</html>
