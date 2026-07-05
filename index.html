@@ -1376,7 +1376,7 @@ function updateStatusBar(){
     : `<strong>Live</strong> — terakhir refresh ${timeStr} · ${ageStr}${nextStr}`;
 }
 
-const BLOB_URL = "https://jsonblob.com/api/jsonBlob/019f3174-e124-74b3-bae3-2a70bdaa1574";
+const BLOB_URL = "https://extendsclass.com/api/json-storage/bin/fecbbfe";
 let apiAvailable = false;
 let syncInterval = null;
 let isPolling = false;
@@ -1511,9 +1511,9 @@ async function manualRefresh(){
       data.status = 'busy';
       
       const putRes = await fetch(BLOB_URL, {
-        method: 'PUT',
+        method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'text/plain'
         },
         body: JSON.stringify(data)
       });
