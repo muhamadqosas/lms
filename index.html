@@ -1376,7 +1376,7 @@ function updateStatusBar(){
     : `<strong>Live</strong> — terakhir refresh ${timeStr} · ${ageStr}${nextStr}`;
 }
 
-const BLOB_URL = "https://extendsclass.com/api/json-storage/bin/bdcedad";
+const BLOB_URL = "https://api.npoint.io/f28b0ec35d72c788ab2d";
 let apiAvailable = false;
 let syncInterval = null;
 let isPolling = false;
@@ -1513,14 +1513,14 @@ async function manualRefresh(){
       data.request_scan = true;
       data.status = 'busy';
       
-      const putRes = await fetch(BLOB_URL, {
-        method: 'PUT',
+      const postRes = await fetch(BLOB_URL, {
+        method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify(data)
       });
-      if (!putRes.ok) throw new Error('Gagal mengirim perintah ke Cloud');
+      if (!postRes.ok) throw new Error('Gagal mengirim perintah ke Cloud');
       
       showToast('⏳ Perintah terkirim. Menunggu PC Rumah menjalankan scan...');
       startSyncPolling();
