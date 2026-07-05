@@ -1425,10 +1425,10 @@ async function loadLastScan(){
   try{
     const apiBase = window.location.port !== '5002' ? 'http://127.0.0.1:5002' : '';
     const res=await fetch(apiBase + '/api/last-scan');
-    if(!res.ok) return;
+    if(!res.ok) throw new Error('API response not OK');
     
     const contentType = res.headers.get("content-type");
-    if(!contentType || !contentType.includes("application/json")) return;
+    if(!contentType || !contentType.includes("application/json")) throw new Error('Not JSON');
     
     const data=await res.json();
     if(data.status==='done' && data.tasks && data.tasks.length){
@@ -1440,7 +1440,22 @@ async function loadLastScan(){
       showToast(`📂 Memuat hasil scan sebelumnya (${ACTIVITIES.length} tugas)`);
     }
   }catch(err){
-    // Backend belum jalan / belum ada hasil — biarkan dashboard tampil kosong.
+    // Fallback: load static last_scan.json (useful for GitHub Pages)
+    try{
+      const res=await fetch('./last_scan.json');
+      if(!res.ok) return;
+      const data=await res.json();
+      if(data.status==='done' && data.tasks && data.tasks.length){
+        applyScanResult(data);
+        renderCourseViewsDOM();
+        renderDashboard();
+        renderSidebar();
+        updateStatusBar();
+        showToast(`📂 Memuat data static dari last_scan.json (${ACTIVITIES.length} tugas)`);
+      }
+    }catch(fallbackErr){
+      // Backend belum jalan / belum ada hasil — biarkan dashboard tampil kosong.
+    }
   }
 }
 
