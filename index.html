@@ -1377,70 +1377,139 @@ function updateStatusBar(){
 }
 
 const BLOB_URL = "https://jsonblob.com/api/jsonBlob/019f3174-e124-74b3-bae3-2a70bdaa1574";
-let remotePollingInterval = null;
+let apiAvailable = false;
+let syncInterval = null;
+let isPolling = false;
 
-async function manualRefresh(){
-  const btn=document.getElementById('refreshBtn');
-  btn.classList.add('spinning');
-  btn.disabled=true;
+async function checkApiAvailability() {
+  try {
+    const res = await fetch('/api/last-scan', { method: 'GET' });
+    if (res.ok) {
+      apiAvailable = true;
+    }
+  } catch (e) {
+    apiAvailable = false;
+  }
+}
 
-  // Deteksi apakah sedang dibuka secara lokal (di mana app.py berjalan langsung)
-  const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.port === '5002';
+function startSyncPolling() {
+  if (syncInterval) clearInterval(syncInterval);
+  
+  const getPollInterval = () => {
+    const btn = document.getElementById('refreshBtn');
+    const isBusy = btn && btn.classList.contains('spinning');
+    return isBusy ? 3000 : 10000;
+  };
+  
+  const runPoll = async () => {
+    if (isPolling) return;
+    isPolling = true;
+    try {
+      const url = apiAvailable 
+        ? '/api/last-scan?t=' + new Date().getTime()
+        : BLOB_URL + '?t=' + new Date().getTime();
+        
+      const res = await fetch(url);
+      if (res.ok) {
+        const data = await res.json();
+        handleSyncData(data);
+      }
+    } catch (e) {
+      console.error("Sync polling error:", e);
+    } finally {
+      isPolling = false;
+      if (syncInterval) {
+        clearInterval(syncInterval);
+        syncInterval = setInterval(runPoll, getPollInterval());
+      }
+    }
+  };
+  
+  syncInterval = setInterval(runPoll, getPollInterval());
+}
 
-  if (isLocal) {
-    showToast('🔄 Scan dijalankan (Lokal) — browser Chrome akan terbuka sebentar...');
-    try{
-      const apiBase = window.location.port !== '5002' ? 'http://127.0.0.1:5002' : '';
-      const res=await fetch(apiBase + '/api/scan', {method:'POST'});
-      
-      if(res.status===409){
-        showToast('⏳ Scan lain sedang berjalan, coba lagi sebentar.');
-        btn.classList.remove('spinning');
-        btn.disabled=false;
-        return;
-      }
-      
-      if(!res.ok){
-        throw new Error(`Server returned HTTP status ${res.status}`);
-      }
-      
-      const contentType = res.headers.get("content-type");
-      if(!contentType || !contentType.includes("application/json")){
-        const text = await res.text();
-        throw new Error("Respons server bukan JSON valid: " + (text ? text.slice(0, 100) : "kosong"));
-      }
-      
-      const data=await res.json();
-      if(data.status==='error'){
-        showToast('✗ Scan gagal: '+(data.error||'unknown error'));
-        return;
-      }
+function handleSyncData(data) {
+  const btn = document.getElementById('refreshBtn');
+  
+  if (data.status === 'busy' || data.request_scan === true) {
+    if (btn && !btn.classList.contains('spinning')) {
+      btn.classList.add('spinning');
+      btn.disabled = true;
+      showToast('⏳ Terdeteksi scan sedang berjalan di PC Rumah...');
+    }
+    const dot = document.getElementById('statusDot');
+    const txt = document.getElementById('statusText');
+    if (dot) dot.className = 'dsb-dot';
+    if (txt) txt.innerHTML = '<strong>Sedang men-scan tugas...</strong>';
+    return;
+  }
+  
+  if (data.status === 'done') {
+    const newScannedAt = data.scanned_at ? new Date(data.scanned_at) : null;
+    if (!lastRefresh || (newScannedAt && newScannedAt > lastRefresh)) {
       applyScanResult(data);
       updateStatusBar();
       renderCourseViewsDOM();
       renderDashboard();
       renderSidebar();
       showToast(`✓ Data diperbarui — ${ACTIVITIES.length} tugas ditemukan`);
-    }catch(err){
-      showToast('✗ Gagal menghubungi server lokal: '+err.message);
-    }finally{
+    }
+    
+    if (btn && btn.classList.contains('spinning')) {
       btn.classList.remove('spinning');
-      btn.disabled=false;
+      btn.disabled = false;
+    }
+  } else if (data.status === 'error') {
+    if (btn && btn.classList.contains('spinning')) {
+      showToast('✗ Scan gagal: ' + (data.error || 'unknown error'));
+      btn.classList.remove('spinning');
+      btn.disabled = false;
+    }
+  }
+}
+
+async function manualRefresh(){
+  const btn=document.getElementById('refreshBtn');
+  if (btn) {
+    btn.classList.add('spinning');
+    btn.disabled=true;
+  }
+
+  if (apiAvailable) {
+    showToast('🔄 Scan dijalankan (Lokal) — browser Chrome akan terbuka sebentar...');
+    try{
+      const res = await fetch('/api/scan', {method:'POST'});
+      if(res.status===409){
+        showToast('⏳ Scan lain sedang berjalan, coba lagi sebentar.');
+        if (btn) {
+          btn.classList.remove('spinning');
+          btn.disabled=false;
+        }
+        return;
+      }
+      if(!res.ok){
+        throw new Error(`Server returned HTTP status ${res.status}`);
+      }
+      
+      showToast('⏳ Scan dimulai di PC Rumah. Menunggu hasil...');
+      startSyncPolling();
+    }catch(err){
+      showToast('✗ Gagal menghubungi server: '+err.message);
+      if (btn) {
+        btn.classList.remove('spinning');
+        btn.disabled=false;
+      }
     }
   } else {
-    // Klien remote (misal HP atau Github Pages)
     showToast('🔄 Mengirim perintah scan ke PC Rumah...');
     try {
-      // 1. Ambil data blob saat ini
-      const getRes = await fetch(BLOB_URL);
+      const getRes = await fetch(BLOB_URL + '?t=' + new Date().getTime());
       if (!getRes.ok) throw new Error('Gagal mengambil status Cloud');
       const data = await getRes.json();
       
-      // 2. Set request_scan = true dan status = busy
       data.request_scan = true;
       data.status = 'busy';
       
-      // 3. Put kembali ke JSON Blob
       const putRes = await fetch(BLOB_URL, {
         method: 'PUT',
         headers: {
@@ -1451,87 +1520,32 @@ async function manualRefresh(){
       if (!putRes.ok) throw new Error('Gagal mengirim perintah ke Cloud');
       
       showToast('⏳ Perintah terkirim. Menunggu PC Rumah menjalankan scan...');
-      startRemoteScanPolling();
+      startSyncPolling();
     } catch (err) {
       showToast('✗ Gagal: ' + err.message);
-      btn.classList.remove('spinning');
-      btn.disabled=false;
+      if (btn) {
+        btn.classList.remove('spinning');
+        btn.disabled=false;
+      }
     }
   }
 }
 
-function startRemoteScanPolling() {
-  const btn=document.getElementById('refreshBtn');
-  btn.classList.add('spinning');
-  btn.disabled=true;
-  
-  if (remotePollingInterval) clearInterval(remotePollingInterval);
-  
-  let attempts = 0;
-  const maxAttempts = 120; // 120 * 3s = 360s (6 menit)
-  
-  remotePollingInterval = setInterval(async () => {
-    attempts++;
-    if (attempts > maxAttempts) {
-      clearInterval(remotePollingInterval);
-      showToast('✗ Scan Timeout — PC Rumah tidak merespon');
-      btn.classList.remove('spinning');
-      btn.disabled=false;
-      return;
-    }
-    
-    try {
-      const res = await fetch(BLOB_URL + '?t=' + new Date().getTime());
-      if (!res.ok) return;
-      const data = await res.json();
-      
-      if (data.status === 'done' && data.request_scan === false) {
-        clearInterval(remotePollingInterval);
-        applyScanResult(data);
-        updateStatusBar();
-        renderCourseViewsDOM();
-        renderDashboard();
-        renderSidebar();
-        showToast(`✓ Data diperbarui dari PC Rumah — ${ACTIVITIES.length} tugas ditemukan`);
-        btn.classList.remove('spinning');
-        btn.disabled=false;
-      } else if (data.status === 'error' && data.request_scan === false) {
-        clearInterval(remotePollingInterval);
-        showToast('✗ Scan di PC Rumah gagal: ' + (data.error || 'unknown error'));
-        btn.classList.remove('spinning');
-        btn.disabled=false;
-      }
-    } catch (e) {
-      console.error('Error polling blob:', e);
-    }
-  }, 3000);
-}
-
-// Muat hasil scan terakhir (kalau ada) tanpa perlu klik Refresh, dipanggil
-// sekali saat dashboard pertama kali dibuka.
 async function loadLastScan(){
   try{
-    // Ambil langsung dari JSON Blob cloud agar selalu dapat data terakhir di manapun
-    const res=await fetch(BLOB_URL + '?t=' + new Date().getTime());
+    const url = apiAvailable 
+      ? '/api/last-scan?t=' + new Date().getTime()
+      : BLOB_URL + '?t=' + new Date().getTime();
+      
+    const res=await fetch(url);
     if(!res.ok) throw new Error('API response not OK');
     
-    const contentType = res.headers.get("content-type");
-    if(!contentType || !contentType.includes("application/json")) throw new Error('Not JSON');
-    
     const data=await res.json();
+    handleSyncData(data);
     if(data.status==='done' && data.tasks && data.tasks.length){
-      applyScanResult(data);
-      renderCourseViewsDOM();
-      renderDashboard();
-      renderSidebar();
-      updateStatusBar();
-      showToast(`📂 Memuat hasil scan cloud terakhir (${ACTIVITIES.length} tugas)`);
-    } else if (data.status === 'busy' || data.request_scan === true) {
-      showToast('⏳ Terdeteksi scan sedang berjalan di PC Rumah...');
-      startRemoteScanPolling();
+      showToast(`📂 Memuat hasil scan terakhir (${ACTIVITIES.length} tugas)`);
     }
   }catch(err){
-    // Fallback: load static last_scan.json (useful for local / fallback)
     try{
       const res=await fetch('./last_scan.json');
       if(!res.ok) return;
@@ -1545,7 +1559,7 @@ async function loadLastScan(){
         showToast(`📂 Memuat data static dari last_scan.json (${ACTIVITIES.length} tugas)`);
       }
     }catch(fallbackErr){
-      // Backend belum jalan / belum ada hasil — biarkan dashboard tampil kosong.
+      // Tampil kosong
     }
   }
 }
@@ -2259,11 +2273,17 @@ checkScheduledRefresh();
 /* ============================================================
    INIT
 ============================================================ */
-renderCourseViewsDOM();
-renderSidebar();
-renderDashboard();
-updateStatusBar(); // lastRefresh masih null di sini -> tampil "Memuat..."
-loadLastScan();     // ambil hasil scan terakhir dari backend (kalau ada)
+async function initApp() {
+  renderCourseViewsDOM();
+  renderSidebar();
+  renderDashboard();
+  updateStatusBar();
+  
+  await checkApiAvailability();
+  await loadLastScan();
+  startSyncPolling();
+}
+initApp();
 </script>
 </body>
 </html>
