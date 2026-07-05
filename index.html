@@ -1511,9 +1511,9 @@ async function manualRefresh(){
       data.status = 'busy';
       
       const putRes = await fetch(BLOB_URL, {
-        method: 'POST',
+        method: 'PUT',
         headers: {
-          'Content-Type': 'text/plain'
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify(data)
       });
