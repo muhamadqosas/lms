@@ -1522,7 +1522,12 @@ async function manualRefresh(){
       showToast('⏳ Perintah terkirim. Menunggu PC Rumah menjalankan scan...');
       startSyncPolling();
     } catch (err) {
-      showToast('✗ Gagal: ' + err.message);
+      console.error(err);
+      let msg = err.message;
+      if (msg === 'Failed to fetch') {
+        msg = 'Failed to fetch (Kemungkinan diblokir oleh Adblocker / Brave Shields, atau PC Rumah mati/offline)';
+      }
+      showToast('✗ Gagal: ' + msg);
       if (btn) {
         btn.classList.remove('spinning');
         btn.disabled=false;
