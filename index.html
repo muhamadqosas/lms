@@ -1382,9 +1382,14 @@ let syncInterval = null;
 let isPolling = false;
 
 async function checkApiAvailability() {
+  const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.port === '5002';
+  if (!isLocal) {
+    apiAvailable = false;
+    return;
+  }
   try {
     const controller = new AbortController();
-    const id = setTimeout(() => controller.abort(), 3000);
+    const id = setTimeout(() => controller.abort(), 1500);
     const res = await fetch('/api/last-scan', { method: 'GET', signal: controller.signal });
     clearTimeout(id);
     if (res.ok) {
@@ -1559,7 +1564,7 @@ async function loadLastScan(){
   }catch(err){
     try{
       const res=await fetch('./last_scan.json');
-      if(!res.ok) return;
+      if(!res.ok) throw new Error('Static file load failed');
       const data=await res.json();
       if(data.status==='done' && data.tasks && data.tasks.length){
         applyScanResult(data);
@@ -1568,9 +1573,15 @@ async function loadLastScan(){
         renderSidebar();
         updateStatusBar();
         showToast(`📂 Memuat data static dari last_scan.json (${ACTIVITIES.length} tugas)`);
+      } else {
+        throw new Error('Static data status not done');
       }
     }catch(fallbackErr){
-      // Tampil kosong
+      console.error("Gagal memuat scan terakhir:", err, fallbackErr);
+      const dot = document.getElementById('statusDot');
+      const txt = document.getElementById('statusText');
+      if (dot) dot.className = 'dsb-dot stale';
+      if (txt) txt.innerHTML = '<strong>Gagal memuat data</strong> — periksa internet atau jalankan scan di PC';
     }
   }
 }
@@ -2114,7 +2125,6 @@ function renderDashboard(){
     : `<div class="rekap-empty">Belum ada tugas yang ditandai selesai.</div>`;
 
   // Update status bar
-  lastRefresh=lastRefresh||new Date();
   updateStatusBar();
 }
 
