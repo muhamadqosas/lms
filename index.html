@@ -1376,14 +1376,17 @@ function updateStatusBar(){
     : `<strong>Live</strong> — terakhir refresh ${timeStr} · ${ageStr}${nextStr}`;
 }
 
-const BLOB_URL = "https://extendsclass.com/api/json-storage/bin/adcfdaa";
+const BLOB_URL = "https://extendsclass.com/api/json-storage/bin/bdcedad";
 let apiAvailable = false;
 let syncInterval = null;
 let isPolling = false;
 
 async function checkApiAvailability() {
   try {
-    const res = await fetch('/api/last-scan', { method: 'GET' });
+    const controller = new AbortController();
+    const id = setTimeout(() => controller.abort(), 3000);
+    const res = await fetch('/api/last-scan', { method: 'GET', signal: controller.signal });
+    clearTimeout(id);
     if (res.ok) {
       apiAvailable = true;
     }
@@ -1542,7 +1545,10 @@ async function loadLastScan(){
       ? '/api/last-scan?t=' + new Date().getTime()
       : BLOB_URL + '?t=' + new Date().getTime();
       
-    const res=await fetch(url);
+    const controller = new AbortController();
+    const id = setTimeout(() => controller.abort(), 5000);
+    const res=await fetch(url, { signal: controller.signal });
+    clearTimeout(id);
     if(!res.ok) throw new Error('API response not OK');
     
     const data=await res.json();
