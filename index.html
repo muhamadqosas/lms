@@ -1185,6 +1185,15 @@ function applyScanResult(data){
   ACTIVITIES = mapApiTasksToActivities(data.tasks);
   CLASS_MODULES = data.class_modules || [];
   lastRefresh = data.scanned_at ? new Date(data.scanned_at) : new Date();
+
+  // Simpan snapshot hasil scan yang valid ini sebagai cache, supaya kalau nanti
+  // status 'busy' macet atau koneksi putus, dashboard tetap bisa menampilkan
+  // hasil scan terakhir yang berhasil (bukan kosong).
+  try {
+    localStorage.setItem('lastGoodScan', JSON.stringify(data));
+  } catch (e) {
+    console.error('Gagal simpan cache lastGoodScan:', e);
+  }
 }
 
 /* ============================================================
@@ -1386,8 +1395,7 @@ const BLOB_URL = "https://api.npoint.io/f28b0ec35d72c788ab2d";
 let apiAvailable = false;
 let syncInterval = null;
 let isPolling = false;
-let busyStartTimestamp = null;
-let busyHandled = false;
+let busyDetectedAt = null; // waktu pertama kali status 'busy' terdeteksi, untuk staleness check
 
 function updateBackendStatus(isOnline) {
   const badge = document.getElementById('backendStatusBadge');
@@ -1509,41 +1517,42 @@ function handleSyncData(data) {
   const btn = document.getElementById('refreshBtn');
   
   if (data.status === 'busy' || data.request_scan === true) {
-    if (busyStartTimestamp === null) {
-      busyStartTimestamp = Date.now();
-      busyHandled = false;
-    }
-    
-    const elapsedMs = Date.now() - busyStartTimestamp;
-    if (elapsedMs > 3 * 60 * 1000) { // 3 menit
-      if (!busyHandled) {
-        busyHandled = true;
-        
-        // Restore dari cache lastGoodScan
+    const STALE_MS = 3 * 60 * 1000; // anggap macet jika busy > 3 menit
+    const startRef = data.scan_started_at ? new Date(data.scan_started_at) : null;
+
+    if (!busyDetectedAt) busyDetectedAt = startRef || new Date();
+    const busyStart = startRef || busyDetectedAt;
+    const isStale = (new Date() - busyStart) > STALE_MS;
+
+    if (isStale) {
+      // Scan dianggap macet — jangan biarkan status busy menggantung selamanya.
+      // Restore tampilan dari cache hasil scan terakhir yang masih valid.
+      busyDetectedAt = null;
+      let restored = false;
+      try {
         const cached = localStorage.getItem('lastGoodScan');
         if (cached) {
-          try {
-            const cachedData = JSON.parse(cached);
-            if (cachedData && cachedData.status === 'done') {
-              applyScanResult(cachedData);
-              renderCourseViewsDOM();
-              renderDashboard();
-              renderSidebar();
-              updateStatusBar();
-            }
-          } catch (e) {
-            console.error("Gagal me-restore cache 'lastGoodScan':", e);
+          const cachedData = JSON.parse(cached);
+          if (cachedData && cachedData.status === 'done' && cachedData.tasks) {
+            applyScanResult(cachedData);
+            updateStatusBar();
+            renderCourseViewsDOM();
+            renderDashboard();
+            renderSidebar();
+            restored = true;
           }
         }
-        
-        // Re-enable tombol refresh
-        if (btn) {
-          btn.classList.remove('spinning');
-          btn.disabled = false;
-        }
-        
-        showToast("Scan sebelumnya macet, menampilkan data terakhir");
+      } catch (e) {
+        console.error('Gagal restore cache lastGoodScan:', e);
       }
+
+      if (btn) {
+        btn.classList.remove('spinning');
+        btn.disabled = false;
+      }
+      showToast(restored
+        ? '⚠ Scan sebelumnya macet, menampilkan data terakhir yang tersimpan'
+        : '⚠ Scan sebelumnya macet dan tidak ada data cache tersimpan');
       return;
     }
 
@@ -1559,16 +1568,10 @@ function handleSyncData(data) {
     return;
   }
   
-  // Reset pelacakan busy
-  busyStartTimestamp = null;
-  busyHandled = false;
-  
   if (data.status === 'done') {
+    busyDetectedAt = null;
     const newScannedAt = data.scanned_at ? new Date(data.scanned_at) : null;
     if (!lastRefresh || (newScannedAt && newScannedAt > lastRefresh)) {
-      // Simpan ke localStorage
-      localStorage.setItem('lastGoodScan', JSON.stringify(data));
-      
       applyScanResult(data);
       updateStatusBar();
       renderCourseViewsDOM();
@@ -1582,6 +1585,7 @@ function handleSyncData(data) {
       btn.disabled = false;
     }
   } else if (data.status === 'error') {
+    busyDetectedAt = null;
     if (btn && btn.classList.contains('spinning')) {
       showToast('✗ Scan gagal: ' + (data.error || 'unknown error'));
       btn.classList.remove('spinning');
@@ -1591,14 +1595,24 @@ function handleSyncData(data) {
 }
 
 async function manualRefresh(){
-  // 1. Guard check connection first
-  const isOnline = await checkBackendConnection();
-  if (!isOnline) {
-    showToast('✗ Gagal: PC Rumah / Backend sedang offline.');
+  const btn=document.getElementById('refreshBtn');
+
+  // Guard tambahan: cegah klik nyelonong lewat kalau tombol memang sudah
+  // dikunci (race condition dengan polling / updateBackendStatus).
+  if (btn && btn.disabled) return;
+
+  // Cek ulang koneksi secara real-time sebelum benar-benar menjalankan scan.
+  // Jangan andalkan status disabled tombol saja — cek langsung ke backend.
+  const onlineNow = await checkBackendConnection();
+  if (!onlineNow && !apiAvailable) {
+    showToast('✗ PC Rumah offline, refresh tidak bisa dilakukan');
+    if (btn) {
+      btn.disabled = true;
+      btn.classList.remove('spinning');
+    }
     return;
   }
 
-  const btn=document.getElementById('refreshBtn');
   if (btn) {
     btn.classList.add('spinning');
     btn.disabled=true;
@@ -1688,7 +1702,6 @@ async function loadLastScan(){
       if(!res.ok) throw new Error('Static file load failed');
       const data=await res.json();
       if(data.status==='done' && data.tasks && data.tasks.length){
-        localStorage.setItem('lastGoodScan', JSON.stringify(data));
         applyScanResult(data);
         renderCourseViewsDOM();
         renderDashboard();
@@ -2417,17 +2430,19 @@ checkScheduledRefresh();
    INIT
 ============================================================ */
 async function initApp() {
-  // Load data cache 'lastGoodScan' jika ada di localStorage
-  const cached = localStorage.getItem('lastGoodScan');
-  if (cached) {
-    try {
-      const data = JSON.parse(cached);
-      if (data && data.status === 'done') {
-        applyScanResult(data);
+  // Load cache hasil scan terakhir yang valid (kalau ada) LEBIH DULU,
+  // sebelum fetch ke network — supaya dashboard tidak kelihatan kosong
+  // saat menunggu hasil status/scan terbaru datang.
+  try {
+    const cached = localStorage.getItem('lastGoodScan');
+    if (cached) {
+      const cachedData = JSON.parse(cached);
+      if (cachedData && cachedData.status === 'done' && cachedData.tasks) {
+        applyScanResult(cachedData);
       }
-    } catch (e) {
-      console.error("Gagal memuat cache 'lastGoodScan' dari localStorage:", e);
     }
+  } catch (e) {
+    console.error('Gagal load cache lastGoodScan:', e);
   }
 
   renderCourseViewsDOM();
