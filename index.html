@@ -1386,6 +1386,8 @@ const BLOB_URL = "https://api.npoint.io/f28b0ec35d72c788ab2d";
 let apiAvailable = false;
 let syncInterval = null;
 let isPolling = false;
+let busyStartTimestamp = null;
+let busyHandled = false;
 
 function updateBackendStatus(isOnline) {
   const badge = document.getElementById('backendStatusBadge');
@@ -1507,6 +1509,44 @@ function handleSyncData(data) {
   const btn = document.getElementById('refreshBtn');
   
   if (data.status === 'busy' || data.request_scan === true) {
+    if (busyStartTimestamp === null) {
+      busyStartTimestamp = Date.now();
+      busyHandled = false;
+    }
+    
+    const elapsedMs = Date.now() - busyStartTimestamp;
+    if (elapsedMs > 3 * 60 * 1000) { // 3 menit
+      if (!busyHandled) {
+        busyHandled = true;
+        
+        // Restore dari cache lastGoodScan
+        const cached = localStorage.getItem('lastGoodScan');
+        if (cached) {
+          try {
+            const cachedData = JSON.parse(cached);
+            if (cachedData && cachedData.status === 'done') {
+              applyScanResult(cachedData);
+              renderCourseViewsDOM();
+              renderDashboard();
+              renderSidebar();
+              updateStatusBar();
+            }
+          } catch (e) {
+            console.error("Gagal me-restore cache 'lastGoodScan':", e);
+          }
+        }
+        
+        // Re-enable tombol refresh
+        if (btn) {
+          btn.classList.remove('spinning');
+          btn.disabled = false;
+        }
+        
+        showToast("Scan sebelumnya macet, menampilkan data terakhir");
+      }
+      return;
+    }
+
     if (btn && !btn.classList.contains('spinning')) {
       btn.classList.add('spinning');
       btn.disabled = true;
@@ -1519,9 +1559,16 @@ function handleSyncData(data) {
     return;
   }
   
+  // Reset pelacakan busy
+  busyStartTimestamp = null;
+  busyHandled = false;
+  
   if (data.status === 'done') {
     const newScannedAt = data.scanned_at ? new Date(data.scanned_at) : null;
     if (!lastRefresh || (newScannedAt && newScannedAt > lastRefresh)) {
+      // Simpan ke localStorage
+      localStorage.setItem('lastGoodScan', JSON.stringify(data));
+      
       applyScanResult(data);
       updateStatusBar();
       renderCourseViewsDOM();
@@ -1544,6 +1591,13 @@ function handleSyncData(data) {
 }
 
 async function manualRefresh(){
+  // 1. Guard check connection first
+  const isOnline = await checkBackendConnection();
+  if (!isOnline) {
+    showToast('✗ Gagal: PC Rumah / Backend sedang offline.');
+    return;
+  }
+
   const btn=document.getElementById('refreshBtn');
   if (btn) {
     btn.classList.add('spinning');
@@ -1634,6 +1688,7 @@ async function loadLastScan(){
       if(!res.ok) throw new Error('Static file load failed');
       const data=await res.json();
       if(data.status==='done' && data.tasks && data.tasks.length){
+        localStorage.setItem('lastGoodScan', JSON.stringify(data));
         applyScanResult(data);
         renderCourseViewsDOM();
         renderDashboard();
@@ -2362,6 +2417,19 @@ checkScheduledRefresh();
    INIT
 ============================================================ */
 async function initApp() {
+  // Load data cache 'lastGoodScan' jika ada di localStorage
+  const cached = localStorage.getItem('lastGoodScan');
+  if (cached) {
+    try {
+      const data = JSON.parse(cached);
+      if (data && data.status === 'done') {
+        applyScanResult(data);
+      }
+    } catch (e) {
+      console.error("Gagal memuat cache 'lastGoodScan' dari localStorage:", e);
+    }
+  }
+
   renderCourseViewsDOM();
   renderSidebar();
   renderDashboard();
