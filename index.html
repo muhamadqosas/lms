@@ -955,6 +955,14 @@ function toTitleCase(str) {
   }).join(' ');
 }
 
+// Paksa huruf pertama tiap kata jadi kapital TANPA mengubah huruf lain
+// (supaya nama kelas yang sudah benar, misal ada singkatan/akronim, tidak
+// ikut di-lowercase seperti efek samping toTitleCase()).
+function capitalizeWords(str) {
+  if (!str) return str;
+  return String(str).replace(/\S+/g, w => w.charAt(0).toUpperCase() + w.slice(1));
+}
+
 // Generate initials / abbreviations for courses
 function getCourseAbbr(name) {
   const words = name.replace(/[^a-zA-Z0-9\s]/g, '').split(/\s+/).filter(w => w.length > 0);
@@ -1149,9 +1157,10 @@ function ensureCourseMeta(courseNameRaw, courseNameClean, url, site){
     type = 'fast';
   }
 
+  const finalName = capitalizeWords((name || courseNameRaw).trim());
   COURSES_META[id] = {
-    name: name || courseNameRaw,
-    abbr: getCourseAbbr(name || courseNameRaw),
+    name: finalName,
+    abbr: getCourseAbbr(finalName),
     day: day || '-',
     time: time || '-',
     endTime: calculateEndTime(time),
@@ -2194,7 +2203,7 @@ function renderDashboard(){
     const c=COURSES_META[act.courseId];
     const effDeadline=getEffectiveDeadline(act);
     const bk=bucket(effDeadline);
-    return `<div class="task-card s-${bk}" style="animation-delay:${i*0.04}s">
+    return `<div class="task-card s-${bk}" style="animation-delay:${i*0.04}s" data-deadline="${effDeadline||''}">
       <div class="status-ladder"></div>
       <div class="task-main">
         <div class="task-top-row">
@@ -2445,14 +2454,37 @@ function tickClock(){
 tickClock();
 setInterval(tickClock,1000);
 
-// Ini BUKAN refresh data — cuma update teks "X menit lalu" & re-render
-// list dari data yang sudah ada di memori (lokal, tidak ada panggilan
-// jaringan), supaya pengelompokan deadline (terlambat/hari ini/dst) tetap
-// akurat seiring waktu berjalan.
+// Update teks "Sisa X jam / Terlambat" & badge status tiap kartu tugas
+// TANPA membongkar ulang seluruh <div class="task-list">. Sebelumnya
+// renderDashboard() dipanggil tiap menit dan mengganti innerHTML seluruh
+// list, sehingga animasi "masuk" kartu (slideIn) ikut terputar ulang tiap
+// menit — itu penyebab tampilan kerasa "glitch"/kedip berkala. Sekarang
+// yang di-update cuma teks & class pada elemen yang sudah ada.
+function updateCountdownsOnly(){
+  document.querySelectorAll('.task-card[data-deadline]').forEach(card=>{
+    const iso = card.dataset.deadline || null;
+    const bk = bucket(iso);
+    const newClass = `task-card s-${bk}`;
+    if(card.className !== newClass) card.className = newClass;
+    const countdownEl = card.querySelector('.task-countdown');
+    if(countdownEl) countdownEl.textContent = countdown(iso);
+    const badgeEl = card.querySelector('.badge.status-late,.badge.status-urgent,.badge.status-soon,.badge.status-safe');
+    if(badgeEl){
+      badgeEl.className = `badge status-${bk}`;
+      badgeEl.textContent = statusBadge(bk);
+    }
+  });
+}
+
+// Ini BUKAN refresh data — cuma update teks waktu berjalan dari data yang
+// sudah ada di memori (lokal, tidak ada panggilan jaringan). Render ulang
+// penuh (pengelompokan terlambat/hari ini/dst) tetap terjadi otomatis lewat
+// checkScheduledRefresh(), sinkronisasi data baru, atau pindah tampilan —
+// bukan tiap menit.
 setInterval(()=>{
   updateStatusBar();
-  if(currentView==='dashboard') renderDashboard();
-}, 60000);
+  if(currentView==='dashboard') updateCountdownsOnly();
+}, 30000);
 
 const DAY_INDEX={Minggu:0,Senin:1,Selasa:2,Rabu:3,Kamis:4,Jumat:5,Sabtu:6};
 
