@@ -1848,37 +1848,8 @@ function getWeeksWithActivities(courseId){
   courseActs.forEach(act => {
     let matchedWeekIndex = -1;
 
-    // 0. Match by pertemuan_ke from backend (explicitly scraped section number)
-    if(act.pertemuan_ke != null){
-      matchedWeekIndex = weeks.findIndex(w => w.pertemuanKe === act.pertemuan_ke);
-    }
-
-    // 1. Match by pertemuan number in title (e.g., "Pertemuan 14", "Pertemuan Ke -14", "P14", "M14", "Minggu ke 14", "pertemuan Minggu ke 14")
-    if(matchedWeekIndex === -1){
-      let numMatch = /(?:pertemuan\s*(?:minggu\s*)?ke\s*-?\s*|pertemuan\s+|minggu\s*ke\s*|minggu\s+)\s*(\d+)/i.exec(act.title);
-      if(!numMatch){
-        numMatch = /\b[pm]\s*-?\s*(\d+)\b/i.exec(act.title);
-      }
-      if(numMatch){
-        const pNum = parseInt(numMatch[1]);
-        matchedWeekIndex = weeks.findIndex(w => w.pertemuanKe === pNum);
-      }
-    }
-
-    // 2. Match by section_title string from backend (explicitly scraped section title)
-    if(matchedWeekIndex === -1 && act.section_title){
-      let numMatch = /(?:pertemuan\s*(?:minggu\s*)?ke\s*-?\s*|pertemuan\s+|minggu\s*ke\s*|minggu\s+)\s*(\d+)/i.exec(act.section_title);
-      if(!numMatch){
-        numMatch = /\b[pm]\s*-?\s*(\d+)\b/i.exec(act.section_title);
-      }
-      if(numMatch){
-        const pNum = parseInt(numMatch[1]);
-        matchedWeekIndex = weeks.findIndex(w => w.pertemuanKe === pNum);
-      }
-    }
-
-    // 3. Match by date range from section_title
-    if (matchedWeekIndex === -1 && act.section_title) {
+    // 1. Match by date range from section_title
+    if (act.section_title) {
       const actRange = parseWeekRange(act.section_title, false);
       if (actRange) {
         const midTime = (actRange.start.getTime() + actRange.end.getTime()) / 2;
@@ -1889,7 +1860,7 @@ function getWeeksWithActivities(courseId){
       }
     }
 
-    // 4. Match by deadline date range
+    // 2. Match by deadline date range
     if(matchedWeekIndex === -1 && act.deadline){
       const actDate = new Date(act.deadline);
       matchedWeekIndex = weeks.findIndex(w => {
@@ -1898,7 +1869,7 @@ function getWeeksWithActivities(courseId){
       });
     }
 
-    // 5. Fallback: match by currently ongoing week (since scraper only scans the active week section)
+    // 3. Fallback: match by currently ongoing week (since scraper only scans the active week section)
     if(matchedWeekIndex === -1){
       matchedWeekIndex = weeks.findIndex(w => isCurrentWeek(w.week));
     }
@@ -1933,41 +1904,11 @@ function getWeeksWithActivities(courseId){
       }
       if (alreadyExists) return;
 
-      // Find the matched week for this module using section_title and pertemuan_ke
+      // Find the matched week for this module using section_title
       let matchedWeekIndex = -1;
 
-      // Match by pertemuan_ke
-      if (mod.pertemuan_ke != null) {
-        matchedWeekIndex = weeks.findIndex(w => w.pertemuanKe === mod.pertemuan_ke);
-      }
-
-      // Match by pertemuan number in name
-      if (matchedWeekIndex === -1) {
-        const cleanedName = cleanModuleName(mod.name);
-        let numMatch = /(?:pertemuan\s*(?:minggu\s*)?ke\s*-?\s*|pertemuan\s+|minggu\s*ke\s*|minggu\s+)\s*(\d+)/i.exec(cleanedName);
-        if (!numMatch) {
-          numMatch = /\b[pm]\s*-?\s*(\d+)\b/i.exec(cleanedName);
-        }
-        if (numMatch) {
-          const pNum = parseInt(numMatch[1]);
-          matchedWeekIndex = weeks.findIndex(w => w.pertemuanKe === pNum);
-        }
-      }
-
-      // Match by section_title
-      if (matchedWeekIndex === -1 && mod.section_title) {
-        let numMatch = /(?:pertemuan\s*(?:minggu\s*)?ke\s*-?\s*|pertemuan\s+|minggu\s*ke\s*|minggu\s+)\s*(\d+)/i.exec(mod.section_title);
-        if (!numMatch) {
-          numMatch = /\b[pm]\s*-?\s*(\d+)\b/i.exec(mod.section_title);
-        }
-        if (numMatch) {
-          const pNum = parseInt(numMatch[1]);
-          matchedWeekIndex = weeks.findIndex(w => w.pertemuanKe === pNum);
-        }
-      }
-
       // Match by date range from section_title
-      if (matchedWeekIndex === -1 && mod.section_title) {
+      if (mod.section_title) {
         const range = parseWeekRange(mod.section_title, false);
         if (range) {
           matchedWeekIndex = weeks.findIndex(w => {
