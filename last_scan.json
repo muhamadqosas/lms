@@ -1,6 +1,6 @@
 {
   "status": "done",
-  "scanned_at": "2026-07-06T17:33:20.066489",
+  "scanned_at": "2026-07-06T18:35:32.420987",
   "tasks": [
     {
       "site": "FAST Learning",
@@ -184,13 +184,28 @@
     },
     {
       "site": "FAST Learning",
+      "course_name": "ANALISA STRUKTUR 3 (Senin 19:30)",
+      "task_name": "Quiz Pertemuan 14",
+      "task_link": "https://fast.mercubuana.ac.id/mod/quiz/view.php?id=58952",
+      "task_type": "QUIZ",
+      "deadline": null,
+      "submitted": true,
+      "submission_status": "Selesai",
+      "section_title": "29 June - 5 July",
+      "pertemuan_ke": null,
+      "is_previous": true,
+      "deadline_iso": null,
+      "course_clean": "Analisa Struktur 3 — Senin 19:30"
+    },
+    {
+      "site": "FAST Learning",
       "course_name": "ESTIMASI BIAYA PROYEK & REKAYASA EKONOMI (Selasa 19:30)",
       "task_name": "Forum Pertemuan 14 : KONSEP NPV DAN FV",
       "task_link": "https://fast.mercubuana.ac.id/mod/forum/view.php?id=55781",
       "task_type": "FORUM",
       "deadline": "08 July 2026, 01:36",
-      "submitted": false,
-      "submission_status": "Belum membalas forum",
+      "submitted": true,
+      "submission_status": "Sudah membalas forum",
       "section_title": "30 June - 6 July",
       "pertemuan_ke": null,
       "is_previous": false,
@@ -1378,6 +1393,24 @@
           "name": "Forum Pertemuan Ke -14",
           "url": "https://fast.mercubuana.ac.id/mod/forum/view.php?id=55260",
           "section_title": "29 June - 5 July",
+          "pertemuan_ke": null
+        },
+        {
+          "name": "Quiz Pertemuan 14",
+          "url": "https://fast.mercubuana.ac.id/mod/quiz/view.php?id=58952",
+          "section_title": "29 June - 5 July",
+          "pertemuan_ke": null
+        },
+        {
+          "name": "TMV Pertemuan ke 15\nGoogle Meet™ for Moodle",
+          "url": "https://fast.mercubuana.ac.id/mod/googlemeet/view.php?id=58953",
+          "section_title": "6 July - 12 July",
+          "pertemuan_ke": null
+        },
+        {
+          "name": "Attendance Pertemuan ke 15",
+          "url": "https://fast.mercubuana.ac.id/mod/attendance/view.php?id=58954",
+          "section_title": "6 July - 12 July",
           "pertemuan_ke": null
         }
       ]
@@ -2645,5 +2678,5 @@
   "scan_started_at": null,
   "error": null,
   "request_scan": false,
-  "backend_last_active": "2026-07-06T17:33:20.067600"
+  "backend_last_active": "2026-07-06T18:35:32.421783"
 }
