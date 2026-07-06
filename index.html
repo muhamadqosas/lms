@@ -1411,6 +1411,11 @@ let syncInterval = null;
 let isPolling = false;
 let busyDetectedAt = null; // waktu pertama kali status 'busy' terdeteksi, untuk staleness check
 
+function getApiBase() {
+  const isLocalHost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.port === '5002';
+  return isLocalHost ? '' : 'http://localhost:5002';
+}
+
 function updateBackendStatus(isOnline) {
   const badge = document.getElementById('backendStatusBadge');
   const dot = document.getElementById('backendStatusDot');
@@ -1424,10 +1429,7 @@ function updateBackendStatus(isOnline) {
     badge.style.color = 'var(--forest)';
     dot.style.backgroundColor = 'var(--forest)';
     txt.textContent = 'Backend: Online';
-    
-    if (!btn.classList.contains('spinning')) {
-      btn.disabled = false;
-    }
+    btn.disabled = false;
   } else {
     badge.style.backgroundColor = 'var(--brick-bg)';
     badge.style.color = 'var(--brick)';
@@ -1438,8 +1440,7 @@ function updateBackendStatus(isOnline) {
 }
 
 async function checkBackendConnection() {
-  const isLocalHost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.port === '5002';
-  const localUrl = isLocalHost ? '/api/last-scan' : 'http://localhost:5002/api/last-scan';
+  const localUrl = getApiBase() + '/api/last-scan';
 
   // 1. Coba check local backend dulu
   try {
@@ -1448,7 +1449,7 @@ async function checkBackendConnection() {
     const res = await fetch(localUrl, { method: 'GET', signal: controller.signal });
     clearTimeout(id);
     if (res.ok) {
-      apiAvailable = isLocalHost; // tetap relative url jika host local
+      apiAvailable = true;
       updateBackendStatus(true);
       return true;
     }
@@ -1481,7 +1482,7 @@ async function checkBackendConnection() {
     // Cloud check failed
   }
 
-  apiAvailable = isLocalHost;
+  apiAvailable = false;
   updateBackendStatus(false);
   return false;
 }
@@ -1504,7 +1505,7 @@ function startSyncPolling() {
       
       if (isOnline || !apiAvailable) {
         const url = apiAvailable 
-          ? '/api/last-scan?t=' + new Date().getTime()
+          ? getApiBase() + '/api/last-scan?t=' + new Date().getTime()
           : BLOB_URL + '?t=' + new Date().getTime();
           
         const res = await fetch(url);
@@ -1635,7 +1636,7 @@ async function manualRefresh(){
   if (apiAvailable) {
     showToast('🔄 Scan dijalankan (Lokal) — browser Chrome akan terbuka sebentar...');
     try{
-      const res = await fetch('/api/scan', {method:'POST'});
+      const res = await fetch(getApiBase() + '/api/scan', {method:'POST'});
       if(res.status===409){
         showToast('⏳ Scan lain sedang berjalan, coba lagi sebentar.');
         if (btn) {
@@ -1730,7 +1731,7 @@ async function downloadAllModules(courseId, btnEl){
   setLabel('Menyiapkan…');
 
   try {
-    const startRes = await fetch('/api/download-modules', {
+    const startRes = await fetch(getApiBase() + '/api/download-modules', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ course_url: courseUrl, course_name: m.name })
@@ -1750,7 +1751,7 @@ async function downloadAllModules(courseId, btnEl){
 
     while (status !== 'done' && status !== 'error' && tries < MAX_TRIES) {
       await new Promise(r => setTimeout(r, 3000));
-      const stRes = await fetch(`/api/download-modules/${job_id}/status`);
+      const stRes = await fetch(getApiBase() + `/api/download-modules/${job_id}/status`);
       if (!stRes.ok) throw new Error(`Gagal cek status (HTTP ${stRes.status})`);
       const stData = await stRes.json();
       status = stData.status;
@@ -1765,7 +1766,7 @@ async function downloadAllModules(courseId, btnEl){
     }
 
     setLabel('Menyimpan ZIP…');
-    const fileRes = await fetch(`/api/download-modules/${job_id}/file`);
+    const fileRes = await fetch(getApiBase() + `/api/download-modules/${job_id}/file`);
     if (!fileRes.ok) {
       const errData = await fileRes.json().catch(() => ({}));
       throw new Error(errData.error || 'Gagal mengambil file ZIP.');
@@ -1799,7 +1800,7 @@ async function downloadAllModules(courseId, btnEl){
 async function loadLastScan(){
   try{
     const url = apiAvailable 
-      ? '/api/last-scan?t=' + new Date().getTime()
+      ? getApiBase() + '/api/last-scan?t=' + new Date().getTime()
       : BLOB_URL + '?t=' + new Date().getTime();
       
     const controller = new AbortController();
