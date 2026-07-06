@@ -1604,7 +1604,8 @@ function handleSyncData(data) {
       renderCourseViewsDOM();
       renderDashboard();
       renderSidebar();
-      showToast(`✓ Data diperbarui — ${ACTIVITIES.length} tugas ditemukan`);
+      const pendingCntUpdate=ACTIVITIES.filter(a=>a.status==='pending'&&!a.is_previous).length;
+      showToast(`✓ Data diperbarui — ${pendingCntUpdate} tugas belum dikerjakan`);
     }
     
     if (btn && btn.classList.contains('spinning')) {
@@ -1824,7 +1825,8 @@ async function loadLastScan(){
     const data=await res.json();
     handleSyncData(data);
     if(data.status==='done' && data.tasks && data.tasks.length){
-      showToast(`📂 Memuat hasil scan terakhir (${ACTIVITIES.length} tugas)`);
+      const pendingCnt=ACTIVITIES.filter(a=>a.status==='pending'&&!a.is_previous).length;
+      showToast(`📂 Memuat hasil scan terakhir (${pendingCnt} tugas belum dikerjakan)`);
     }
   }catch(err){
     try{
@@ -1837,7 +1839,8 @@ async function loadLastScan(){
         renderDashboard();
         renderSidebar();
         updateStatusBar();
-        showToast(`📂 Memuat data static dari last_scan.json (${ACTIVITIES.length} tugas)`);
+        const pendingCntStatic=ACTIVITIES.filter(a=>a.status==='pending'&&!a.is_previous).length;
+        showToast(`📂 Memuat data static dari last_scan.json (${pendingCntStatic} tugas belum dikerjakan)`);
       } else {
         throw new Error('Static data status not done');
       }
