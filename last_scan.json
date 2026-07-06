@@ -1,22 +1,7 @@
 {
   "status": "done",
-  "scanned_at": "2026-07-05T18:03:35.547686",
+  "scanned_at": "2026-07-06T09:31:04.518305",
   "tasks": [
-    {
-      "site": "FAST Learning",
-      "course_name": "ANALISA STRUKTUR 3 (Senin 19:30)",
-      "task_name": "Forum Pertemuan Ke -14",
-      "task_link": "https://fast.mercubuana.ac.id/mod/forum/view.php?id=55260",
-      "task_type": "FORUM",
-      "deadline": "06 July 2026, 20:31",
-      "submitted": true,
-      "submission_status": "Sudah membalas forum",
-      "section_title": "29 June - 5 July",
-      "pertemuan_ke": null,
-      "is_previous": false,
-      "deadline_iso": "2026-07-06T20:31:00",
-      "course_clean": "Analisa Struktur 3 — Senin 19:30"
-    },
     {
       "site": "FAST Learning",
       "course_name": "ANALISA STRUKTUR 3 (Senin 19:30)",
@@ -177,6 +162,21 @@
       "submitted": true,
       "submission_status": "Selesai",
       "section_title": "15 June - 21 June",
+      "pertemuan_ke": null,
+      "is_previous": true,
+      "deadline_iso": null,
+      "course_clean": "Analisa Struktur 3 — Senin 19:30"
+    },
+    {
+      "site": "FAST Learning",
+      "course_name": "ANALISA STRUKTUR 3 (Senin 19:30)",
+      "task_name": "Forum Pertemuan Ke -14",
+      "task_link": "https://fast.mercubuana.ac.id/mod/forum/view.php?id=55260",
+      "task_type": "FORUM",
+      "deadline": null,
+      "submitted": true,
+      "submission_status": "Selesai",
+      "section_title": "29 June - 5 July",
       "pertemuan_ke": null,
       "is_previous": true,
       "deadline_iso": null,
