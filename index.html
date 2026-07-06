@@ -233,6 +233,20 @@ body{
 .dsb-btn.spinning svg{animation:spin 0.7s linear infinite;}
 @keyframes spin{to{transform:rotate(360deg);}}
 
+/* ============ TOMBOL DOWNLOAD SEMUA MODUL (per kelas) ============ */
+.btn-download-modules{
+  font-family:'Inter',sans-serif; font-weight:700; font-size:12.5px;
+  padding:8px 14px; border-radius:9px;
+  border:1.5px solid var(--forest, #2D5F3E);
+  background:var(--forest, #2D5F3E); color:#fff;
+  cursor:pointer; display:inline-flex; align-items:center; gap:6px;
+  transition:all 0.14s ease; margin-top:12px;
+}
+.btn-download-modules:hover:not(:disabled){background:#234a31; border-color:#234a31;}
+.btn-download-modules:disabled{opacity:0.6; cursor:not-allowed;}
+.btn-download-modules svg{width:14px; height:14px; flex-shrink:0;}
+.btn-download-modules.spinning svg{animation:spin 0.9s linear infinite;}
+
 /* ============ DASHBOARD GRID ============ */
 .dash-grid{
   display:grid;
@@ -1679,6 +1693,109 @@ async function manualRefresh(){
   }
 }
 
+/* ============================================================
+   DOWNLOAD SEMUA MODUL (per kelas) — resource + folder -> 1 ZIP
+   Alur: POST /api/download-modules -> polling status -> fetch file ZIP
+   -> simpan sebagai blob supaya browser langsung download (tanpa buka
+   tab baru, tanpa klik satu-satu per file).
+============================================================ */
+async function downloadAllModules(courseId, btnEl){
+  if (btnEl && btnEl.disabled) return;
+
+  // Fitur ini butuh backend app.py yang jalan langsung di komputer ini
+  // (butuh Playwright + login), jadi hanya bisa lewat koneksi lokal —
+  // bukan lewat relay JSON Blob cloud seperti fitur scan.
+  await checkBackendConnection();
+  if (!apiAvailable) {
+    showToast('✗ Fitur ini butuh app.py aktif & dashboard dibuka lewat http://localhost:5002 di PC yang sama.');
+    return;
+  }
+
+  const m = COURSES_META[courseId];
+  if (!m || !m.lmsId) {
+    showToast('✗ Kelas ini belum punya link LMS yang valid.');
+    return;
+  }
+
+  const domain = m.type === 'fast' ? 'fast.mercubuana.ac.id' : 'ruangkelas.mercubuana.ac.id';
+  const courseUrl = `https://${domain}/course/view.php?id=${m.lmsId}`;
+
+  const originalHTML = btnEl.innerHTML;
+  const setLabel = (text) => {
+    btnEl.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg> ${text}`;
+  };
+
+  btnEl.disabled = true;
+  btnEl.classList.add('spinning');
+  setLabel('Menyiapkan…');
+
+  try {
+    const startRes = await fetch('/api/download-modules', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ course_url: courseUrl, course_name: m.name })
+    });
+
+    if (!startRes.ok) {
+      const errData = await startRes.json().catch(() => ({}));
+      throw new Error(errData.error || `Server returned HTTP ${startRes.status}`);
+    }
+
+    const { job_id } = await startRes.json();
+    showToast('⏳ Login & mengumpulkan modul dari LMS — mohon tunggu, browser Chrome akan terbuka sebentar...');
+
+    let status = 'queued';
+    let tries = 0;
+    const MAX_TRIES = 240; // ~ 12 menit (polling tiap 3 detik)
+
+    while (status !== 'done' && status !== 'error' && tries < MAX_TRIES) {
+      await new Promise(r => setTimeout(r, 3000));
+      const stRes = await fetch(`/api/download-modules/${job_id}/status`);
+      if (!stRes.ok) throw new Error(`Gagal cek status (HTTP ${stRes.status})`);
+      const stData = await stRes.json();
+      status = stData.status;
+
+      if (status === 'running') setLabel('Mengunduh dari LMS…');
+      if (status === 'error') throw new Error(stData.error || 'Proses download gagal.');
+      tries++;
+    }
+
+    if (status !== 'done') {
+      throw new Error('Proses terlalu lama / timeout. Coba lagi.');
+    }
+
+    setLabel('Menyimpan ZIP…');
+    const fileRes = await fetch(`/api/download-modules/${job_id}/file`);
+    if (!fileRes.ok) {
+      const errData = await fileRes.json().catch(() => ({}));
+      throw new Error(errData.error || 'Gagal mengambil file ZIP.');
+    }
+
+    const blob = await fileRes.blob();
+    const cd = fileRes.headers.get('Content-Disposition') || '';
+    const match = /filename\*?=(?:UTF-8'')?"?([^";]+)"?/i.exec(cd);
+    const filename = match ? decodeURIComponent(match[1]) : `Modul - ${m.name}.zip`;
+
+    const blobUrl = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = blobUrl;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(blobUrl), 5000);
+
+    showToast('✅ ZIP modul berhasil diunduh: ' + filename);
+  } catch (err) {
+    console.error(err);
+    showToast('✗ Gagal download modul: ' + err.message);
+  } finally {
+    btnEl.disabled = false;
+    btnEl.classList.remove('spinning');
+    btnEl.innerHTML = originalHTML;
+  }
+}
+
 async function loadLastScan(){
   try{
     const url = apiAvailable 
@@ -1824,6 +1941,10 @@ function renderCourseViewsDOM(){
               <a href="${lmsUrl}" target="_blank">${domain}/course/…${m.lmsId}</a>
             </div>`:''}
           </div>
+          ${m.lmsId?`<button class="btn-download-modules" id="dlmod-${id}" onclick="downloadAllModules('${id}', this)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+            Download Semua Modul (ZIP)
+          </button>`:''}
         </div>
       </div>
       <div class="week-list" id="weeks-${id}"></div>
