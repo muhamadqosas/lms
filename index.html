@@ -1465,13 +1465,25 @@ async function checkBackendConnection() {
     clearTimeout(id);
     if (res.ok) {
       const data = await res.json();
+
+      // Flag eksplisit dari app.py: dikirim SAAT backend dimatikan secara
+      // normal (Ctrl+C / shutdown), jadi bisa langsung dianggap offline
+      // tanpa perlu menunggu timeout heartbeat.
+      if (data && data.backend_alive === false) {
+        apiAvailable = false;
+        updateBackendStatus(false);
+        return false;
+      }
+
       if (data && data.backend_last_active) {
         const lastActiveTime = new Date(data.backend_last_active);
         const now = new Date();
         const diffSeconds = Math.abs((now - lastActiveTime) / 1000);
-        
-        // Pengecekan 90 detik aman dari perbedaan jam server-client tipis
-        if (diffSeconds < 90) {
+
+        // Toleransi 25 detik untuk jaga-jaga selisih jam server-client tipis
+        // (diperkecil dari 90 detik agar deteksi offline lebih cepat saat
+        // PC mati mendadak dan graceful-shutdown tidak sempat terkirim).
+        if (diffSeconds < 25) {
           apiAvailable = false;
           updateBackendStatus(true);
           return true;
@@ -1493,7 +1505,7 @@ function startSyncPolling() {
   const getPollInterval = () => {
     const btn = document.getElementById('refreshBtn');
     const isBusy = btn && btn.classList.contains('spinning');
-    return isBusy ? 3000 : 10000;
+    return isBusy ? 3000 : 6000;
   };
   
   const runPoll = async () => {
