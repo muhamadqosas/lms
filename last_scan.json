@@ -1,6 +1,6 @@
 {
   "status": "done",
-  "scanned_at": "2026-07-07T18:24:28.576119",
+  "scanned_at": "2026-07-07T18:26:42.652695",
   "tasks": [
     {
       "site": "FAST Learning",
@@ -2711,5 +2711,5 @@
   "scan_started_at": null,
   "error": null,
   "request_scan": false,
-  "backend_last_active": "2026-07-07T18:24:28.576887"
+  "backend_last_active": "2026-07-07T18:26:42.653319"
 }
