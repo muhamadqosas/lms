@@ -1896,13 +1896,30 @@ function fmtCountdownMs(ms){
   return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
 }
 
+let lastMeetSignature=null;
+
+function meetSignature(meetings){
+  return meetings.map(m=>`${m.courseId}:${m.started?1:0}`).join('|');
+}
+
 function renderLiveMeetBanner(){
   const el=document.getElementById('liveMeetBanner');
   if(!el) return;
-  if(typeof COURSES_META==='undefined' || !Object.keys(COURSES_META).length){ el.innerHTML=''; return; }
+  if(typeof COURSES_META==='undefined' || !Object.keys(COURSES_META).length){ el.innerHTML=''; lastMeetSignature=null; return; }
 
   const meetings=getTodayLiveMeetings();
-  if(!meetings.length){ el.innerHTML=''; return; }
+  if(!meetings.length){ el.innerHTML=''; lastMeetSignature=null; return; }
+
+  const sig=meetSignature(meetings);
+
+  // Kalau daftar & status "started" tidak berubah dari render sebelumnya,
+  // cukup update teks countdown-nya saja supaya card tidak flicker/render
+  // ulang tiap detik (link, tombol, animasi dot tetap diam).
+  if(sig===lastMeetSignature){
+    updateLiveMeetCountdownOnly(meetings);
+    return;
+  }
+  lastMeetSignature=sig;
 
   const now=new Date();
   el.innerHTML=`
@@ -1918,7 +1935,7 @@ function renderLiveMeetBanner(){
           const timeRange=`${fmtHM(mt.startDate)} \u2013 ${fmtHM(mt.endDate)}`;
           const stateLabel = mt.started ? 'Sedang berlangsung, berakhir dalam' : 'Dimulai dalam';
           return `
-          <div class="lmb-item${mt.started?' is-live':''}">
+          <div class="lmb-item${mt.started?' is-live':''}" data-course-id="${esc(mt.courseId)}">
             <div class="lmb-item-main">
               <div class="lmb-item-name">${esc(mt.name)}</div>
               <div class="lmb-item-sched mono">${esc(timeRange)}</div>
@@ -1926,7 +1943,7 @@ function renderLiveMeetBanner(){
             ${isNearest?`
             <div class="lmb-item-countdown">
               <span class="lmb-cd-label">${esc(stateLabel)}</span>
-              <span class="lmb-cd-time mono">${fmtCountdownMs(remainMs)}</span>
+              <span class="lmb-cd-time mono" id="lmb-cd-time-${esc(mt.courseId)}">${fmtCountdownMs(remainMs)}</span>
             </div>`:`
             <div class="lmb-item-countdown lmb-cd-static">
               <span class="lmb-cd-label">Terjadwal ${esc(fmtHM(mt.startDate))}</span>
@@ -1940,6 +1957,17 @@ function renderLiveMeetBanner(){
       </div>
     </div>
   `;
+}
+
+// Update teks countdown saja (dipanggil tiap detik) tanpa menyentuh innerHTML
+// card secara keseluruhan, supaya tidak ada flicker.
+function updateLiveMeetCountdownOnly(meetings){
+  if(!meetings.length) return;
+  const now=new Date();
+  const nearest=meetings[0];
+  const remainMs = nearest.started ? (nearest.endDate-now) : (nearest.startDate-now);
+  const timeEl=document.getElementById('lmb-cd-time-'+nearest.courseId);
+  if(timeEl) timeEl.textContent=fmtCountdownMs(remainMs);
 }
 setInterval(renderLiveMeetBanner, 1000);
 
