@@ -1,6 +1,6 @@
 {
   "status": "done",
-  "scanned_at": "2026-07-07T09:41:06.664621",
+  "scanned_at": "2026-07-07T12:44:30.368658",
   "tasks": [
     {
       "site": "FAST Learning",
@@ -984,8 +984,8 @@
       "task_link": "https://ruangkelas.mercubuana.ac.id/mod/assign/view.php?id=6840",
       "task_type": "ASSIGNMENT",
       "deadline": "Due: Saturday, 11 July 2026, 12:00 AM",
-      "submitted": false,
-      "submission_status": "No submissions have been made yet",
+      "submitted": true,
+      "submission_status": "Submitted for grading",
       "section_title": "4 July 2026",
       "pertemuan_ke": null,
       "is_previous": false,
@@ -2690,5 +2690,5 @@
   "scan_started_at": null,
   "error": null,
   "request_scan": false,
-  "backend_last_active": "2026-07-07T09:41:06.665219"
+  "backend_last_active": "2026-07-07T12:44:30.369344"
 }
