@@ -1,6 +1,6 @@
 {
   "status": "done",
-  "scanned_at": "2026-07-07T12:44:30.368658",
+  "scanned_at": "2026-07-07T16:52:29.447174",
   "tasks": [
     {
       "site": "FAST Learning",
@@ -540,6 +540,21 @@
       "pertemuan_ke": null,
       "is_previous": false,
       "deadline_iso": "2026-07-10T17:00:00",
+      "course_clean": "Course Name\nMekanika Fluida Dan Hidrolika — Sabtu 17:00"
+    },
+    {
+      "site": "Ruang Kelas",
+      "course_name": "Course name\nMEKANIKA FLUIDA DAN HIDROLIKA - W112500024 - Sabtu 17:00-18:40 (B-401) (Dosen: Suprapti, Dr. S.T., M.T.)\nMEKANIKA FLUIDA DAN HIDROLIKA - W112500024 - Sabtu ...",
+      "task_name": "Tugas 4. Mekflu (RTM 2025)\nAssignment",
+      "task_link": "https://ruangkelas.mercubuana.ac.id/mod/assign/view.php?id=7061",
+      "task_type": "ASSIGNMENT",
+      "deadline": "Due: Saturday, 25 July 2026, 11:59 PM",
+      "submitted": false,
+      "submission_status": "No submissions have been made yet",
+      "section_title": "4 July 2026",
+      "pertemuan_ke": null,
+      "is_previous": false,
+      "deadline_iso": "2026-07-25T23:59:00",
       "course_clean": "Course Name\nMekanika Fluida Dan Hidrolika — Sabtu 17:00"
     },
     {
@@ -2020,6 +2035,12 @@
           "url": "https://ruangkelas.mercubuana.ac.id/mod/resource/view.php?id=6955",
           "section_title": "4 July 2026",
           "pertemuan_ke": null
+        },
+        {
+          "name": "Tugas 4. Mekflu (RTM 2025)\nAssignment",
+          "url": "https://ruangkelas.mercubuana.ac.id/mod/assign/view.php?id=7061",
+          "section_title": "4 July 2026",
+          "pertemuan_ke": null
         }
       ]
     },
@@ -2690,5 +2711,5 @@
   "scan_started_at": null,
   "error": null,
   "request_scan": false,
-  "backend_last_active": "2026-07-07T12:44:30.369344"
+  "backend_last_active": "2026-07-07T16:52:29.447897"
 }
