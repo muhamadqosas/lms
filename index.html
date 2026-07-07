@@ -213,9 +213,11 @@ body{
 }
 .dsb-dot.stale{background:var(--amber); animation:none;}
 @keyframes pulse-green{0%,100%{opacity:1;}50%{opacity:0.4;}}
+.dsb-main{display:flex; align-items:center; gap:10px; flex:1; min-width:0;}
+.dsb-actions{display:flex; align-items:center; gap:8px; flex-shrink:0;}
 .dsb-text{
   font-family:'JetBrains Mono',monospace;
-  font-size:11.5px; color:var(--ink-soft); flex:1;
+  font-size:11.5px; color:var(--ink-soft); flex:1; min-width:0;
 }
 .dsb-text strong{color:var(--ink);}
 .dsb-btn{
@@ -585,6 +587,25 @@ body{
 }
 .btn-open:hover{background:#000;}
 .btn-open svg{width:13px; height:13px;}
+.badge.type-manual{background:var(--purple-bg); color:var(--purple);}
+.btn-done-manual{
+  font-family:'Inter',sans-serif; font-weight:600; font-size:13px;
+  padding:9px 14px; border-radius:9px; border:1.5px solid var(--forest);
+  background:var(--forest-bg); color:var(--forest); cursor:pointer;
+  white-space:nowrap; transition:all 0.15s ease;
+  display:inline-flex; align-items:center; gap:6px;
+}
+.btn-done-manual:hover{background:var(--forest); color:var(--paper);}
+.btn-done-manual svg{width:13px; height:13px;}
+.btn-delete-manual{
+  width:34px; height:34px; border-radius:9px; flex-shrink:0;
+  border:1.5px solid var(--line-strong); background:transparent;
+  color:var(--ink-soft); cursor:pointer;
+  display:inline-flex; align-items:center; justify-content:center;
+  transition:all 0.15s ease;
+}
+.btn-delete-manual:hover{background:var(--brick-bg); border-color:var(--brick); color:var(--brick);}
+.btn-delete-manual svg{width:14px; height:14px;}
 
 /* ============ NO-TASK COURSE CHIPS ============ */
 .notask-grid{
@@ -688,6 +709,74 @@ body{
 .modal-btn-primary:hover{background:#000;}
 .modal-btn-primary svg{width:13px; height:13px;}
 
+/* ============ ADD-TASK FORM ============ */
+.form-group{margin-bottom:14px;}
+.form-group:last-child{margin-bottom:0;}
+.form-label{
+  display:block; font-family:'JetBrains Mono',monospace; font-size:10.5px;
+  color:var(--ink-soft); text-transform:uppercase; letter-spacing:0.05em;
+  margin-bottom:6px;
+}
+.form-input, .form-select{
+  width:100%; font-family:'Inter',sans-serif; font-size:13.5px;
+  padding:9px 12px; border-radius:9px; border:1.5px solid var(--line-strong);
+  background:var(--paper-raised); color:var(--ink); appearance:none;
+}
+.form-select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2346554F' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 10px center; background-size:15px; padding-right:32px;}
+.form-input:focus, .form-select:focus{outline:none; border-color:var(--ink);}
+.form-row-2{display:flex; gap:10px;}
+.form-row-2 .form-group{flex:1; min-width:0;}
+
+/* ============ CUSTOM DROPDOWN (Mata Kuliah, dsb) ============ */
+.custom-select{position:relative;}
+.custom-select-trigger{
+  width:100%; display:flex; align-items:center; justify-content:space-between; gap:8px;
+  font-family:'Inter',sans-serif; font-size:13.5px; text-align:left;
+  padding:9px 12px; border-radius:9px; border:1.5px solid var(--line-strong);
+  background:var(--paper-raised); color:var(--ink); cursor:pointer;
+}
+.custom-select-trigger:hover{border-color:var(--ink);}
+.custom-select-trigger span{min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+.custom-select-trigger svg{width:15px; height:15px; color:var(--ink-soft); flex-shrink:0; transition:transform 0.15s ease;}
+.custom-select.open .custom-select-trigger{border-color:var(--ink);}
+.custom-select.open .custom-select-trigger svg{transform:rotate(180deg);}
+.custom-select-options{
+  display:none; position:absolute; top:calc(100% + 6px); left:0; right:0;
+  background:var(--paper-raised); border:1.5px solid var(--ink); border-radius:11px;
+  box-shadow:var(--shadow-lg); max-height:200px; overflow-y:auto;
+  z-index:60; padding:6px;
+}
+.custom-select.open .custom-select-options{display:block;}
+.custom-select-option{
+  padding:9px 11px; border-radius:8px; font-size:13px; cursor:pointer;
+  display:flex; align-items:center; justify-content:space-between; gap:8px;
+  border:1px solid transparent;
+  transition:background 0.1s ease, border-color 0.1s ease;
+}
+.custom-select-option + .custom-select-option{margin-top:4px; border-top:1px solid var(--line);}
+.custom-select-option:hover{background:var(--slate-bg); border-color:var(--line-strong);}
+.custom-select-option.active{background:var(--forest-bg); color:var(--forest); font-weight:600; border-color:var(--forest);}
+.custom-select-option-sched{
+  font-family:'JetBrains Mono',monospace; font-size:10.5px; color:var(--ink-soft); flex-shrink:0;
+}
+.custom-select-option.active .custom-select-option-sched{color:var(--forest);}
+.custom-select-empty{padding:10px 11px; font-size:12.5px; color:var(--ink-soft);}
+
+/* ============ FAB TAMBAH TUGAS ============ */
+.fab-add-task{
+  position:fixed; right:26px; bottom:28px; z-index:150;
+  width:54px; height:54px; border-radius:50%;
+  background:var(--ink); color:var(--paper);
+  border:1.5px solid var(--ink); box-shadow:var(--shadow-lg);
+  display:flex; align-items:center; justify-content:center;
+  cursor:pointer; transition:all 0.15s ease;
+}
+.fab-add-task:hover{background:#000; transform:translateY(-2px);}
+.fab-add-task svg{width:24px; height:24px;}
+@media(max-width:720px){
+  .fab-add-task{right:16px; bottom:18px; width:50px; height:50px;}
+}
+
 /* ============ OVERLAY (mobile) ============ */
 .sidebar-overlay{
   display:none; position:fixed; inset:0;
@@ -722,6 +811,15 @@ body{
   .matkul-group-name{white-space:normal; overflow:visible; text-overflow:clip; flex:1 1 auto;}
   .matkul-group-meta{flex:1 1 100%; justify-content:space-between;}
   .matkul-group-meta .rekap-group-line{display:none;}
+
+  /* Status bar dashboard — susun jadi 2 baris rapi di mobile:
+     baris 1 = dot + teks status (bisa wrap ke beberapa baris),
+     baris 2 = badge backend + tombol refresh (rata kiri-kanan). */
+  .dash-status-bar{flex-wrap:wrap; gap:10px; padding:12px 14px;}
+  .dsb-main{flex:1 1 100%; min-width:0;}
+  .dsb-text{white-space:normal; line-height:1.45; word-break:break-word;}
+  .dsb-actions{flex:1 1 100%; justify-content:space-between;}
+  #backendStatusBadge{margin-right:0 !important;}
 }
 @media(max-width:480px){
   .dash-grid{grid-template-columns:1fr 1fr;}
@@ -776,17 +874,21 @@ body{
   <div class="view active" id="view-dashboard">
     <!-- Status bar -->
     <div class="dash-status-bar" id="dashStatusBar">
-      <div class="dsb-dot" id="statusDot"></div>
-      <div class="dsb-text" id="statusText">Memuat data...</div>
-      <!-- Tanda Status Backend -->
-      <div id="backendStatusBadge" style="display:inline-flex; align-items:center; gap:6px; font-family:'JetBrains Mono',monospace; font-size:10.5px; padding:4px 8px; border-radius:6px; font-weight:600; background:var(--slate-bg); color:var(--slate); transition:all 0.2s ease; margin-right:4px;">
-        <span id="backendStatusDot" style="width:7px; height:7px; border-radius:50%; background:var(--slate); display:inline-block;"></span>
-        <span id="backendStatusText">Backend: Checking...</span>
+      <div class="dsb-main">
+        <div class="dsb-dot" id="statusDot"></div>
+        <div class="dsb-text" id="statusText">Memuat data...</div>
       </div>
-      <button class="dsb-btn" id="refreshBtn" onclick="manualRefresh()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/></svg>
-        Refresh
-      </button>
+      <div class="dsb-actions">
+        <!-- Tanda Status Backend -->
+        <div id="backendStatusBadge" style="display:inline-flex; align-items:center; gap:6px; font-family:'JetBrains Mono',monospace; font-size:10.5px; padding:4px 8px; border-radius:6px; font-weight:600; background:var(--slate-bg); color:var(--slate); transition:all 0.2s ease; margin-right:4px;">
+          <span id="backendStatusDot" style="width:7px; height:7px; border-radius:50%; background:var(--slate); display:inline-block;"></span>
+          <span id="backendStatusText">Backend: Checking...</span>
+        </div>
+        <button class="dsb-btn" id="refreshBtn" onclick="manualRefresh()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/></svg>
+          Refresh
+        </button>
+      </div>
     </div>
 
     <!-- Stat cards -->
@@ -875,6 +977,64 @@ body{
   </div>
 </div>
 
+<div class="modal-overlay" id="addTaskModalOverlay" onclick="if(event.target===this) closeAddTaskModal()">
+  <div class="modal-box">
+    <div class="modal-head">
+      <div class="modal-check" style="background:var(--blue-bg); color:var(--blue);">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+      </div>
+      <div class="modal-head-text">
+        <div class="modal-status-label" style="color:var(--blue);">Tugas Manual</div>
+        <div class="modal-title">Tambah Tugas</div>
+      </div>
+      <button class="modal-close" onclick="closeAddTaskModal()" aria-label="Tutup">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="modal-divider"></div>
+
+    <div class="form-group">
+      <label class="form-label" for="addTaskCourseTrigger">Mata Kuliah</label>
+      <div class="custom-select" id="addTaskCourseSelect">
+        <button type="button" class="custom-select-trigger" id="addTaskCourseTrigger" onclick="toggleCourseDropdown()">
+          <span id="addTaskCourseLabel">Pilih mata kuliah</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
+        </button>
+        <div class="custom-select-options" id="addTaskCourseOptions"></div>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label" for="addTaskTitle">Nama Tugas</label>
+      <input class="form-input" type="text" id="addTaskTitle" name="tugas_manual_judul" placeholder="Nama tugas"
+        autocomplete="x-no-autofill" autocapitalize="sentences" autocorrect="off" spellcheck="false"
+        data-lpignore="true" data-1p-ignore="true" data-form-type="other"
+        readonly onfocus="this.removeAttribute('readonly')">
+    </div>
+    <div class="form-row-2">
+      <div class="form-group">
+        <label class="form-label" for="addTaskDate">Tanggal Deadline</label>
+        <input class="form-input" type="date" id="addTaskDate" name="tugas_manual_tanggal" autocomplete="off" data-lpignore="true" data-1p-ignore="true">
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="addTaskTime">Jam</label>
+        <input class="form-input" type="time" id="addTaskTime" name="tugas_manual_jam" autocomplete="off" data-lpignore="true" data-1p-ignore="true">
+      </div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="modal-btn-secondary" onclick="closeAddTaskModal()">Batal</button>
+      <button class="modal-btn-primary" onclick="submitAddTask()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg>
+        Simpan Tugas
+      </button>
+    </div>
+  </div>
+</div>
+
+<button class="fab-add-task" onclick="openAddTaskModal()" aria-label="Tambah Tugas" title="Tambah Tugas Manual">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg>
+</button>
+
 <div class="toast" id="toast"></div>
 
 <script>
@@ -953,6 +1113,14 @@ function toTitleCase(str) {
   return str.toLowerCase().split(' ').map(word => {
     return word.charAt(0).toUpperCase() + word.slice(1);
   }).join(' ');
+}
+
+// Paksa huruf pertama tiap kata jadi kapital TANPA mengubah huruf lain
+// (supaya nama kelas yang sudah benar, misal ada singkatan/akronim, tidak
+// ikut di-lowercase seperti efek samping toTitleCase()).
+function capitalizeWords(str) {
+  if (!str) return str;
+  return String(str).replace(/\S+/g, w => w.charAt(0).toUpperCase() + w.slice(1));
 }
 
 // Generate initials / abbreviations for courses
@@ -1061,7 +1229,9 @@ function generateWeeksForCourse(courseId) {
         weekStr = `${classDate.getDate()} ${MONTHS[classDate.getMonth()]} ${classDate.getFullYear()}`;
       }
     } else {
-      weekStr = `${weekMon.getDate()} ${MONTHS[weekMon.getMonth()]} – ${weekSun.getDate()} ${MONTHS[weekSun.getMonth()]}`;
+      const classEnd = new Date(classDate);
+      classEnd.setDate(classDate.getDate() + 6);
+      weekStr = `${classDate.getDate()} ${MONTHS[classDate.getMonth()]} – ${classEnd.getDate()} ${MONTHS[classEnd.getMonth()]}`;
     }
     
     let pertLabel = '';
@@ -1101,6 +1271,13 @@ function generateWeeksForCourse(courseId) {
 // scan sebelumnya yang dimuat otomatis dari /api/last-scan saat load.
 let ACTIVITIES = [];
 let CLASS_MODULES = [];
+
+// Tugas manual (ditambahkan lewat tombol "Tambah Tugas") — disimpan terpisah
+// dari hasil scan (SCANNED_ACTIVITIES), lalu digabung ke ACTIVITIES lewat
+// rebuildActivities(). Disinkronkan lintas device lewat BLOB_URL yang sama
+// dipakai untuk sinkronisasi hasil scan (lihat bagian INTEGRASI BACKEND).
+let SCANNED_ACTIVITIES = [];
+let MANUAL_TASKS = [];
 
 /* ============================================================
    INTEGRASI BACKEND (/api/scan, /api/last-scan)
@@ -1149,9 +1326,10 @@ function ensureCourseMeta(courseNameRaw, courseNameClean, url, site){
     type = 'fast';
   }
 
+  const finalName = capitalizeWords((name || courseNameRaw).trim());
   COURSES_META[id] = {
-    name: name || courseNameRaw,
-    abbr: getCourseAbbr(name || courseNameRaw),
+    name: finalName,
+    abbr: getCourseAbbr(finalName),
     day: day || '-',
     time: time || '-',
     endTime: calculateEndTime(time),
@@ -1196,7 +1374,8 @@ function applyScanResult(data){
     });
   }
 
-  ACTIVITIES = mapApiTasksToActivities(data.tasks);
+  SCANNED_ACTIVITIES = mapApiTasksToActivities(data.tasks);
+  rebuildActivities();
   CLASS_MODULES = data.class_modules || [];
   lastRefresh = data.scanned_at ? new Date(data.scanned_at) : new Date();
 
@@ -1208,6 +1387,233 @@ function applyScanResult(data){
   } catch (e) {
     console.error('Gagal simpan cache lastGoodScan:', e);
   }
+}
+
+/* ============================================================
+   TUGAS MANUAL (ditambah lewat tombol "Tambah Tugas")
+   Disimpan di MANUAL_TASKS, digabung ke ACTIVITIES lewat
+   rebuildActivities(), dan disinkronkan ke semua device lewat BLOB_URL
+   yang sama dipakai relay hasil scan — jadi kalau ditambah di satu HP,
+   device lain akan ikut ke-update lewat mekanisme polling yang sudah ada.
+============================================================ */
+function saveManualTasksLocal(){
+  try{ localStorage.setItem('manualTasksCache', JSON.stringify(MANUAL_TASKS)); }
+  catch(e){ console.error('Gagal simpan cache tugas manual:', e); }
+}
+function loadManualTasksLocal(){
+  try{
+    const cached = localStorage.getItem('manualTasksCache');
+    MANUAL_TASKS = cached ? (JSON.parse(cached) || []) : [];
+  }catch(e){ MANUAL_TASKS = []; }
+}
+
+// Tugas manual yang sudah ditandai selesai tetap muncul terus di "Tugas
+// Sudah Dikerjakan" (tidak otomatis dihapus). Kalau mau dibuang, hapus manual
+// lewat tombol hapus (🗑) pada kartu tugas.
+function pruneExpiredManualTasks(){
+  // sengaja dikosongkan — tidak ada lagi auto-expire 1 minggu
+}
+
+// Konversi tugas manual jadi bentuk "activity" yang sama seperti tugas hasil
+// scan, supaya bisa dipakai apa adanya oleh renderDashboard/renderSidebar/
+// renderCourseWeeks tanpa perlu logic terpisah. Kalau matkul tujuannya belum/
+// tidak ada lagi di COURSES_META (misal belum pernah scan), tugas tetap
+// disimpan di MANUAL_TASKS tapi disembunyikan dari tampilan sampai matkul-nya
+// tersedia lagi (supaya tidak error saat lookup COURSES_META).
+function manualTasksToActivities(){
+  return MANUAL_TASKS.filter(t=>COURSES_META[t.courseId]).map(t=>({
+    id: t.id,
+    courseId: t.courseId,
+    type: 'tugas',
+    title: t.title,
+    deadline: t.deadline,
+    status: t.done ? 'done' : 'pending',
+    url: '#',
+    section_title: null,
+    pertemuan_ke: null,
+    is_previous: false,
+    manual: true,
+    doneAt: t.doneAt || null,
+  }));
+}
+
+function rebuildActivities(){
+  pruneExpiredManualTasks();
+  ACTIVITIES = SCANNED_ACTIVITIES.concat(manualTasksToActivities());
+}
+
+function rerenderAfterManualChange(){
+  renderDashboard();
+  renderSidebar();
+  if(typeof currentView!=='undefined' && currentView && currentView.startsWith('course-')){
+    renderCourseWeeks(currentView.replace('course-',''));
+  }
+}
+
+// Kirim MANUAL_TASKS terbaru ke BLOB_URL. GET dulu supaya field lain (status
+// scan, tasks hasil LMS, dll) yang sedang tersimpan di blob tidak ikut
+// ketimpa/hilang — cuma field manual_tasks yang diperbarui.
+async function pushManualTasksToBlob(){
+  try{
+    const getRes = await fetch(BLOB_URL + '?t=' + Date.now());
+    let data = {};
+    if(getRes.ok){
+      try{ data = await getRes.json(); }catch(e){ data = {}; }
+    }
+    data.manual_tasks = MANUAL_TASKS;
+    const postRes = await fetch(BLOB_URL, {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify(data)
+    });
+    if(!postRes.ok) throw new Error('HTTP '+postRes.status);
+  }catch(e){
+    console.error('Gagal sinkron tugas manual ke cloud:', e);
+    showToast('✗ Gagal sinkron tugas manual ke cloud, coba lagi nanti');
+  }
+}
+
+// Polling independen dari sync hasil scan (jalan terus apapun status
+// backend online/offline), supaya tugas manual yang ditambahkan di device
+// lain tetap ke-update di sini lewat BLOB_URL yang sama.
+let manualTasksPollInterval = null;
+async function pullManualTasksFromBlob(){
+  try{
+    const res = await fetch(BLOB_URL + '?t=' + Date.now());
+    if(!res.ok) return;
+    const data = await res.json();
+    if(!Array.isArray(data.manual_tasks)) return;
+    const incoming = JSON.stringify(data.manual_tasks);
+    const current = JSON.stringify(MANUAL_TASKS);
+    if(incoming !== current){
+      MANUAL_TASKS = data.manual_tasks;
+      saveManualTasksLocal();
+      rebuildActivities();
+      rerenderAfterManualChange();
+    }
+  }catch(e){
+    // Diam saja — kemungkinan jaringan sedang offline, dicoba lagi di polling berikutnya
+  }
+}
+function startManualTasksPolling(){
+  if(manualTasksPollInterval) clearInterval(manualTasksPollInterval);
+  manualTasksPollInterval = setInterval(pullManualTasksFromBlob, 8000);
+}
+
+let selectedCourseIdForAddTask = '';
+
+function toggleCourseDropdown(){
+  document.getElementById('addTaskCourseSelect').classList.toggle('open');
+}
+
+function selectCourseOption(id){
+  selectedCourseIdForAddTask = id;
+  const c = COURSES_META[id];
+  document.getElementById('addTaskCourseLabel').textContent = c ? `${c.name} — ${c.day} ${c.time}` : 'Pilih mata kuliah';
+  document.getElementById('addTaskCourseSelect').classList.remove('open');
+  document.querySelectorAll('#addTaskCourseOptions .custom-select-option').forEach(el=>{
+    el.classList.toggle('active', el.dataset.id===id);
+  });
+}
+
+// Tutup dropdown kalau klik di luar area dropdown-nya.
+document.addEventListener('click', e=>{
+  const dd = document.getElementById('addTaskCourseSelect');
+  if(dd && dd.classList.contains('open') && !dd.contains(e.target)){
+    dd.classList.remove('open');
+  }
+});
+
+function openAddTaskModal(){
+  const optionsEl = document.getElementById('addTaskCourseOptions');
+  const labelEl = document.getElementById('addTaskCourseLabel');
+  const courseIds = getCourseOrder();
+  selectedCourseIdForAddTask = '';
+
+  if(!courseIds.length){
+    optionsEl.innerHTML = `<div class="custom-select-empty">Belum ada data kelas — refresh dulu</div>`;
+    labelEl.textContent = 'Pilih mata kuliah';
+  } else {
+    optionsEl.innerHTML = courseIds.map(id=>{
+      const c = COURSES_META[id];
+      return `<div class="custom-select-option" data-id="${id}" onclick="selectCourseOption('${id}')">
+        <span>${esc(c.name)}</span>
+        <span class="custom-select-option-sched">${esc(c.day)} ${esc(c.time)}</span>
+      </div>`;
+    }).join('');
+    selectedCourseIdForAddTask = courseIds[0];
+    const c0 = COURSES_META[courseIds[0]];
+    labelEl.textContent = `${c0.name} — ${c0.day} ${c0.time}`;
+  }
+  document.getElementById('addTaskCourseSelect').classList.remove('open');
+  requestAnimationFrame(()=>{
+    const activeEl = optionsEl.querySelector(`[data-id="${selectedCourseIdForAddTask}"]`);
+    if(activeEl) activeEl.classList.add('active');
+  });
+
+  document.getElementById('addTaskTitle').value = '';
+  const now = new Date();
+  document.getElementById('addTaskDate').value = now.toISOString().slice(0,10);
+  document.getElementById('addTaskTime').value = '23:59';
+  document.getElementById('addTaskModalOverlay').classList.add('open');
+}
+function closeAddTaskModal(){
+  document.getElementById('addTaskModalOverlay').classList.remove('open');
+  document.getElementById('addTaskCourseSelect').classList.remove('open');
+}
+
+async function submitAddTask(){
+  const courseId = selectedCourseIdForAddTask;
+  const title = document.getElementById('addTaskTitle').value.trim();
+  const date = document.getElementById('addTaskDate').value;
+  const time = document.getElementById('addTaskTime').value || '23:59';
+
+  if(!courseId){ showToast('⚠ Pilih mata kuliah dulu'); return; }
+  if(!title){ showToast('⚠ Isi nama tugas dulu'); return; }
+  if(!date){ showToast('⚠ Pilih tanggal deadline dulu'); return; }
+
+  const deadline = new Date(`${date}T${time}:00`);
+  if(isNaN(deadline.getTime())){ showToast('⚠ Tanggal/jam deadline tidak valid'); return; }
+
+  const task = {
+    id: 'm_' + Date.now() + '_' + Math.random().toString(36).slice(2,7),
+    courseId,
+    title,
+    deadline: deadline.toISOString(),
+    createdAt: new Date().toISOString(),
+    done: false,
+    doneAt: null,
+  };
+  MANUAL_TASKS.push(task);
+  saveManualTasksLocal();
+  rebuildActivities();
+  rerenderAfterManualChange();
+  closeAddTaskModal();
+  showToast('✓ Tugas manual ditambahkan');
+  await pushManualTasksToBlob();
+}
+
+async function markManualTaskDone(taskId){
+  const task = MANUAL_TASKS.find(t=>t.id===taskId);
+  if(!task) return;
+  task.done = true;
+  task.doneAt = new Date().toISOString();
+  saveManualTasksLocal();
+  rebuildActivities();
+  rerenderAfterManualChange();
+  showToast('✓ Tugas ditandai selesai');
+  await pushManualTasksToBlob();
+}
+
+async function deleteManualTask(taskId){
+  const idx = MANUAL_TASKS.findIndex(t=>t.id===taskId);
+  if(idx===-1) return;
+  MANUAL_TASKS.splice(idx,1);
+  saveManualTasksLocal();
+  rebuildActivities();
+  rerenderAfterManualChange();
+  showToast('🗑 Tugas manual dihapus');
+  await pushManualTasksToBlob();
 }
 
 /* ============================================================
@@ -1465,13 +1871,25 @@ async function checkBackendConnection() {
     clearTimeout(id);
     if (res.ok) {
       const data = await res.json();
+
+      // Flag eksplisit dari app.py: dikirim SAAT backend dimatikan secara
+      // normal (Ctrl+C / shutdown), jadi bisa langsung dianggap offline
+      // tanpa perlu menunggu timeout heartbeat.
+      if (data && data.backend_alive === false) {
+        apiAvailable = false;
+        updateBackendStatus(false);
+        return false;
+      }
+
       if (data && data.backend_last_active) {
         const lastActiveTime = new Date(data.backend_last_active);
         const now = new Date();
         const diffSeconds = Math.abs((now - lastActiveTime) / 1000);
-        
-        // Pengecekan 90 detik aman dari perbedaan jam server-client tipis
-        if (diffSeconds < 90) {
+
+        // Toleransi 25 detik untuk jaga-jaga selisih jam server-client tipis
+        // (diperkecil dari 90 detik agar deteksi offline lebih cepat saat
+        // PC mati mendadak dan graceful-shutdown tidak sempat terkirim).
+        if (diffSeconds < 25) {
           apiAvailable = false;
           updateBackendStatus(true);
           return true;
@@ -1493,7 +1911,7 @@ function startSyncPolling() {
   const getPollInterval = () => {
     const btn = document.getElementById('refreshBtn');
     const isBusy = btn && btn.classList.contains('spinning');
-    return isBusy ? 3000 : 10000;
+    return isBusy ? 3000 : 6000;
   };
   
   const runPoll = async () => {
@@ -1592,7 +2010,8 @@ function handleSyncData(data) {
       renderCourseViewsDOM();
       renderDashboard();
       renderSidebar();
-      showToast(`✓ Data diperbarui — ${ACTIVITIES.length} tugas ditemukan`);
+      const pendingCntUpdate=ACTIVITIES.filter(a=>a.status==='pending'&&!a.is_previous).length;
+      showToast(`✓ Data diperbarui — ${pendingCntUpdate} tugas belum dikerjakan`);
     }
     
     if (btn && btn.classList.contains('spinning')) {
@@ -1812,7 +2231,8 @@ async function loadLastScan(){
     const data=await res.json();
     handleSyncData(data);
     if(data.status==='done' && data.tasks && data.tasks.length){
-      showToast(`📂 Memuat hasil scan terakhir (${ACTIVITIES.length} tugas)`);
+      const pendingCnt=ACTIVITIES.filter(a=>a.status==='pending'&&!a.is_previous).length;
+      showToast(`📂 Memuat hasil scan terakhir (${pendingCnt} tugas belum dikerjakan)`);
     }
   }catch(err){
     try{
@@ -1825,7 +2245,8 @@ async function loadLastScan(){
         renderDashboard();
         renderSidebar();
         updateStatusBar();
-        showToast(`📂 Memuat data static dari last_scan.json (${ACTIVITIES.length} tugas)`);
+        const pendingCntStatic=ACTIVITIES.filter(a=>a.status==='pending'&&!a.is_previous).length;
+        showToast(`📂 Memuat data static dari last_scan.json (${pendingCntStatic} tugas belum dikerjakan)`);
       } else {
         throw new Error('Static data status not done');
       }
@@ -2179,12 +2600,13 @@ function renderDashboard(){
     const c=COURSES_META[act.courseId];
     const effDeadline=getEffectiveDeadline(act);
     const bk=bucket(effDeadline);
-    return `<div class="task-card s-${bk}" style="animation-delay:${i*0.04}s">
+    return `<div class="task-card s-${bk}" style="animation-delay:${i*0.04}s" data-deadline="${effDeadline||''}">
       <div class="status-ladder"></div>
       <div class="task-main">
         <div class="task-top-row">
           <span class="badge type-${act.type}">${typeBadge(act.type)}</span>
           <span class="badge status-${bk}">${statusBadge(bk)}</span>
+          ${act.manual?'<span class="badge type-manual">Manual</span>':''}
         </div>
         <div class="task-course">${esc(c.name)}</div>
         <div class="task-schedule">${c.day}, ${c.time}</div>
@@ -2195,9 +2617,19 @@ function renderDashboard(){
         </div>
       </div>
       <div class="task-action">
+        ${act.manual ? `
+        <button class="btn-done-manual" onclick="markManualTaskDone('${act.id}')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6 9 17l-5-5"/></svg>
+          Selesai
+        </button>
+        <button class="btn-delete-manual" onclick="deleteManualTask('${act.id}')" title="Hapus tugas manual" aria-label="Hapus tugas manual">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0-1 14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2L4 6"/></svg>
+        </button>
+        ` : `
         <a class="btn-open" href="${act.url}" target="_blank">Buka Tugas
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17 17 7M7 7h10v10"/></svg>
         </a>
+        `}
       </div>
     </div>`;
   }
@@ -2365,7 +2797,7 @@ function closeDoneModal(){
   document.getElementById('doneModalOverlay').classList.remove('open');
 }
 document.addEventListener('keydown',e=>{
-  if(e.key==='Escape') closeDoneModal();
+  if(e.key==='Escape'){ closeDoneModal(); closeAddTaskModal(); }
 });
 
 let currentView='dashboard';
@@ -2430,14 +2862,37 @@ function tickClock(){
 tickClock();
 setInterval(tickClock,1000);
 
-// Ini BUKAN refresh data — cuma update teks "X menit lalu" & re-render
-// list dari data yang sudah ada di memori (lokal, tidak ada panggilan
-// jaringan), supaya pengelompokan deadline (terlambat/hari ini/dst) tetap
-// akurat seiring waktu berjalan.
+// Update teks "Sisa X jam / Terlambat" & badge status tiap kartu tugas
+// TANPA membongkar ulang seluruh <div class="task-list">. Sebelumnya
+// renderDashboard() dipanggil tiap menit dan mengganti innerHTML seluruh
+// list, sehingga animasi "masuk" kartu (slideIn) ikut terputar ulang tiap
+// menit — itu penyebab tampilan kerasa "glitch"/kedip berkala. Sekarang
+// yang di-update cuma teks & class pada elemen yang sudah ada.
+function updateCountdownsOnly(){
+  document.querySelectorAll('.task-card[data-deadline]').forEach(card=>{
+    const iso = card.dataset.deadline || null;
+    const bk = bucket(iso);
+    const newClass = `task-card s-${bk}`;
+    if(card.className !== newClass) card.className = newClass;
+    const countdownEl = card.querySelector('.task-countdown');
+    if(countdownEl) countdownEl.textContent = countdown(iso);
+    const badgeEl = card.querySelector('.badge.status-late,.badge.status-urgent,.badge.status-soon,.badge.status-safe');
+    if(badgeEl){
+      badgeEl.className = `badge status-${bk}`;
+      badgeEl.textContent = statusBadge(bk);
+    }
+  });
+}
+
+// Ini BUKAN refresh data — cuma update teks waktu berjalan dari data yang
+// sudah ada di memori (lokal, tidak ada panggilan jaringan). Render ulang
+// penuh (pengelompokan terlambat/hari ini/dst) tetap terjadi otomatis lewat
+// checkScheduledRefresh(), sinkronisasi data baru, atau pindah tampilan —
+// bukan tiap menit.
 setInterval(()=>{
   updateStatusBar();
-  if(currentView==='dashboard') renderDashboard();
-}, 60000);
+  if(currentView==='dashboard') updateCountdownsOnly();
+}, 30000);
 
 const DAY_INDEX={Minggu:0,Senin:1,Selasa:2,Rabu:3,Kamis:4,Jumat:5,Sabtu:6};
 
@@ -2508,6 +2963,11 @@ async function initApp() {
     console.error('Gagal load cache lastGoodScan:', e);
   }
 
+  // Muat cache tugas manual (lokal) lebih dulu supaya langsung terlihat
+  // sebelum data terbaru dari cloud (BLOB_URL) datang.
+  loadManualTasksLocal();
+  rebuildActivities();
+
   renderCourseViewsDOM();
   renderSidebar();
   renderDashboard();
@@ -2515,7 +2975,9 @@ async function initApp() {
   
   await checkBackendConnection();
   await loadLastScan();
+  await pullManualTasksFromBlob();
   startSyncPolling();
+  startManualTasksPolling();
 }
 initApp();
 </script>
