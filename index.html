@@ -1007,7 +1007,8 @@ body{
       <label class="form-label" for="addTaskTitle">Nama Tugas</label>
       <input class="form-input" type="text" id="addTaskTitle" name="tugas_manual_judul" placeholder="Nama tugas"
         autocomplete="x-no-autofill" autocapitalize="sentences" autocorrect="off" spellcheck="false"
-        data-lpignore="true" data-1p-ignore="true" data-form-type="other">
+        data-lpignore="true" data-1p-ignore="true" data-form-type="other"
+        readonly onfocus="this.removeAttribute('readonly')">
     </div>
     <div class="form-row-2">
       <div class="form-group">
