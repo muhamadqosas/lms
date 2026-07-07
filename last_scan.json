@@ -1,6 +1,6 @@
 {
   "status": "done",
-  "scanned_at": "2026-07-06T19:57:06.815135",
+  "scanned_at": "2026-07-07T09:41:06.664621",
   "tasks": [
     {
       "site": "FAST Learning",
@@ -196,36 +196,6 @@
       "is_previous": true,
       "deadline_iso": null,
       "course_clean": "Analisa Struktur 3 — Senin 19:30"
-    },
-    {
-      "site": "FAST Learning",
-      "course_name": "ESTIMASI BIAYA PROYEK & REKAYASA EKONOMI (Selasa 19:30)",
-      "task_name": "Forum Pertemuan 14 : KONSEP NPV DAN FV",
-      "task_link": "https://fast.mercubuana.ac.id/mod/forum/view.php?id=55781",
-      "task_type": "FORUM",
-      "deadline": "08 July 2026, 01:36",
-      "submitted": true,
-      "submission_status": "Sudah membalas forum",
-      "section_title": "30 June - 6 July",
-      "pertemuan_ke": null,
-      "is_previous": false,
-      "deadline_iso": "2026-07-08T01:36:00",
-      "course_clean": "Estimasi Biaya Proyek & Rekayasa Ekonomi — Selasa 19:30"
-    },
-    {
-      "site": "FAST Learning",
-      "course_name": "ESTIMASI BIAYA PROYEK & REKAYASA EKONOMI (Selasa 19:30)",
-      "task_name": "Kuis Pertemuan 14 : KONSEP NPV DAN FV\nQuiz",
-      "task_link": "https://fast.mercubuana.ac.id/mod/quiz/view.php?id=55782",
-      "task_type": "QUIZ",
-      "deadline": "Closes: Monday, 6 July 2026, 11:00 PM",
-      "submitted": true,
-      "submission_status": "Finished",
-      "section_title": "30 June - 6 July",
-      "pertemuan_ke": null,
-      "is_previous": false,
-      "deadline_iso": "2026-07-06T23:00:00",
-      "course_clean": "Estimasi Biaya Proyek & Rekayasa Ekonomi — Selasa 19:30"
     },
     {
       "site": "FAST Learning",
@@ -507,6 +477,36 @@
       "submitted": true,
       "submission_status": "Selesai",
       "section_title": "23 June - 29 June",
+      "pertemuan_ke": null,
+      "is_previous": true,
+      "deadline_iso": null,
+      "course_clean": "Estimasi Biaya Proyek & Rekayasa Ekonomi — Selasa 19:30"
+    },
+    {
+      "site": "FAST Learning",
+      "course_name": "ESTIMASI BIAYA PROYEK & REKAYASA EKONOMI (Selasa 19:30)",
+      "task_name": "Forum Pertemuan 14 : KONSEP NPV DAN FV",
+      "task_link": "https://fast.mercubuana.ac.id/mod/forum/view.php?id=55781",
+      "task_type": "FORUM",
+      "deadline": null,
+      "submitted": true,
+      "submission_status": "Selesai",
+      "section_title": "30 June - 6 July",
+      "pertemuan_ke": null,
+      "is_previous": true,
+      "deadline_iso": null,
+      "course_clean": "Estimasi Biaya Proyek & Rekayasa Ekonomi — Selasa 19:30"
+    },
+    {
+      "site": "FAST Learning",
+      "course_name": "ESTIMASI BIAYA PROYEK & REKAYASA EKONOMI (Selasa 19:30)",
+      "task_name": "Kuis Pertemuan 14 : KONSEP NPV DAN FV\nQuiz",
+      "task_link": "https://fast.mercubuana.ac.id/mod/quiz/view.php?id=55782",
+      "task_type": "QUIZ",
+      "deadline": null,
+      "submitted": true,
+      "submission_status": "Selesai",
+      "section_title": "30 June - 6 July",
       "pertemuan_ke": null,
       "is_previous": true,
       "deadline_iso": null,
@@ -1785,6 +1785,18 @@
           "url": "https://fast.mercubuana.ac.id/mod/quiz/view.php?id=55782",
           "section_title": "30 June - 6 July",
           "pertemuan_ke": null
+        },
+        {
+          "name": "Pertemuan Ke 15 : Review Materi 1 -14\nGoogle Meet™ for Moodle",
+          "url": "https://fast.mercubuana.ac.id/mod/googlemeet/view.php?id=59266",
+          "section_title": "7 July - 13 July",
+          "pertemuan_ke": null
+        },
+        {
+          "name": "Attendance Pertemuan Ke 15 : Review Materi 1 -14",
+          "url": "https://fast.mercubuana.ac.id/mod/attendance/view.php?id=59267",
+          "section_title": "7 July - 13 July",
+          "pertemuan_ke": null
         }
       ]
     },
@@ -2678,5 +2690,5 @@
   "scan_started_at": null,
   "error": null,
   "request_scan": false,
-  "backend_last_active": "2026-07-06T19:57:06.815772"
+  "backend_last_active": "2026-07-07T09:41:06.665219"
 }
