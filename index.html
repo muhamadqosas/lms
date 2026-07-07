@@ -249,6 +249,57 @@ body{
 .btn-download-modules svg{width:14px; height:14px; flex-shrink:0;}
 .btn-download-modules.spinning svg{animation:spin 0.9s linear infinite;}
 
+/* ============ LIVE MEET BANNER (kelas berlangsung + link Google Meet) ============ */
+.lmb-wrap{
+  background:var(--paper-raised);
+  border:1.5px solid var(--forest);
+  border-radius:var(--radius);
+  padding:14px 18px;
+  margin-bottom:14px;
+  box-shadow:var(--shadow-sm);
+  animation:slideIn 0.25s ease;
+}
+.lmb-head{display:flex; align-items:center; gap:9px; margin-bottom:10px;}
+.lmb-dot{
+  width:8px; height:8px; border-radius:50%;
+  background:var(--forest); flex-shrink:0;
+  animation:pulse-green 1.4s ease-in-out infinite;
+}
+.lmb-title{
+  font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:13.5px;
+  color:var(--forest); text-transform:uppercase; letter-spacing:0.02em;
+}
+.lmb-list{display:flex; flex-direction:column; gap:8px;}
+.lmb-item{
+  display:flex; align-items:center; gap:12px; flex-wrap:wrap;
+  background:var(--paper);
+  border:1px solid var(--line);
+  border-radius:10px;
+  padding:10px 12px;
+}
+.lmb-item.is-live{border-color:var(--forest); background:var(--forest-bg);}
+.lmb-item-main{flex:1 1 160px; min-width:0;}
+.lmb-item-name{font-weight:600; font-size:13.5px; color:var(--ink); margin-bottom:2px;}
+.lmb-item-sched{font-size:11.5px; color:var(--ink-soft);}
+.lmb-item-countdown{display:flex; flex-direction:column; align-items:flex-end; gap:1px; flex-shrink:0;}
+.lmb-cd-label{
+  font-family:'JetBrains Mono',monospace; font-size:9.5px; text-transform:uppercase;
+  letter-spacing:0.05em; color:var(--ink-soft);
+}
+.lmb-item.is-live .lmb-cd-label{color:var(--forest);}
+.lmb-cd-time{
+  font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:15px; color:var(--forest);
+}
+.lmb-cd-static{align-items:flex-end; justify-content:center;}
+.lmb-join-btn{
+  font-family:'Inter',sans-serif; font-weight:700; font-size:12px;
+  padding:7px 13px; border-radius:8px;
+  background:var(--forest); color:#fff; text-decoration:none;
+  display:inline-flex; align-items:center; gap:5px; flex-shrink:0;
+  transition:all 0.14s ease;
+}
+.lmb-join-btn:hover{background:#234a31;}
+
 /* ============ DASHBOARD GRID ============ */
 .dash-grid{
   display:grid;
@@ -893,6 +944,9 @@ body{
 
     <!-- Stat cards -->
     <div class="dash-grid" id="dashGrid"></div>
+
+    <!-- Kelas berlangsung hari ini + link Google Meet (reminder) -->
+    <div id="liveMeetBanner"></div>
 
     <!-- Rekap by waktu / matkul -->
     <div style="margin-top:4px;">
@@ -1774,6 +1828,122 @@ function isCurrentWeek(weekStr){
 }
 
 /* ============================================================
+   LIVE MEET BANNER
+   Menampilkan kelas hari ini (sesuai jadwal COURSES_META) yang
+   pertemuan-nya sedang "sedang berlangsung" (minggu aktif) DAN
+   punya link Google Meet di materi minggu itu. Tampil dari kapan
+   saja di hari itu (dengan countdown ke jam mulai), tetap tampil
+   selama kelas berlangsung, lalu otomatis hilang begitu melewati
+   jam selesai kelas (estimasi start+2j30m via calculateEndTime,
+   kecuali ada endTime eksplisit di COURSES_META).
+   Kalau hari itu ada beberapa kelas (mis. Sabtu), semua item
+   ditampilkan terurut sesuai jam mulai, dan countdown live hanya
+   diberikan untuk pertemuan Meet terdekat yang belum berakhir;
+   sisanya tetap menampilkan jam jadwalnya.
+============================================================ */
+function getTodayLiveMeetings(){
+  if(typeof COURSES_META==='undefined') return [];
+  const todayName=todayDayName();
+  const now=new Date();
+  const results=[];
+
+  Object.keys(COURSES_META).forEach(courseId=>{
+    const meta=COURSES_META[courseId];
+    if(!meta || meta.day!==todayName) return;
+    if(!meta.time || !meta.time.includes(':')) return;
+    const endTimeStr = (meta.endTime && meta.endTime.includes(':')) ? meta.endTime : calculateEndTime(meta.time);
+    if(!endTimeStr) return;
+
+    let weeks;
+    try{ weeks=getWeeksWithActivities(courseId); }catch(e){ return; }
+    const ongoingWeek=(weeks||[]).find(w=>isCurrentWeek(w.week));
+    if(!ongoingWeek) return;
+
+    const meetItems=(ongoingWeek.items||[]).filter(it=>it.type==='meet' && it.url && it.url!=='#');
+    if(!meetItems.length) return;
+
+    const [sh,sm]=meta.time.split(':').map(Number);
+    const [eh,em]=endTimeStr.split(':').map(Number);
+    const startDate=new Date(now); startDate.setHours(sh,sm,0,0);
+    const endDate=new Date(now); endDate.setHours(eh,em,0,0);
+
+    // Hilangkan begitu jam kelas sudah lewat (berakhir)
+    if(now>=endDate) return;
+
+    results.push({
+      courseId,
+      name: meta.name,
+      startDate, endDate,
+      meetUrl: meetItems[0].url,
+      started: now>=startDate
+    });
+  });
+
+  results.sort((a,b)=>a.startDate-b.startDate);
+  return results;
+}
+
+function fmtHM(d){
+  return `${String(d.getHours()).padStart(2,'0')}.${String(d.getMinutes()).padStart(2,'0')}`;
+}
+
+function fmtCountdownMs(ms){
+  if(ms<=0) return '00:00:00';
+  const totalSec=Math.floor(ms/1000);
+  const h=Math.floor(totalSec/3600);
+  const m=Math.floor((totalSec%3600)/60);
+  const s=totalSec%60;
+  return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+}
+
+function renderLiveMeetBanner(){
+  const el=document.getElementById('liveMeetBanner');
+  if(!el) return;
+  if(typeof COURSES_META==='undefined' || !Object.keys(COURSES_META).length){ el.innerHTML=''; return; }
+
+  const meetings=getTodayLiveMeetings();
+  if(!meetings.length){ el.innerHTML=''; return; }
+
+  const now=new Date();
+  el.innerHTML=`
+    <div class="lmb-wrap">
+      <div class="lmb-head">
+        <span class="lmb-dot"></span>
+        <span class="lmb-title">${meetings.length>1?'Kelas Google Meet Hari Ini':'Kelas Berlangsung Hari Ini'}</span>
+      </div>
+      <div class="lmb-list">
+        ${meetings.map((mt,i)=>{
+          const isNearest=i===0;
+          const remainMs = mt.started ? (mt.endDate-now) : (mt.startDate-now);
+          const timeRange=`${fmtHM(mt.startDate)} \u2013 ${fmtHM(mt.endDate)}`;
+          const stateLabel = mt.started ? 'Sedang berlangsung, berakhir dalam' : 'Dimulai dalam';
+          return `
+          <div class="lmb-item${mt.started?' is-live':''}">
+            <div class="lmb-item-main">
+              <div class="lmb-item-name">${esc(mt.name)}</div>
+              <div class="lmb-item-sched mono">${esc(timeRange)}</div>
+            </div>
+            ${isNearest?`
+            <div class="lmb-item-countdown">
+              <span class="lmb-cd-label">${esc(stateLabel)}</span>
+              <span class="lmb-cd-time mono">${fmtCountdownMs(remainMs)}</span>
+            </div>`:`
+            <div class="lmb-item-countdown lmb-cd-static">
+              <span class="lmb-cd-label">Terjadwal ${esc(fmtHM(mt.startDate))}</span>
+            </div>`}
+            <a class="lmb-join-btn" href="${esc(mt.meetUrl)}" target="_blank" rel="noopener">
+              Buka Meet
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M7 17 17 7M7 7h10v10"/></svg>
+            </a>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>
+  `;
+}
+setInterval(renderLiveMeetBanner, 1000);
+
+/* ============================================================
    STATUS BAR
 ============================================================ */
 let lastRefresh=null;
@@ -2576,6 +2746,7 @@ function setDashSort(mode){
 }
 
 function renderDashboard(){
+  renderLiveMeetBanner();
   const pending=ACTIVITIES.filter(a=>a.status==='pending' && !a.is_previous);
   const late=pending.filter(a=>bucket(getEffectiveDeadline(a))==='late').length;
   const done=ACTIVITIES.filter(a=>a.status==='done' && !a.is_previous);
