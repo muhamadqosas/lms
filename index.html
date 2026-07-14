@@ -876,6 +876,92 @@ body{
   .dash-grid{grid-template-columns:1fr 1fr;}
   .main{padding:20px 14px 64px;}
 }
+
+/* ============ MODAL TABS (Tambah Tugas / Pantau Tugas) ============ */
+.modal-tabs{
+  display:flex; gap:0; border-bottom:1.5px solid var(--line);
+  margin:0 -1px 16px;
+}
+.modal-tab-btn{
+  flex:1; padding:10px 6px; font-size:13px; font-weight:600;
+  font-family:'Inter',sans-serif;
+  background:transparent; border:none; cursor:pointer;
+  color:var(--ink-soft);
+  border-bottom:2.5px solid transparent;
+  margin-bottom:-1.5px;
+  transition:all 0.15s ease;
+}
+.modal-tab-btn.active{color:var(--blue); border-bottom-color:var(--blue);}
+.modal-tab-btn:hover:not(.active){color:var(--ink);}
+.modal-tab-panel{display:none;}
+.modal-tab-panel.active{display:block;}
+
+/* ============ BADGE DIPANTAU ============ */
+.badge.type-pantau{
+  background:var(--blue-bg); color:var(--blue);
+  font-size:10px; font-weight:700;
+  padding:2px 7px; border-radius:5px;
+  font-family:'JetBrains Mono',monospace;
+  letter-spacing:0.04em;
+}
+.btn-unpantau{
+  display:flex; align-items:center; gap:5px;
+  padding:7px 12px; border-radius:8px;
+  background:var(--blue-bg); color:var(--blue);
+  border:1px solid var(--blue); font-size:12px; font-weight:600;
+  cursor:pointer; transition:all 0.15s ease;
+  font-family:'Inter',sans-serif;
+  white-space:nowrap;
+}
+.btn-unpantau:hover{background:var(--blue); color:#fff;}
+.btn-unpantau svg{width:13px; height:13px; flex-shrink:0;}
+
+/* Textarea URL di tab Pantau */
+.pantau-url-input{
+  width:100%; padding:9px 11px;
+  border:1.5px solid var(--line-strong);
+  border-radius:9px; font-size:12.5px;
+  font-family:'JetBrains Mono',monospace;
+  background:var(--paper); color:var(--ink);
+  resize:vertical; min-height:56px;
+  transition:border-color 0.15s ease;
+}
+.pantau-url-input:focus{outline:none; border-color:var(--blue);}
+.pantau-hint{
+  font-size:11.5px; color:var(--ink-soft);
+  margin-top:5px; line-height:1.5;
+}
+
+/* Daftar tugas pantau di modal */
+.pantau-list{margin-top:12px; display:flex; flex-direction:column; gap:6px;}
+.pantau-list-item{
+  display:flex; align-items:flex-start; gap:8px;
+  background:var(--blue-bg); border:1px solid var(--blue);
+  border-radius:8px; padding:8px 10px;
+}
+.pantau-list-item-info{flex:1; min-width:0;}
+.pantau-list-item-name{
+  font-size:12.5px; font-weight:600;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+.pantau-list-item-url{
+  font-family:'JetBrains Mono',monospace;
+  font-size:10.5px; color:var(--ink-soft);
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+.pantau-list-item-del{
+  flex-shrink:0; background:transparent;
+  border:none; cursor:pointer; color:var(--brick);
+  padding:3px; border-radius:5px;
+  transition:background 0.12s ease;
+}
+.pantau-list-item-del:hover{background:var(--brick-bg);}
+.pantau-list-item-del svg{width:14px; height:14px; display:block;}
+.pantau-offline-note{
+  font-size:11.5px; color:var(--brick);
+  background:var(--brick-bg); border-radius:7px;
+  padding:7px 10px; margin-bottom:10px;
+}
 </style>
 </head>
 <body>
@@ -1034,12 +1120,12 @@ body{
 <div class="modal-overlay" id="addTaskModalOverlay" onclick="if(event.target===this) closeAddTaskModal()">
   <div class="modal-box">
     <div class="modal-head">
-      <div class="modal-check" style="background:var(--blue-bg); color:var(--blue);">
+      <div class="modal-check" id="addTaskModalIcon" style="background:var(--blue-bg); color:var(--blue);">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
       </div>
       <div class="modal-head-text">
-        <div class="modal-status-label" style="color:var(--blue);">Tugas Manual</div>
-        <div class="modal-title">Tambah Tugas</div>
+        <div class="modal-status-label" id="addTaskModalSubtitle" style="color:var(--blue);">Tugas Manual</div>
+        <div class="modal-title" id="addTaskModalTitle">Tambah Tugas</div>
       </div>
       <button class="modal-close" onclick="closeAddTaskModal()" aria-label="Tutup">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6 6 18M6 6l12 12"/></svg>
@@ -1047,41 +1133,89 @@ body{
     </div>
     <div class="modal-divider"></div>
 
-    <div class="form-group">
-      <label class="form-label" for="addTaskCourseTrigger">Mata Kuliah</label>
-      <div class="custom-select" id="addTaskCourseSelect">
-        <button type="button" class="custom-select-trigger" id="addTaskCourseTrigger" onclick="toggleCourseDropdown()">
-          <span id="addTaskCourseLabel">Pilih mata kuliah</span>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
+    <!-- Tab switcher -->
+    <div class="modal-tabs">
+      <button class="modal-tab-btn active" id="tabBtnManual" onclick="switchModalTab('manual')">✏️ Tugas Manual</button>
+      <button class="modal-tab-btn" id="tabBtnPantau" onclick="switchModalTab('pantau')">🔍 Pantau Tugas</button>
+    </div>
+
+    <!-- ===== Tab 1: Tugas Manual (tidak berubah) ===== -->
+    <div class="modal-tab-panel active" id="tabPanelManual">
+      <div class="form-group">
+        <label class="form-label" for="addTaskCourseTrigger">Mata Kuliah</label>
+        <div class="custom-select" id="addTaskCourseSelect">
+          <button type="button" class="custom-select-trigger" id="addTaskCourseTrigger" onclick="toggleCourseDropdown()">
+            <span id="addTaskCourseLabel">Pilih mata kuliah</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
+          </button>
+          <div class="custom-select-options" id="addTaskCourseOptions"></div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="addTaskTitle">Nama Tugas</label>
+        <input class="form-input" type="text" id="addTaskTitle" name="tugas_manual_judul" placeholder="Nama tugas"
+          autocomplete="x-no-autofill" autocapitalize="sentences" autocorrect="off" spellcheck="false"
+          data-lpignore="true" data-1p-ignore="true" data-form-type="other"
+          readonly onfocus="this.removeAttribute('readonly')">
+      </div>
+      <div class="form-row-2">
+        <div class="form-group">
+          <label class="form-label" for="addTaskDate">Tanggal Deadline</label>
+          <input class="form-input" type="date" id="addTaskDate" name="tugas_manual_tanggal" autocomplete="off" data-lpignore="true" data-1p-ignore="true">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="addTaskTime">Jam</label>
+          <input class="form-input" type="time" id="addTaskTime" name="tugas_manual_jam" autocomplete="off" data-lpignore="true" data-1p-ignore="true">
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button class="modal-btn-secondary" onclick="closeAddTaskModal()">Batal</button>
+        <button class="modal-btn-primary" onclick="submitAddTask()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg>
+          Simpan Tugas
         </button>
-        <div class="custom-select-options" id="addTaskCourseOptions"></div>
-      </div>
-    </div>
-    <div class="form-group">
-      <label class="form-label" for="addTaskTitle">Nama Tugas</label>
-      <input class="form-input" type="text" id="addTaskTitle" name="tugas_manual_judul" placeholder="Nama tugas"
-        autocomplete="x-no-autofill" autocapitalize="sentences" autocorrect="off" spellcheck="false"
-        data-lpignore="true" data-1p-ignore="true" data-form-type="other"
-        readonly onfocus="this.removeAttribute('readonly')">
-    </div>
-    <div class="form-row-2">
-      <div class="form-group">
-        <label class="form-label" for="addTaskDate">Tanggal Deadline</label>
-        <input class="form-input" type="date" id="addTaskDate" name="tugas_manual_tanggal" autocomplete="off" data-lpignore="true" data-1p-ignore="true">
-      </div>
-      <div class="form-group">
-        <label class="form-label" for="addTaskTime">Jam</label>
-        <input class="form-input" type="time" id="addTaskTime" name="tugas_manual_jam" autocomplete="off" data-lpignore="true" data-1p-ignore="true">
       </div>
     </div>
 
-    <div class="modal-actions">
-      <button class="modal-btn-secondary" onclick="closeAddTaskModal()">Batal</button>
-      <button class="modal-btn-primary" onclick="submitAddTask()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg>
-        Simpan Tugas
-      </button>
+    <!-- ===== Tab 2: Pantau Tugas (baru) ===== -->
+    <div class="modal-tab-panel" id="tabPanelPantau">
+      <div id="pantauOfflineNote" class="pantau-offline-note" style="display:none;">
+        ⚠ Fitur ini butuh backend (app.py) aktif. Pastikan PC Rumah online.
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="pantauTaskUrl">URL Tugas (dari LMS)</label>
+        <textarea class="pantau-url-input" id="pantauTaskUrl"
+          placeholder="https://fast.mercubuana.ac.id/mod/assign/view.php?id=..."
+          autocomplete="off" spellcheck="false" data-lpignore="true"></textarea>
+        <div class="pantau-hint">Tempel link tugas langsung dari browser saat membuka halaman tugas di LMS.</div>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="pantauTaskName">Nama Tugas (opsional)</label>
+        <input class="form-input" type="text" id="pantauTaskName" placeholder="Diisi otomatis saat scan jika kosong"
+          autocomplete="off" data-lpignore="true">
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="pantauTaskCourse">Mata Kuliah (opsional)</label>
+        <input class="form-input" type="text" id="pantauTaskCourse" placeholder="Nama kelas di LMS"
+          autocomplete="off" data-lpignore="true">
+      </div>
+
+      <div class="modal-actions">
+        <button class="modal-btn-secondary" onclick="closeAddTaskModal()">Batal</button>
+        <button class="modal-btn-primary" id="pantauSubmitBtn" onclick="submitPantauTask()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+          Pantau Tugas Ini
+        </button>
+      </div>
+
+      <!-- Daftar tugas yang sudah dipantau -->
+      <div style="margin-top:16px; border-top:1px solid var(--line); padding-top:12px;">
+        <div style="font-size:12px; font-weight:600; color:var(--ink-soft); text-transform:uppercase; letter-spacing:0.07em; margin-bottom:8px; font-family:'JetBrains Mono',monospace;">Daftar Tugas Dipantau</div>
+        <div class="pantau-list" id="pantauListEl"><div style="font-size:12.5px;color:var(--ink-soft);">Memuat...</div></div>
+      </div>
     </div>
+
   </div>
 </div>
 
@@ -1326,6 +1460,11 @@ function generateWeeksForCourse(courseId) {
 let ACTIVITIES = [];
 let CLASS_MODULES = [];
 
+// Daftar URL tugas yang sedang dipantau (dari /api/long-deadline-tasks).
+// Dipakai untuk menampilkan badge "Dipantau" di task card.
+let MONITORED_TASK_LINKS = new Set(); // Set of task_link strings
+let MONITORED_TASK_LIST  = [];        // Array of full entry objects (untuk daftar di modal)
+
 // Tugas manual (ditambahkan lewat tombol "Tambah Tugas") — disimpan terpisah
 // dari hasil scan (SCANNED_ACTIVITIES), lalu digabung ke ACTIVITIES lewat
 // rebuildActivities(). Disinkronkan lintas device lewat BLOB_URL yang sama
@@ -1554,6 +1693,104 @@ function startManualTasksPolling(){
   manualTasksPollInterval = setInterval(pullManualTasksFromBlob, 8000);
 }
 
+/* ============================================================
+   PANTAU TUGAS — kelola daftar tugas dipantau via backend
+   (/api/long-deadline-tasks). Hanya bisa kalau backend online.
+============================================================ */
+async function loadMonitoredTasks(){
+  try{
+    const res = await fetch(getApiBase() + '/api/long-deadline-tasks', {signal: AbortSignal.timeout(4000)});
+    if(!res.ok) throw new Error('HTTP '+res.status);
+    MONITORED_TASK_LIST = await res.json();
+    MONITORED_TASK_LINKS = new Set(MONITORED_TASK_LIST.map(e=>e.task_link||''));
+  }catch(e){
+    // Backend offline atau belum siap — MONITORED_TASK_LINKS tetap Set kosong
+    MONITORED_TASK_LIST = [];
+    MONITORED_TASK_LINKS = new Set();
+  }
+}
+
+async function submitPantauTask(){
+  const url = (document.getElementById('pantauTaskUrl').value||'').trim();
+  const name = (document.getElementById('pantauTaskName').value||'').trim();
+  const course = (document.getElementById('pantauTaskCourse').value||'').trim();
+
+  if(!url){ showToast('⚠ Isi URL tugas dulu'); return; }
+
+  // Validasi sederhana: harus mengandung mod/assign, mod/quiz, atau mod/forum
+  if(!url.includes('/mod/assign/') && !url.includes('/mod/quiz/') && !url.includes('/mod/forum/')){
+    showToast('⚠ URL harus dari halaman tugas/kuis/forum LMS (/mod/assign/, /mod/quiz/, atau /mod/forum/)');
+    return;
+  }
+
+  // Deteksi site dari URL
+  let site = 'Pantau';
+  if(url.includes('fast.mercubuana.ac.id')) site = 'FAST Learning';
+  else if(url.includes('ruangkelas.mercubuana.ac.id')) site = 'Ruang Kelas';
+
+  const btn = document.getElementById('pantauSubmitBtn');
+  if(btn){ btn.disabled = true; btn.textContent = 'Menyimpan...'; }
+
+  try{
+    const res = await fetch(getApiBase() + '/api/long-deadline-tasks', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({task_link: url, task_name: name, course_name: course, site})
+    });
+    const data = await res.json();
+    if(!res.ok){
+      showToast('✗ ' + (data.error || 'Gagal menyimpan'));
+      return;
+    }
+    showToast('✓ Tugas berhasil ditambahkan ke daftar pantau');
+    document.getElementById('pantauTaskUrl').value = '';
+    document.getElementById('pantauTaskName').value = '';
+    document.getElementById('pantauTaskCourse').value = '';
+    await loadMonitoredTasks();
+    renderPantauList();
+  }catch(e){
+    showToast('✗ Gagal menghubungi backend: ' + e.message);
+  }finally{
+    if(btn){ btn.disabled = false; btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg> Pantau Tugas Ini'; }
+  }
+}
+
+async function deleteMonitoredTask(idx){
+  try{
+    const res = await fetch(getApiBase() + '/api/long-deadline-tasks/' + idx, {method:'DELETE'});
+    if(!res.ok){ const d=await res.json(); throw new Error(d.error||'Gagal hapus'); }
+    showToast('🗑 Dihapus dari daftar pantau');
+    await loadMonitoredTasks();
+    renderPantauList();
+    // Re-render dashboard agar badge Dipantau hilang dari kartu yang dihapus
+    rerenderAfterManualChange();
+  }catch(e){
+    showToast('✗ ' + e.message);
+  }
+}
+
+function renderPantauList(){
+  const el = document.getElementById('pantauListEl');
+  if(!el) return;
+  if(!MONITORED_TASK_LIST.length){
+    el.innerHTML = '<div style="font-size:12.5px;color:var(--ink-soft);font-style:italic;">Belum ada tugas yang dipantau.</div>';
+    return;
+  }
+  el.innerHTML = MONITORED_TASK_LIST.map((entry, i) => {
+    const name = esc(entry.task_name || entry.task_link || '(tanpa nama)');
+    const link = esc(entry.task_link || '');
+    return `<div class="pantau-list-item">
+      <div class="pantau-list-item-info">
+        <div class="pantau-list-item-name">${name}</div>
+        <div class="pantau-list-item-url">${link}</div>
+      </div>
+      <button class="pantau-list-item-del" onclick="deleteMonitoredTask(${i})" title="Hapus dari pantau">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0-1 14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2L4 6"/></svg>
+      </button>
+    </div>`;
+  }).join('');
+}
+
 let selectedCourseIdForAddTask = '';
 
 function toggleCourseDropdown(){
@@ -1609,11 +1846,34 @@ function openAddTaskModal(){
   const now = new Date();
   document.getElementById('addTaskDate').value = now.toISOString().slice(0,10);
   document.getElementById('addTaskTime').value = '23:59';
+  // Selalu buka di tab Manual (reset tab setiap kali modal dibuka)
+  switchModalTab('manual');
   document.getElementById('addTaskModalOverlay').classList.add('open');
 }
 function closeAddTaskModal(){
   document.getElementById('addTaskModalOverlay').classList.remove('open');
   document.getElementById('addTaskCourseSelect').classList.remove('open');
+}
+
+function switchModalTab(tab){
+  document.getElementById('tabBtnManual').classList.toggle('active', tab==='manual');
+  document.getElementById('tabBtnPantau').classList.toggle('active', tab==='pantau');
+  document.getElementById('tabPanelManual').classList.toggle('active', tab==='manual');
+  document.getElementById('tabPanelPantau').classList.toggle('active', tab==='pantau');
+  // Set judul modal sesuai tab
+  const subtitle = document.getElementById('addTaskModalSubtitle');
+  const title    = document.getElementById('addTaskModalTitle');
+  if(tab==='pantau'){
+    if(subtitle) subtitle.textContent = 'Pantau Tugas';
+    if(title)    title.textContent    = 'Tambah ke Daftar Pantau';
+    // Tampilkan peringatan kalau backend offline
+    const note = document.getElementById('pantauOfflineNote');
+    if(note) note.style.display = apiAvailable ? 'none' : 'block';
+    loadMonitoredTasks().then(renderPantauList);
+  } else {
+    if(subtitle) subtitle.textContent = 'Tugas Manual';
+    if(title)    title.textContent    = 'Tambah Tugas';
+  }
 }
 
 async function submitAddTask(){
@@ -2806,6 +3066,7 @@ function renderDashboard(){
           <span class="badge type-${act.type}">${typeBadge(act.type)}</span>
           <span class="badge status-${bk}">${statusBadge(bk)}</span>
           ${act.manual?'<span class="badge type-manual">Manual</span>':''}
+          ${(!act.manual && MONITORED_TASK_LINKS.has(act.url))?'<span class="badge type-pantau">🔍 Dipantau</span>':''}
         </div>
         <div class="task-course">${esc(c.name)}</div>
         <div class="task-schedule">${c.day}, ${c.time}</div>
@@ -2824,11 +3085,19 @@ function renderDashboard(){
         <button class="btn-delete-manual" onclick="deleteManualTask('${act.id}')" title="Hapus tugas manual" aria-label="Hapus tugas manual">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0-1 14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2L4 6"/></svg>
         </button>
-        ` : `
+        ` : (() => {
+          const isPantau = MONITORED_TASK_LINKS.has(act.url);
+          const pantauIdx = isPantau ? MONITORED_TASK_LIST.findIndex(e=>e.task_link===act.url) : -1;
+          return `
         <a class="btn-open" href="${act.url}" target="_blank">Buka Tugas
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17 17 7M7 7h10v10"/></svg>
         </a>
-        `}
+        ${isPantau && pantauIdx>=0 ? `<button class="btn-unpantau" onclick="deleteMonitoredTask(${pantauIdx})" title="Hapus dari daftar pantau">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0-1 14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2L4 6"/></svg>
+          Batal Pantau
+        </button>` : ''}
+        `;
+        })()}
       </div>
     </div>`;
   }
@@ -3174,6 +3443,7 @@ async function initApp() {
   
   await checkBackendConnection();
   await loadLastScan();
+  await loadMonitoredTasks();  // muat daftar tugas pantau untuk badge Dipantau
   await pullManualTasksFromBlob();
   startSyncPolling();
   startManualTasksPolling();
