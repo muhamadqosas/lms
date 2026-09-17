@@ -251,54 +251,111 @@ body{
 
 /* ============ LIVE MEET BANNER (kelas berlangsung + link Google Meet) ============ */
 .lmb-wrap{
-  background:var(--paper-raised);
+  background:linear-gradient(145deg, rgba(226, 238, 234, 0.45) 0%, rgba(255, 255, 255, 0.95) 100%);
   border:1.5px solid var(--forest);
   border-radius:var(--radius);
-  padding:14px 18px;
-  margin-bottom:14px;
-  box-shadow:var(--shadow-sm);
+  padding:14px 16px;
+  margin-bottom:16px;
+  box-shadow:0 3px 12px rgba(45, 95, 91, 0.08);
   animation:slideIn 0.25s ease;
 }
-.lmb-head{display:flex; align-items:center; gap:9px; margin-bottom:10px;}
+.lmb-head{
+  display:flex; align-items:center; justify-content:space-between;
+  gap:10px; margin-bottom:12px;
+  padding-bottom:10px; border-bottom:1px dashed rgba(45, 95, 91, 0.2);
+}
+.lmb-head-badge{
+  display:inline-flex; align-items:center; gap:6px;
+  background:var(--forest-bg); border:1px solid rgba(45, 95, 91, 0.25);
+  padding:3.5px 9px; border-radius:20px;
+}
 .lmb-dot{
-  width:8px; height:8px; border-radius:50%;
+  width:7px; height:7px; border-radius:50%;
   background:var(--forest); flex-shrink:0;
   animation:pulse-green 1.4s ease-in-out infinite;
 }
+.lmb-badge-text{
+  font-family:'JetBrains Mono',monospace; font-size:10px; font-weight:700;
+  color:var(--forest); letter-spacing:0.04em;
+}
 .lmb-title{
-  font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:13.5px;
-  color:var(--forest); text-transform:uppercase; letter-spacing:0.02em;
+  font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:12px;
+  color:var(--ink-soft); text-transform:uppercase; letter-spacing:0.04em;
 }
-.lmb-list{display:flex; flex-direction:column; gap:8px;}
+.lmb-list{display:flex; flex-direction:column; gap:10px;}
 .lmb-item{
-  display:flex; align-items:center; gap:12px; flex-wrap:wrap;
-  background:var(--paper);
+  display:flex; flex-direction:column; gap:11px;
+  background:var(--paper-raised);
   border:1px solid var(--line);
-  border-radius:10px;
-  padding:10px 12px;
+  border-radius:12px;
+  padding:12px 14px;
+  box-shadow:0 1px 4px rgba(27,43,40,0.04);
+  transition:all 0.18s ease;
 }
-.lmb-item.is-live{border-color:var(--forest); background:var(--forest-bg);}
-.lmb-item-main{flex:1 1 160px; min-width:0;}
-.lmb-item-name{font-weight:600; font-size:13.5px; color:var(--ink); margin-bottom:2px;}
-.lmb-item-sched{font-size:11.5px; color:var(--ink-soft);}
-.lmb-item-countdown{display:flex; flex-direction:column; align-items:flex-end; gap:1px; flex-shrink:0;}
+.lmb-item.is-live{
+  border-color:rgba(45, 95, 91, 0.45);
+  background:#ffffff;
+  box-shadow:0 4px 14px rgba(45, 95, 91, 0.1);
+}
+.lmb-item-body{
+  display:flex; align-items:flex-start; justify-content:space-between;
+  gap:12px;
+}
+.lmb-item-info{flex:1 1 auto; min-width:0;}
+.lmb-item-name{
+  font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:15px;
+  color:var(--ink); line-height:1.3; margin-bottom:5px;
+}
+.lmb-item-sched{
+  display:inline-flex; align-items:center; gap:5px;
+  font-size:12px; color:var(--ink-soft);
+}
+.lmb-item-sched svg{width:12px; height:12px; flex-shrink:0; opacity:0.75;}
+.lmb-item-countdown{
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  background:var(--forest-bg); border:1px solid rgba(45, 95, 91, 0.22);
+  border-radius:9px; padding:5px 10px; min-width:78px; flex-shrink:0;
+}
 .lmb-cd-label{
-  font-family:'JetBrains Mono',monospace; font-size:9.5px; text-transform:uppercase;
-  letter-spacing:0.05em; color:var(--ink-soft);
+  font-family:'JetBrains Mono',monospace; font-size:9px; font-weight:600;
+  text-transform:uppercase; letter-spacing:0.04em; color:var(--forest);
+  margin-bottom:1px;
 }
-.lmb-item.is-live .lmb-cd-label{color:var(--forest);}
 .lmb-cd-time{
-  font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:15px; color:var(--forest);
+  font-family:'JetBrains Mono',monospace; font-weight:700; font-size:14px;
+  color:var(--forest); letter-spacing:0.02em;
 }
-.lmb-cd-static{align-items:flex-end; justify-content:center;}
+.lmb-cd-static{align-items:center; justify-content:center;}
+
 .lmb-join-btn{
-  font-family:'Inter',sans-serif; font-weight:700; font-size:12px;
-  padding:7px 13px; border-radius:8px;
+  font-family:'Inter',sans-serif; font-weight:600; font-size:13px;
+  padding:10px 14px; border-radius:9px;
   background:var(--forest); color:#fff; text-decoration:none;
-  display:inline-flex; align-items:center; gap:5px; flex-shrink:0;
-  transition:all 0.14s ease;
+  display:flex; align-items:center; justify-content:center; gap:8px;
+  width:100%; transition:all 0.14s ease;
+  box-shadow:0 2px 6px rgba(45, 95, 91, 0.2);
 }
-.lmb-join-btn:hover{background:#234a31;}
+.lmb-join-btn:hover{
+  background:#234a31; box-shadow:0 4px 10px rgba(45, 95, 91, 0.3);
+  transform:translateY(-1px);
+}
+.lmb-join-btn:active{transform:translateY(0);}
+.lmb-btn-cam{width:15px; height:15px; flex-shrink:0;}
+.lmb-btn-ext{width:13px; height:13px; flex-shrink:0; opacity:0.85;}
+
+/* Desktop layout enhancement (layar lebar) */
+@media(min-width:680px){
+  .lmb-item{
+    flex-direction:row; align-items:center; justify-content:space-between;
+    gap:16px; padding:12px 16px;
+  }
+  .lmb-item-body{
+    flex:1; align-items:center; gap:16px;
+  }
+  .lmb-join-btn{
+    width:auto; flex-shrink:0; padding:9px 16px;
+  }
+}
 
 /* ============ DASHBOARD GRID ============ */
 .dash-grid{
@@ -2184,35 +2241,46 @@ function renderLiveMeetBanner(){
   lastMeetSignature=sig;
 
   const now=new Date();
+  const hasLive=meetings.some(m=>m.started);
   el.innerHTML=`
     <div class="lmb-wrap">
       <div class="lmb-head">
-        <span class="lmb-dot"></span>
-        <span class="lmb-title">${meetings.length>1?'Kelas Google Meet Hari Ini':'Kelas Berlangsung Hari Ini'}</span>
+        <div class="lmb-head-badge">
+          <span class="lmb-dot"></span>
+          <span class="lmb-badge-text">${hasLive ? 'SEDANG BERLANGSUNG' : 'KELAS HARI INI'}</span>
+        </div>
+        <span class="lmb-title">${meetings.length>1 ? 'Kelas Kuliah Hari Ini' : 'Live Class'}</span>
       </div>
       <div class="lmb-list">
         ${meetings.map((mt,i)=>{
           const isNearest=i===0;
           const remainMs = mt.started ? (mt.endDate-now) : (mt.startDate-now);
-          const timeRange=`${fmtHM(mt.startDate)} \u2013 ${fmtHM(mt.endDate)}`;
-          const stateLabel = mt.started ? 'Sedang berlangsung, berakhir dalam' : 'Dimulai dalam';
+          const timeRange=`${fmtHM(mt.startDate)} \u2013 ${fmtHM(mt.endDate)} WIB`;
+          const stateLabel = mt.started ? 'Sisa Waktu' : 'Mulai Dalam';
           return `
           <div class="lmb-item${mt.started?' is-live':''}" data-course-id="${esc(mt.courseId)}">
-            <div class="lmb-item-main">
-              <div class="lmb-item-name">${esc(mt.name)}</div>
-              <div class="lmb-item-sched mono">${esc(timeRange)}</div>
+            <div class="lmb-item-body">
+              <div class="lmb-item-info">
+                <div class="lmb-item-name">${esc(mt.name)}</div>
+                <div class="lmb-item-sched mono">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                  <span>${esc(timeRange)}</span>
+                </div>
+              </div>
+              ${isNearest?`
+              <div class="lmb-item-countdown">
+                <span class="lmb-cd-label">${esc(stateLabel)}</span>
+                <span class="lmb-cd-time mono" id="lmb-cd-time-${esc(mt.courseId)}">${fmtCountdownMs(remainMs)}</span>
+              </div>`:`
+              <div class="lmb-item-countdown lmb-cd-static">
+                <span class="lmb-cd-label">Mulai Jam</span>
+                <span class="lmb-cd-time mono" style="font-size:13px;">${esc(fmtHM(mt.startDate))}</span>
+              </div>`}
             </div>
-            ${isNearest?`
-            <div class="lmb-item-countdown">
-              <span class="lmb-cd-label">${esc(stateLabel)}</span>
-              <span class="lmb-cd-time mono" id="lmb-cd-time-${esc(mt.courseId)}">${fmtCountdownMs(remainMs)}</span>
-            </div>`:`
-            <div class="lmb-item-countdown lmb-cd-static">
-              <span class="lmb-cd-label">Terjadwal ${esc(fmtHM(mt.startDate))}</span>
-            </div>`}
             <a class="lmb-join-btn" href="${esc(mt.meetUrl)}" target="_blank" rel="noopener">
-              Buka Meet
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M7 17 17 7M7 7h10v10"/></svg>
+              <svg class="lmb-btn-cam" viewBox="0 0 24 24" fill="currentColor"><path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/></svg>
+              <span>Buka Google Meet</span>
+              <svg class="lmb-btn-ext" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M7 17 17 7M7 7h10v10"/></svg>
             </a>
           </div>`;
         }).join('')}
