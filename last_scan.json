@@ -1,24 +1,26 @@
 {
   "error": null,
   "tasks": [],
+  "status": "done",
+  "scanned_at": "2026-09-17T19:20:00.000000",
   "class_modules": [
     {
       "site": "FAST Learning",
+      "modules": [],
       "course_name": "REKAYASA HIDROLOGI (TB) - W112500033 - Selasa 19:30-22:00 () (Dosen: Dr. Acep Hidayat, S.T., M.T.)",
-      "course_clean": "Rekayasa Hidrologi (TB) — Selasa 19:30",
-      "modules": []
+      "course_clean": "Rekayasa Hidrologi (TB) — Selasa 19:30"
     },
     {
       "site": "FAST Learning",
+      "modules": [],
       "course_name": "TEKNIK PELAKSANAAN DAN PENGENDALIAN PROYEK KONSTRUKSI - W112500030 - Rabu 19:30-22:00 () (Dosen: Elhazri Hasdian, S.T., M.T., M.M., PMP)",
-      "course_clean": "Teknik Pelaksanaan Dan Pengendalian Proyek Konstruksi — Rabu 19:30",
-      "modules": []
+      "course_clean": "Teknik Pelaksanaan Dan Pengendalian Proyek Konstruksi — Rabu 19:30"
     },
     {
       "site": "FAST Learning",
+      "modules": [],
       "course_name": "REKAYASA PONDASI 2 - W112500029 - Kamis 19:30-22:00 () (Dosen: Pintor Tua Simatupang, Dr,Ir,MT.Eng)",
-      "course_clean": "Rekayasa Pondasi 2 — Kamis 19:30",
-      "modules": []
+      "course_clean": "Rekayasa Pondasi 2 — Kamis 19:30"
     }
   ],
   "courses_checked": [
@@ -35,8 +37,6 @@
       "name": "REKAYASA PONDASI 2 - W112500029 - Kamis 19:30-22:00 () (Dosen: Pintor Tua Simatupang, Dr,Ir,MT.Eng)"
     }
   ],
-  "status": "done",
-  "scanned_at": "2026-09-17T19:20:00.000000",
   "scan_started_at": null,
   "backend_last_active": "2026-09-17T19:20:00.000000"
 }
