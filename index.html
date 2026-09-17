@@ -1192,8 +1192,8 @@ body{
 
     <!-- Tab switcher -->
     <div class="modal-tabs">
-      <button class="modal-tab-btn active" id="tabBtnManual" onclick="switchModalTab('manual')">✏️ Tugas Manual</button>
-      <button class="modal-tab-btn" id="tabBtnPantau" onclick="switchModalTab('pantau')">🔍 Pantau Tugas</button>
+      <button class="modal-tab-btn active" id="tabBtnManual" onclick="switchModalTab('manual')">Tugas Manual</button>
+      <button class="modal-tab-btn" id="tabBtnPantau" onclick="switchModalTab('pantau')">Pantau Tugas</button>
     </div>
 
     <!-- ===== Tab 1: Tugas Manual (tidak berubah) ===== -->
@@ -1237,7 +1237,7 @@ body{
     <!-- ===== Tab 2: Pantau Tugas (baru) ===== -->
     <div class="modal-tab-panel" id="tabPanelPantau">
       <div id="pantauOfflineNote" class="pantau-offline-note" style="display:none;">
-        ⚠ Fitur ini butuh backend (app.py) aktif. Pastikan PC Rumah online.
+        Perhatian: Fitur ini butuh backend (app.py) aktif. Pastikan PC Rumah online.
       </div>
 
       <div class="form-group">
@@ -1657,7 +1657,7 @@ function loadManualTasksLocal(){
 
 // Tugas manual yang sudah ditandai selesai tetap muncul terus di "Tugas
 // Sudah Dikerjakan" (tidak otomatis dihapus). Kalau mau dibuang, hapus manual
-// lewat tombol hapus (🗑) pada kartu tugas.
+// lewat tombol hapus () pada kartu tugas.
 function pruneExpiredManualTasks(){
   // sengaja dikosongkan — tidak ada lagi auto-expire 1 minggu
 }
@@ -1717,7 +1717,7 @@ async function pushManualTasksToBlob(){
     if(!postRes.ok) throw new Error('HTTP '+postRes.status);
   }catch(e){
     console.error('Gagal sinkron tugas manual ke cloud:', e);
-    showToast('✗ Gagal sinkron tugas manual ke cloud, coba lagi nanti');
+    showToast('Gagal sinkron tugas manual ke cloud, coba lagi nanti');
   }
 }
 
@@ -1770,11 +1770,11 @@ async function submitPantauTask(){
   const name = (document.getElementById('pantauTaskName').value||'').trim();
   const course = (document.getElementById('pantauTaskCourse').value||'').trim();
 
-  if(!url){ showToast('⚠ Isi URL tugas dulu'); return; }
+  if(!url){ showToast('Isi URL tugas dulu'); return; }
 
   // Validasi sederhana: harus mengandung mod/assign, mod/quiz, atau mod/forum
   if(!url.includes('/mod/assign/') && !url.includes('/mod/quiz/') && !url.includes('/mod/forum/')){
-    showToast('⚠ URL harus dari halaman tugas/kuis/forum LMS (/mod/assign/, /mod/quiz/, atau /mod/forum/)');
+    showToast('URL harus dari halaman tugas/kuis/forum LMS (/mod/assign/, /mod/quiz/, atau /mod/forum/)');
     return;
   }
 
@@ -1794,17 +1794,17 @@ async function submitPantauTask(){
     });
     const data = await res.json();
     if(!res.ok){
-      showToast('✗ ' + (data.error || 'Gagal menyimpan'));
+      showToast('' + (data.error || 'Gagal menyimpan'));
       return;
     }
-    showToast('✓ Tugas berhasil ditambahkan ke daftar pantau');
+    showToast('Tugas berhasil ditambahkan ke daftar pantau');
     document.getElementById('pantauTaskUrl').value = '';
     document.getElementById('pantauTaskName').value = '';
     document.getElementById('pantauTaskCourse').value = '';
     await loadMonitoredTasks();
     renderPantauList();
   }catch(e){
-    showToast('✗ Gagal menghubungi backend: ' + e.message);
+    showToast('Gagal menghubungi backend: ' + e.message);
   }finally{
     if(btn){ btn.disabled = false; btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg> Pantau Tugas Ini'; }
   }
@@ -1814,13 +1814,13 @@ async function deleteMonitoredTask(idx){
   try{
     const res = await fetch(getApiBase() + '/api/long-deadline-tasks/' + idx, {method:'DELETE'});
     if(!res.ok){ const d=await res.json(); throw new Error(d.error||'Gagal hapus'); }
-    showToast('🗑 Dihapus dari daftar pantau');
+    showToast('Dihapus dari daftar pantau');
     await loadMonitoredTasks();
     renderPantauList();
     // Re-render dashboard agar badge Dipantau hilang dari kartu yang dihapus
     rerenderAfterManualChange();
   }catch(e){
-    showToast('✗ ' + e.message);
+    showToast('' + e.message);
   }
 }
 
@@ -1937,12 +1937,12 @@ async function submitAddTask(){
   const date = document.getElementById('addTaskDate').value;
   const time = document.getElementById('addTaskTime').value || '23:59';
 
-  if(!courseId){ showToast('⚠ Pilih mata kuliah dulu'); return; }
-  if(!title){ showToast('⚠ Isi nama tugas dulu'); return; }
-  if(!date){ showToast('⚠ Pilih tanggal deadline dulu'); return; }
+  if(!courseId){ showToast('Pilih mata kuliah dulu'); return; }
+  if(!title){ showToast('Isi nama tugas dulu'); return; }
+  if(!date){ showToast('Pilih tanggal deadline dulu'); return; }
 
   const deadline = new Date(`${date}T${time}:00`);
-  if(isNaN(deadline.getTime())){ showToast('⚠ Tanggal/jam deadline tidak valid'); return; }
+  if(isNaN(deadline.getTime())){ showToast('Tanggal/jam deadline tidak valid'); return; }
 
   const task = {
     id: 'm_' + Date.now() + '_' + Math.random().toString(36).slice(2,7),
@@ -1958,7 +1958,7 @@ async function submitAddTask(){
   rebuildActivities();
   rerenderAfterManualChange();
   closeAddTaskModal();
-  showToast('✓ Tugas manual ditambahkan');
+  showToast('Tugas manual ditambahkan');
   await pushManualTasksToBlob();
 }
 
@@ -1970,7 +1970,7 @@ async function markManualTaskDone(taskId){
   saveManualTasksLocal();
   rebuildActivities();
   rerenderAfterManualChange();
-  showToast('✓ Tugas ditandai selesai');
+  showToast('Tugas ditandai selesai');
   await pushManualTasksToBlob();
 }
 
@@ -1981,7 +1981,7 @@ async function deleteManualTask(taskId){
   saveManualTasksLocal();
   rebuildActivities();
   rerenderAfterManualChange();
-  showToast('🗑 Tugas manual dihapus');
+  showToast('Tugas manual dihapus');
   await pushManualTasksToBlob();
 }
 
@@ -2512,15 +2512,15 @@ function handleSyncData(data) {
         btn.disabled = false;
       }
       showToast(restored
-        ? '⚠ Scan sebelumnya macet, menampilkan data terakhir yang tersimpan'
-        : '⚠ Scan sebelumnya macet dan tidak ada data cache tersimpan');
+        ? ' Scan sebelumnya macet, menampilkan data terakhir yang tersimpan'
+        : ' Scan sebelumnya macet dan tidak ada data cache tersimpan');
       return;
     }
 
     if (btn && !btn.classList.contains('spinning')) {
       btn.classList.add('spinning');
       btn.disabled = true;
-      showToast('⏳ Terdeteksi scan sedang berjalan di PC Rumah...');
+      showToast('Terdeteksi scan sedang berjalan di PC Rumah...');
     }
     const dot = document.getElementById('statusDot');
     const txt = document.getElementById('statusText');
@@ -2539,7 +2539,7 @@ function handleSyncData(data) {
       renderDashboard();
       renderSidebar();
       const pendingCntUpdate=ACTIVITIES.filter(a=>a.status==='pending'&&!a.is_previous).length;
-      showToast(`✓ Data diperbarui — ${pendingCntUpdate} tugas belum dikerjakan`);
+      showToast(`Data diperbarui — ${pendingCntUpdate} tugas belum dikerjakan`);
     }
     
     if (btn && btn.classList.contains('spinning')) {
@@ -2549,7 +2549,7 @@ function handleSyncData(data) {
   } else if (data.status === 'error') {
     busyDetectedAt = null;
     if (btn && btn.classList.contains('spinning')) {
-      showToast('✗ Scan gagal: ' + (data.error || 'unknown error'));
+      showToast('Scan gagal: ' + (data.error || 'unknown error'));
       btn.classList.remove('spinning');
       btn.disabled = false;
     }
@@ -2567,7 +2567,7 @@ async function manualRefresh(){
   // Jangan andalkan status disabled tombol saja — cek langsung ke backend.
   const onlineNow = await checkBackendConnection();
   if (!onlineNow && !apiAvailable) {
-    showToast('✗ PC Rumah offline, refresh tidak bisa dilakukan');
+    showToast('PC Rumah offline, refresh tidak bisa dilakukan');
     if (btn) {
       btn.disabled = true;
       btn.classList.remove('spinning');
@@ -2581,11 +2581,11 @@ async function manualRefresh(){
   }
 
   if (apiAvailable) {
-    showToast('🔄 Scan dijalankan (Lokal) — browser Chrome akan terbuka sebentar...');
+    showToast('Scan dijalankan (Lokal) — browser Chrome akan terbuka sebentar...');
     try{
       const res = await fetch(getApiBase() + '/api/scan', {method:'POST'});
       if(res.status===409){
-        showToast('⏳ Scan lain sedang berjalan, coba lagi sebentar.');
+        showToast('Scan lain sedang berjalan, coba lagi sebentar.');
         if (btn) {
           btn.classList.remove('spinning');
           btn.disabled=false;
@@ -2596,17 +2596,17 @@ async function manualRefresh(){
         throw new Error(`Server returned HTTP status ${res.status}`);
       }
       
-      showToast('⏳ Scan dimulai di PC Rumah. Menunggu hasil...');
+      showToast('Scan dimulai di PC Rumah. Menunggu hasil...');
       startSyncPolling();
     }catch(err){
-      showToast('✗ Gagal menghubungi server: '+err.message);
+      showToast('Gagal menghubungi server: '+err.message);
       if (btn) {
         btn.classList.remove('spinning');
         btn.disabled=false;
       }
     }
   } else {
-    showToast('🔄 Mengirim perintah scan ke PC Rumah...');
+    showToast('Mengirim perintah scan ke PC Rumah...');
     try {
       const getRes = await fetch(BLOB_URL + '?t=' + new Date().getTime());
       if (!getRes.ok) throw new Error('Gagal mengambil status Cloud');
@@ -2624,7 +2624,7 @@ async function manualRefresh(){
       });
       if (!postRes.ok) throw new Error('Gagal mengirim perintah ke Cloud');
       
-      showToast('⏳ Perintah terkirim. Menunggu PC Rumah menjalankan scan...');
+      showToast('Perintah terkirim. Menunggu PC Rumah menjalankan scan...');
       startSyncPolling();
     } catch (err) {
       console.error(err);
@@ -2632,7 +2632,7 @@ async function manualRefresh(){
       if (msg === 'Failed to fetch') {
         msg = 'Failed to fetch (Kemungkinan diblokir oleh Adblocker / Brave Shields, atau PC Rumah mati/offline)';
       }
-      showToast('✗ Gagal: ' + msg);
+      showToast('Gagal: ' + msg);
       if (btn) {
         btn.classList.remove('spinning');
         btn.disabled=false;
@@ -2655,13 +2655,13 @@ async function downloadAllModules(courseId, btnEl){
   // bukan lewat relay JSON Blob cloud seperti fitur scan.
   await checkBackendConnection();
   if (!apiAvailable) {
-    showToast('✗ Fitur ini butuh app.py aktif & dashboard dibuka lewat http://localhost:5002 di PC yang sama.');
+    showToast('Fitur ini butuh app.py aktif & dashboard dibuka lewat http://localhost:5002 di PC yang sama.');
     return;
   }
 
   const m = COURSES_META[courseId];
   if (!m || !m.lmsId) {
-    showToast('✗ Kelas ini belum punya link LMS yang valid.');
+    showToast('Kelas ini belum punya link LMS yang valid.');
     return;
   }
 
@@ -2690,7 +2690,7 @@ async function downloadAllModules(courseId, btnEl){
     }
 
     const { job_id } = await startRes.json();
-    showToast('⏳ Login & mengumpulkan modul dari LMS — mohon tunggu, browser Chrome akan terbuka sebentar...');
+    showToast('Login & mengumpulkan modul dari LMS — mohon tunggu, browser Chrome akan terbuka sebentar...');
 
     let status = 'queued';
     let tries = 0;
@@ -2733,10 +2733,10 @@ async function downloadAllModules(courseId, btnEl){
     a.remove();
     setTimeout(() => URL.revokeObjectURL(blobUrl), 5000);
 
-    showToast('✅ ZIP modul berhasil diunduh: ' + filename);
+    showToast('ZIP modul berhasil diunduh: ' + filename);
   } catch (err) {
     console.error(err);
-    showToast('✗ Gagal download modul: ' + err.message);
+    showToast('Gagal download modul: ' + err.message);
   } finally {
     btnEl.disabled = false;
     btnEl.classList.remove('spinning');
@@ -2760,7 +2760,7 @@ async function loadLastScan(){
     handleSyncData(data);
     if(data.status==='done'){
       const pendingCnt=ACTIVITIES.filter(a=>a.status==='pending'&&!a.is_previous).length;
-      showToast(`📂 Memuat hasil scan terakhir (${pendingCnt} tugas belum dikerjakan)`);
+      showToast(`Memuat hasil scan terakhir (${pendingCnt} tugas belum dikerjakan)`);
     }
   }catch(err){
     try{
@@ -2774,7 +2774,7 @@ async function loadLastScan(){
         renderSidebar();
         updateStatusBar();
         const pendingCntStatic=ACTIVITIES.filter(a=>a.status==='pending'&&!a.is_previous).length;
-        showToast(`📂 Memuat data static dari last_scan.json (${pendingCntStatic} tugas belum dikerjakan)`);
+        showToast(`Memuat data static dari last_scan.json (${pendingCntStatic} tugas belum dikerjakan)`);
       } else {
         throw new Error('Static data status not done');
       }
@@ -2831,7 +2831,7 @@ function renderSidebar(){
   const fastIds=getCourseOrder().filter(id=>COURSES_META[id].type==='fast')
     .sort((a,b)=>(DAY_ORDER[COURSES_META[a].day]||9)-(DAY_ORDER[COURSES_META[b].day]||9));
   if(fastIds.length){
-    html+=`<div class="sidebar-section-label">⚡ Fast Learning</div>`;
+    html+=`<div class="sidebar-section-label">Fast Learning</div>`;
     fastIds.forEach(id=>{ html+=renderItem(id); });
   }
 
@@ -2848,7 +2848,7 @@ function renderSidebar(){
 
     daysSorted.forEach(day=>{
       const isToday=day===today;
-      const groupLabel=isToday ? `🏫 Ruang Kelas — ${day} (Hari ini)` : `🏫 Ruang Kelas — ${day}`;
+      const groupLabel=isToday ? `Ruang Kelas — ${day} (Hari ini)` : `Ruang Kelas — ${day}`;
 
       html+=`<div class="sidebar-section-label">${groupLabel}</div>`;
       if(isToday){
@@ -3031,7 +3031,7 @@ function renderCourseWeeks(courseId){
     if(ongoing) blockClass+=' is-ongoing';
 
     let badge='';
-    if(ongoing) badge=`<span class="week-status-badge wsb-ongoing">⚡ Sedang berlangsung</span>`;
+    if(ongoing) badge=`<span class="week-status-badge wsb-ongoing">Sedang berlangsung</span>`;
 
     // Nomor pertemuan ke-berapa, diambil dari kalender resmi (acuan: PDF kalender
     // perkuliahan hybrid, kolom hari sesuai jadwal matkul ini).
@@ -3083,7 +3083,7 @@ function renderActivityItem(it){
     ? (it.due.includes('T') ? `Due: ${fmtDeadline(it.due)}` : it.due)
     : '';
   const isOverdue = it.due && it.due.includes('T') && new Date(it.due)<new Date();
-  const doneCheck = it.status === 'done' ? ' <span style="color:var(--forest);font-weight:bold;">✓ Selesai</span>' : '';
+  const doneCheck = it.status === 'done' ? ' <span style="color:var(--forest);font-weight:bold;"> Selesai</span>' : '';
   return `<div class="activity-item" data-url="${esc(it.url)}" data-label="${esc(it.label)}" onclick="openActivity(this)">
     <div class="ai-icon type-${it.type}">${iconMap[it.type]||''}</div>
     <div class="ai-info">
@@ -3138,7 +3138,7 @@ function renderDashboard(){
           <span class="badge type-${act.type}">${typeBadge(act.type)}</span>
           <span class="badge status-${bk}">${statusBadge(bk)}</span>
           ${act.manual?'<span class="badge type-manual">Manual</span>':''}
-          ${(!act.manual && MONITORED_TASK_LINKS.has(act.url))?'<span class="badge type-pantau">🔍 Dipantau</span>':''}
+          ${(!act.manual && MONITORED_TASK_LINKS.has(act.url))?'<span class="badge type-pantau">Dipantau</span>':''}
         </div>
         <div class="task-course">${esc(c.name)}</div>
         <div class="task-schedule">${c.day}, ${c.time}</div>
@@ -3201,7 +3201,7 @@ function renderDashboard(){
     }).join('');
 
     if(!courseIds.length){
-      rekapEl.innerHTML=`<div class="rekap-empty">🎉 Tidak ada aktivitas pending.</div>`;
+      rekapEl.innerHTML=`<div class="rekap-empty"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-2px;margin-right:6px;"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>Tidak ada aktivitas pending.</div>`;
     }
   } else {
     // Group by time bracket
@@ -3236,7 +3236,7 @@ function renderDashboard(){
     rekapEl.innerHTML=groups.filter(g=>g.items.length).map(g=>`
       <div class="rekap-groups" style="margin-bottom:0;">
         <div class="rekap-group-head">
-          <span class="rekap-day-pill ${g.pill}">${g.key==='terlambat'?'⚠ ':''} ${esc(g.title)}</span>
+          <span class="rekap-day-pill ${g.pill}">${esc(g.title)} ${esc(g.title)}</span>
           <div class="rekap-group-line"></div>
           <span style="font-family:JetBrains Mono,monospace;font-size:11px;color:var(--ink-soft);flex-shrink:0;">${g.items.length} item</span>
         </div>
@@ -3247,7 +3247,7 @@ function renderDashboard(){
     `).join('');
 
     if(!groups.some(g=>g.items.length)){
-      rekapEl.innerHTML=`<div class="rekap-empty">🎉 Tidak ada aktivitas pending.</div>`;
+      rekapEl.innerHTML=`<div class="rekap-empty"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-2px;margin-right:6px;"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>Tidak ada aktivitas pending.</div>`;
     }
   }
 
@@ -3309,7 +3309,7 @@ function openActivity(el){
   const url = el.getAttribute('data-url');
   const label = el.getAttribute('data-label');
   if(url && url!=='#') window.open(url,'_blank');
-  else showToast(`📋 ${label} — URL LMS belum terhubung`);
+  else showToast(`${label} — URL LMS belum terhubung`);
 }
 
 function openDoneModal(actId){
@@ -3329,7 +3329,7 @@ function openDoneModal(actId){
     openBtn.style.pointerEvents='auto';
   } else {
     openBtn.href='#';
-    openBtn.onclick=(e)=>{ e.preventDefault(); showToast('📋 URL LMS belum terhubung'); };
+    openBtn.onclick=(e)=>{ e.preventDefault(); showToast('URL LMS belum terhubung'); };
   }
   document.getElementById('doneModalOverlay').classList.add('open');
 }
@@ -3475,7 +3475,7 @@ function checkScheduledRefresh(){
       renderSidebar();
       updateStatusBar();
       const c=COURSES_META[courseId];
-      showToast(`🔄 Auto-refresh — ${c.abbr} mulai 30 menit lagi`);
+      showToast(`Auto-refresh — ${c.abbr} mulai 30 menit lagi`);
     }
   });
 }
