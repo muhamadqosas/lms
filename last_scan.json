@@ -1,42 +1,170 @@
 {
-  "error": null,
-  "tasks": [],
   "status": "done",
-  "scanned_at": "2026-09-17T19:20:00.000000",
-  "class_modules": [
+  "scanned_at": "2026-09-17T19:43:11.798015",
+  "tasks": [
     {
       "site": "FAST Learning",
-      "modules": [],
-      "course_name": "REKAYASA HIDROLOGI (TB) - W112500033 - Selasa 19:30-22:00 () (Dosen: Dr. Acep Hidayat, S.T., M.T.)",
-      "course_clean": "Rekayasa Hidrologi (TB) — Selasa 19:30"
-    },
-    {
-      "site": "FAST Learning",
-      "modules": [],
       "course_name": "TEKNIK PELAKSANAAN DAN PENGENDALIAN PROYEK KONSTRUKSI - W112500030 - Rabu 19:30-22:00 () (Dosen: Elhazri Hasdian, S.T., M.T., M.M., PMP)",
+      "task_name": "Forum 1",
+      "task_link": "https://fast.mercubuana.ac.id/mod/forum/view.php?id=74051",
+      "task_type": "FORUM",
+      "deadline": "23 September 2026, 17:49",
+      "submitted": true,
+      "submission_status": "Sudah membalas forum",
+      "section_title": "16 September - 22 September",
+      "pertemuan_ke": null,
+      "is_previous": false,
+      "deadline_iso": "2026-09-23T17:49:00",
       "course_clean": "Teknik Pelaksanaan Dan Pengendalian Proyek Konstruksi — Rabu 19:30"
     },
     {
       "site": "FAST Learning",
-      "modules": [],
-      "course_name": "REKAYASA PONDASI 2 - W112500029 - Kamis 19:30-22:00 () (Dosen: Pintor Tua Simatupang, Dr,Ir,MT.Eng)",
-      "course_clean": "Rekayasa Pondasi 2 — Kamis 19:30"
+      "course_name": "TEKNIK PELAKSANAAN DAN PENGENDALIAN PROYEK KONSTRUKSI - W112500030 - Rabu 19:30-22:00 () (Dosen: Elhazri Hasdian, S.T., M.T., M.M., PMP)",
+      "task_name": "Quiz 1",
+      "task_link": "https://fast.mercubuana.ac.id/mod/quiz/view.php?id=74056",
+      "task_type": "QUIZ",
+      "deadline": "Closes: Tuesday, 22 September 2026, 11:59 PM",
+      "submitted": true,
+      "submission_status": "Finished",
+      "section_title": "16 September - 22 September",
+      "pertemuan_ke": null,
+      "is_previous": false,
+      "deadline_iso": "2026-09-22T23:59:00",
+      "course_clean": "Teknik Pelaksanaan Dan Pengendalian Proyek Konstruksi — Rabu 19:30"
+    },
+    {
+      "site": "Ruang Kelas",
+      "course_name": "MEKANIKA FLUIDA DAN HIDROLIKA - W112500024 - Sabtu 17:00-18:40 (B-401) (Dosen: Suprapti, Dr. S.T., M.T.) MEKANIKA FLUIDA DAN HIDROLIKA - W112500024 - Sabtu ...",
+      "task_name": "https://ruangkelas.mercubuana.ac.id/mod/assign/view.php?id=7061",
+      "task_link": "https://ruangkelas.mercubuana.ac.id/mod/assign/view.php?id=7061",
+      "task_type": "ASSIGNMENT",
+      "deadline": null,
+      "submitted": false,
+      "submission_status": null,
+      "section_title": null,
+      "pertemuan_ke": null,
+      "is_previous": false,
+      "deadline_iso": null,
+      "course_clean": "Mekanika Fluida Dan Hidrolika — Sabtu 17:00"
     }
   ],
   "courses_checked": [
     {
-      "url": "https://fast.mercubuana.ac.id/course/view.php?id=4591",
-      "name": "REKAYASA HIDROLOGI (TB) - W112500033 - Selasa 19:30-22:00 () (Dosen: Dr. Acep Hidayat, S.T., M.T.)"
+      "name": "REKAYASA HIDROLOGI (TB) - W112500033 - Selasa 19:30-22:00 () (Dosen: Dr. Acep Hidayat, S.T., M.T.)",
+      "url": "https://fast.mercubuana.ac.id/course/view.php?id=4591"
     },
     {
-      "url": "https://fast.mercubuana.ac.id/course/view.php?id=4882",
-      "name": "TEKNIK PELAKSANAAN DAN PENGENDALIAN PROYEK KONSTRUKSI - W112500030 - Rabu 19:30-22:00 () (Dosen: Elhazri Hasdian, S.T., M.T., M.M., PMP)"
+      "name": "REKAYASA PONDASI 2 - W112500029 - Kamis 19:30-22:00 () (Dosen: Pintor Tua Simatupang, Dr,Ir,MT.Eng)",
+      "url": "https://fast.mercubuana.ac.id/course/view.php?id=5223"
     },
     {
-      "url": "https://fast.mercubuana.ac.id/course/view.php?id=5223",
-      "name": "REKAYASA PONDASI 2 - W112500029 - Kamis 19:30-22:00 () (Dosen: Pintor Tua Simatupang, Dr,Ir,MT.Eng)"
+      "name": "TEKNIK PELAKSANAAN DAN PENGENDALIAN PROYEK KONSTRUKSI - W112500030 - Rabu 19:30-22:00 () (Dosen: Elhazri Hasdian, S.T., M.T., M.M., PMP)",
+      "url": "https://fast.mercubuana.ac.id/course/view.php?id=4882"
+    }
+  ],
+  "class_modules": [
+    {
+      "site": "FAST Learning",
+      "course_name": "REKAYASA HIDROLOGI (TB) - W112500033 - Selasa 19:30-22:00 () (Dosen: Dr. Acep Hidayat, S.T., M.T.)",
+      "course_clean": "Rekayasa Hidrologi (TB) — Selasa 19:30",
+      "modules": [
+        {
+          "name": "Pertemuan Tatap MUka Virtual 1\nGoogle Meet™ for Moodle",
+          "url": "https://fast.mercubuana.ac.id/mod/googlemeet/view.php?id=73558",
+          "section_title": "15 September - 21 September",
+          "pertemuan_ke": null
+        },
+        {
+          "name": "Attendance",
+          "url": "https://fast.mercubuana.ac.id/mod/attendance/view.php?id=73560",
+          "section_title": "15 September - 21 September",
+          "pertemuan_ke": null
+        }
+      ]
+    },
+    {
+      "site": "FAST Learning",
+      "course_name": "REKAYASA PONDASI 2 - W112500029 - Kamis 19:30-22:00 () (Dosen: Pintor Tua Simatupang, Dr,Ir,MT.Eng)",
+      "course_clean": "Rekayasa Pondasi 2 — Kamis 19:30",
+      "modules": [
+        {
+          "name": "Pert. 1 - Pendahuluan dan Parameter Tekanan Tanah Lateral dalam Disain Turap\nGoogle Meet™ for Moodle",
+          "url": "https://fast.mercubuana.ac.id/mod/googlemeet/view.php?id=74421",
+          "section_title": "17 September - 23 September",
+          "pertemuan_ke": null
+        },
+        {
+          "name": "Pert. 1 - Pendahuluan dan Parameter Tekanan Tanah Lateral dalam Disain Turap \nFile",
+          "url": "https://fast.mercubuana.ac.id/mod/resource/view.php?id=74423",
+          "section_title": "17 September - 23 September",
+          "pertemuan_ke": null
+        },
+        {
+          "name": "Pert. 1 - Pendahuluan dan Parameter Tekanan Tanah Lateral dalam Disain Turap \nFile",
+          "url": "https://fast.mercubuana.ac.id/mod/resource/view.php?id=74424",
+          "section_title": "17 September - 23 September",
+          "pertemuan_ke": null
+        },
+        {
+          "name": "Pert.1\nAttendance",
+          "url": "https://fast.mercubuana.ac.id/mod/attendance/view.php?id=74759",
+          "section_title": "17 September - 23 September",
+          "pertemuan_ke": null
+        }
+      ]
+    },
+    {
+      "site": "FAST Learning",
+      "course_name": "TEKNIK PELAKSANAAN DAN PENGENDALIAN PROYEK KONSTRUKSI - W112500030 - Rabu 19:30-22:00 () (Dosen: Elhazri Hasdian, S.T., M.T., M.M., PMP)",
+      "course_clean": "Teknik Pelaksanaan Dan Pengendalian Proyek Konstruksi — Rabu 19:30",
+      "modules": [
+        {
+          "name": "Perkuliahan 1: Konsep Teknik Pelaksanaan dan Pengendalian Proyek Konstruksi \nFile",
+          "url": "https://fast.mercubuana.ac.id/mod/resource/view.php?id=74033",
+          "section_title": "16 September - 22 September",
+          "pertemuan_ke": null
+        },
+        {
+          "name": "Lanjutan Materi Perkuliahan 1: Konsep Teknik Pelaksanaan dan Pengendalian Proyek Konstruksi \nFile",
+          "url": "https://fast.mercubuana.ac.id/mod/resource/view.php?id=74037",
+          "section_title": "16 September - 22 September",
+          "pertemuan_ke": null
+        },
+        {
+          "name": "Lanjutan Materi Perkuliahan 1: Konsep Teknik Pelaksanaan dan Pengendalian Proyek Konstruksi \nFile",
+          "url": "https://fast.mercubuana.ac.id/mod/resource/view.php?id=74043",
+          "section_title": "16 September - 22 September",
+          "pertemuan_ke": null
+        },
+        {
+          "name": "Forum 1",
+          "url": "https://fast.mercubuana.ac.id/mod/forum/view.php?id=74051",
+          "section_title": "16 September - 22 September",
+          "pertemuan_ke": null
+        },
+        {
+          "name": "Quiz 1",
+          "url": "https://fast.mercubuana.ac.id/mod/quiz/view.php?id=74056",
+          "section_title": "16 September - 22 September",
+          "pertemuan_ke": null
+        },
+        {
+          "name": "Tatap Muka Virtual (TMV) Perkuliahan 1 \"Teknik Pelaksanaan dan Pengendalian Proyek Konstruksi”\nGoogle Meet™ for Moodle",
+          "url": "https://fast.mercubuana.ac.id/mod/googlemeet/view.php?id=74059",
+          "section_title": "16 September - 22 September",
+          "pertemuan_ke": null
+        },
+        {
+          "name": "Attendance Tatap Muka Virtual (TMV) Perkuliahan 1 \"Teknik Pelaksanaan dan Pengendalian Proyek Konstruksi”",
+          "url": "https://fast.mercubuana.ac.id/mod/attendance/view.php?id=74063",
+          "section_title": "16 September - 22 September",
+          "pertemuan_ke": null
+        }
+      ]
     }
   ],
   "scan_started_at": null,
-  "backend_last_active": "2026-09-17T19:20:00.000000"
+  "error": null,
+  "request_scan": false,
+  "backend_last_active": "2026-09-17T19:43:11.798122"
 }
