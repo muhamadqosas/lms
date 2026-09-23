@@ -1,6 +1,6 @@
 {
   "status": "done",
-  "scanned_at": "2026-09-23T19:15:57.292201",
+  "scanned_at": "2026-09-23T20:10:50.059333",
   "tasks": [
     {
       "site": "FAST Learning",
@@ -9,8 +9,8 @@
       "task_link": "https://fast.mercubuana.ac.id/mod/forum/view.php?id=77361",
       "task_type": "FORUM",
       "deadline": "29 September 2026, 20:44",
-      "submitted": false,
-      "submission_status": "Belum membalas forum",
+      "submitted": true,
+      "submission_status": "Sudah membalas forum",
       "section_title": "22 September - 28 September",
       "pertemuan_ke": null,
       "is_previous": false,
@@ -24,8 +24,8 @@
       "task_link": "https://fast.mercubuana.ac.id/mod/assign/view.php?id=77363",
       "task_type": "ASSIGNMENT",
       "deadline": "Due: Monday, 28 September 2026, 11:00 PM",
-      "submitted": false,
-      "submission_status": "No submissions have been made yet",
+      "submitted": true,
+      "submission_status": "Submitted for grading",
       "section_title": "22 September - 28 September",
       "pertemuan_ke": null,
       "is_previous": false,
@@ -284,5 +284,5 @@
   "scan_started_at": null,
   "error": null,
   "request_scan": false,
-  "backend_last_active": "2026-09-23T19:15:57.292325"
+  "backend_last_active": "2026-09-23T20:10:50.059525"
 }
