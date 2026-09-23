@@ -1,20 +1,50 @@
 {
   "status": "done",
-  "scanned_at": "2026-09-22T20:20:21.703494",
+  "scanned_at": "2026-09-23T09:28:57.748891",
   "tasks": [
+    {
+      "site": "FAST Learning",
+      "course_name": "REKAYASA HIDROLOGI (TB) - W112500033 - Selasa 19:30-22:00 () (Dosen: Dr. Acep Hidayat, S.T., M.T.)",
+      "task_name": "Forum 2",
+      "task_link": "https://fast.mercubuana.ac.id/mod/forum/view.php?id=77361",
+      "task_type": "FORUM",
+      "deadline": "29 September 2026, 20:44",
+      "submitted": false,
+      "submission_status": "Belum membalas forum",
+      "section_title": "22 September - 28 September",
+      "pertemuan_ke": null,
+      "is_previous": false,
+      "deadline_iso": "2026-09-29T20:44:00",
+      "course_clean": "Rekayasa Hidrologi (TB) — Selasa 19:30"
+    },
+    {
+      "site": "FAST Learning",
+      "course_name": "REKAYASA HIDROLOGI (TB) - W112500033 - Selasa 19:30-22:00 () (Dosen: Dr. Acep Hidayat, S.T., M.T.)",
+      "task_name": "quis/tugas\nAssignment",
+      "task_link": "https://fast.mercubuana.ac.id/mod/assign/view.php?id=77363",
+      "task_type": "ASSIGNMENT",
+      "deadline": "Due: Monday, 28 September 2026, 11:00 PM",
+      "submitted": false,
+      "submission_status": "No submissions have been made yet",
+      "section_title": "22 September - 28 September",
+      "pertemuan_ke": null,
+      "is_previous": false,
+      "deadline_iso": "2026-09-28T23:00:00",
+      "course_clean": "Rekayasa Hidrologi (TB) — Selasa 19:30"
+    },
     {
       "site": "FAST Learning",
       "course_name": "TEKNIK PELAKSANAAN DAN PENGENDALIAN PROYEK KONSTRUKSI - W112500030 - Rabu 19:30-22:00 () (Dosen: Elhazri Hasdian, S.T., M.T., M.M., PMP)",
       "task_name": "Forum 1",
       "task_link": "https://fast.mercubuana.ac.id/mod/forum/view.php?id=74051",
       "task_type": "FORUM",
-      "deadline": "23 September 2026, 17:49",
+      "deadline": null,
       "submitted": true,
-      "submission_status": "Sudah membalas forum",
+      "submission_status": "Selesai",
       "section_title": "16 September - 22 September",
       "pertemuan_ke": null,
-      "is_previous": false,
-      "deadline_iso": "2026-09-23T17:49:00",
+      "is_previous": true,
+      "deadline_iso": null,
       "course_clean": "Teknik Pelaksanaan Dan Pengendalian Proyek Konstruksi — Rabu 19:30"
     },
     {
@@ -23,13 +53,13 @@
       "task_name": "Quiz 1",
       "task_link": "https://fast.mercubuana.ac.id/mod/quiz/view.php?id=74056",
       "task_type": "QUIZ",
-      "deadline": "Closes: Tuesday, 22 September 2026, 11:59 PM",
+      "deadline": null,
       "submitted": true,
-      "submission_status": "Finished",
+      "submission_status": "Selesai",
       "section_title": "16 September - 22 September",
       "pertemuan_ke": null,
-      "is_previous": false,
-      "deadline_iso": "2026-09-22T23:59:00",
+      "is_previous": true,
+      "deadline_iso": null,
       "course_clean": "Teknik Pelaksanaan Dan Pengendalian Proyek Konstruksi — Rabu 19:30"
     },
     {
@@ -149,6 +179,24 @@
           "url": "https://fast.mercubuana.ac.id/mod/attendance/view.php?id=73560",
           "section_title": "15 September - 21 September",
           "pertemuan_ke": null
+        },
+        {
+          "name": "Modul pertemuan ke 2 \nFile",
+          "url": "https://fast.mercubuana.ac.id/mod/resource/view.php?id=77355",
+          "section_title": "22 September - 28 September",
+          "pertemuan_ke": null
+        },
+        {
+          "name": "Forum 2",
+          "url": "https://fast.mercubuana.ac.id/mod/forum/view.php?id=77361",
+          "section_title": "22 September - 28 September",
+          "pertemuan_ke": null
+        },
+        {
+          "name": "quis/tugas\nAssignment",
+          "url": "https://fast.mercubuana.ac.id/mod/assign/view.php?id=77363",
+          "section_title": "22 September - 28 September",
+          "pertemuan_ke": null
         }
       ]
     },
@@ -236,5 +284,5 @@
   "scan_started_at": null,
   "error": null,
   "request_scan": false,
-  "backend_last_active": "2026-09-22T20:20:21.703605"
+  "backend_last_active": "2026-09-23T09:28:57.749204"
 }
