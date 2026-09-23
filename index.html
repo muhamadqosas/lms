@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
 <title>Dashboard Akademik — Matkul</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -37,7 +37,7 @@
 }
 
 *{box-sizing:border-box; margin:0; padding:0;}
-html{-webkit-text-size-adjust:100%; scroll-behavior:smooth;}
+html{-webkit-text-size-adjust:100%; scroll-behavior:smooth; overflow-x:hidden; width:100%; max-width:100%;}
 body{
   background:var(--paper);
   background-image:
@@ -47,6 +47,9 @@ body{
   font-family:'Inter',-apple-system,sans-serif;
   min-height:100vh;
   display:flex;
+  overflow-x:hidden;
+  width:100%;
+  max-width:100%;
 }
 .mono{font-family:'JetBrains Mono',monospace;}
 .display{font-family:'Space Grotesk',sans-serif;}
@@ -908,22 +911,26 @@ body{
 /* ============ RESPONSIVE ============ */
 
 @media(max-width:720px){
+  html, body{overflow-x:hidden; width:100%; max-width:100vw;}
   .sidebar{transform:translateX(-100%);}
   .sidebar.open{transform:translateX(0);}
   .sidebar-overlay.open{display:block;}
-  .main{margin-left:0;}
-  .topbar{left:0;}
+  .main{margin-left:0; width:100%; max-width:100vw; padding:16px 14px 64px; box-sizing:border-box; overflow-x:hidden;}
+  .topbar{left:0; width:100%; max-width:100vw; box-sizing:border-box; padding:0 14px;}
   .topbar-hamburger{display:flex;}
-  .task-card{grid-template-columns:1fr; padding:14px 16px 14px 18px;}
+  .task-card{grid-template-columns:1fr; padding:14px 16px; width:100%; box-sizing:border-box;}
   .task-action{flex-direction:row;align-items:center;justify-content:space-between;width:100%;margin-top:4px;}
+  .matkul-group-head{width:100%; max-width:100%;}
   .matkul-group-name{white-space:normal; overflow:visible; text-overflow:clip; flex:1 1 auto;}
   .matkul-group-meta{flex:1 1 100%; justify-content:space-between;}
   .matkul-group-meta .rekap-group-line{display:none;}
+  .rekap-group-head{width:100%; max-width:100%; overflow:hidden;}
+  .rekap-day-pill{max-width:calc(100% - 60px); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
 
   /* Status bar dashboard — susun jadi 2 baris rapi di mobile:
      baris 1 = dot + teks status (bisa wrap ke beberapa baris),
      baris 2 = badge backend + tombol refresh (rata kiri-kanan). */
-  .dash-status-bar{flex-wrap:wrap; gap:10px; padding:12px 14px;}
+  .dash-status-bar{flex-wrap:wrap; gap:10px; padding:12px 14px; width:100%; box-sizing:border-box;}
   .dsb-main{flex:1 1 100%; min-width:0;}
   .dsb-text{white-space:normal; line-height:1.45; word-break:break-word;}
   .dsb-actions{flex:1 1 100%; justify-content:space-between;}
@@ -3218,9 +3225,9 @@ function renderDashboard(){
 
     const groups=[
       {key:'terlambat', pill:'rdp-today', title:'Terlambat', items:[]},
-      {key:'hari-ini',  pill:'rdp-today', title:'Deadline Hari Ini', items:[]},
+      {key:'hari-ini',  pill:'rdp-today', title:'Hari Ini', items:[]},
       {key:'besok',     pill:'rdp-tomorrow', title:'Besok', items:[]},
-      {key:'minggu-ini',pill:'rdp-week', title:'Minggu Ini (7 hari ke depan)', items:[]},
+      {key:'minggu-ini',pill:'rdp-week', title:'Minggu Ini', items:[]},
       {key:'berikutnya',pill:'rdp-next', title:'Lebih dari 7 Hari', items:[]},
       {key:'tanpa-deadline',pill:'rdp-next', title:'Tanpa Deadline', items:[]},
     ];
@@ -3239,7 +3246,7 @@ function renderDashboard(){
     rekapEl.innerHTML=groups.filter(g=>g.items.length).map(g=>`
       <div class="rekap-groups" style="margin-bottom:0;">
         <div class="rekap-group-head">
-          <span class="rekap-day-pill ${g.pill}">${esc(g.title)} ${esc(g.title)}</span>
+          <span class="rekap-day-pill ${g.pill}">${esc(g.title)}</span>
           <div class="rekap-group-line"></div>
           <span style="font-family:JetBrains Mono,monospace;font-size:11px;color:var(--ink-soft);flex-shrink:0;">${g.items.length} item</span>
         </div>
