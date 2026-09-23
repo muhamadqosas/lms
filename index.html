@@ -2745,46 +2745,49 @@ async function downloadAllModules(courseId, btnEl){
 }
 
 async function loadLastScan(){
-  try{
-    const url = apiAvailable 
-      ? getApiBase() + '/api/last-scan?t=' + new Date().getTime()
-      : BLOB_URL + '?t=' + new Date().getTime();
+  // 1. Coba dari local backend jika online, atau langsung dari ./last_scan.json (selalu up-to-date di GitHub Pages)
+  try {
+    let url = apiAvailable 
+      ? getApiBase() + '/api/last-scan?t=' + Date.now()
+      : './last_scan.json?t=' + Date.now();
       
     const controller = new AbortController();
-    const id = setTimeout(() => controller.abort(), 5000);
-    const res=await fetch(url, { signal: controller.signal });
+    const id = setTimeout(() => controller.abort(), 6000);
+    const res = await fetch(url, { signal: controller.signal, cache: 'no-store' });
     clearTimeout(id);
-    if(!res.ok) throw new Error('API response not OK');
+    if (!res.ok) throw new Error('Primary source not OK: ' + res.status);
     
-    const data=await res.json();
+    const data = await res.json();
     handleSyncData(data);
-    if(data.status==='done'){
-      const pendingCnt=ACTIVITIES.filter(a=>a.status==='pending'&&!a.is_previous).length;
+    if (data.status === 'done') {
+      const pendingCnt = ACTIVITIES.filter(a => a.status === 'pending' && !a.is_previous).length;
       showToast(`Memuat hasil scan terakhir (${pendingCnt} tugas belum dikerjakan)`);
+      return;
     }
-  }catch(err){
-    try{
-      const res=await fetch('./last_scan.json');
-      if(!res.ok) throw new Error('Static file load failed');
-      const data=await res.json();
-      if(data.status==='done'){
-        applyScanResult(data);
-        renderCourseViewsDOM();
-        renderDashboard();
-        renderSidebar();
-        updateStatusBar();
-        const pendingCntStatic=ACTIVITIES.filter(a=>a.status==='pending'&&!a.is_previous).length;
-        showToast(`Memuat data static dari last_scan.json (${pendingCntStatic} tugas belum dikerjakan)`);
-      } else {
-        throw new Error('Static data status not done');
-      }
-    }catch(fallbackErr){
-      console.error("Gagal memuat scan terakhir:", err, fallbackErr);
-      const dot = document.getElementById('statusDot');
-      const txt = document.getElementById('statusText');
-      if (dot) dot.className = 'dsb-dot stale';
-      if (txt) txt.innerHTML = '<strong>Gagal memuat data</strong> — periksa internet atau jalankan scan di PC';
+  } catch (err) {
+    console.warn("Primary loadLastScan failed, trying BLOB fallback:", err);
+  }
+
+  // 2. Fallback ke BLOB_URL (cloud npoint) jika gagal
+  try {
+    const controller = new AbortController();
+    const id = setTimeout(() => controller.abort(), 6000);
+    const res = await fetch(BLOB_URL + '?t=' + Date.now(), { signal: controller.signal, cache: 'no-store' });
+    clearTimeout(id);
+    if (!res.ok) throw new Error('BLOB fallback failed: ' + res.status);
+    const data = await res.json();
+    handleSyncData(data);
+    if (data.status === 'done') {
+      const pendingCnt = ACTIVITIES.filter(a => a.status === 'pending' && !a.is_previous).length;
+      showToast(`Memuat data dari cloud (${pendingCnt} tugas belum dikerjakan)`);
+      return;
     }
+  } catch (fallbackErr) {
+    console.error("Gagal memuat scan terakhir:", fallbackErr);
+    const dot = document.getElementById('statusDot');
+    const txt = document.getElementById('statusText');
+    if (dot) dot.className = 'dsb-dot stale';
+    if (txt) txt.innerHTML = '<strong>Gagal memuat data</strong> — periksa internet atau jalankan scan di PC';
   }
 }
 
