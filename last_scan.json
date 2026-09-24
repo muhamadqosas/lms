@@ -1,6 +1,6 @@
 {
   "status": "done",
-  "scanned_at": "2026-09-24T09:32:46.789141",
+  "scanned_at": "2026-09-24T19:39:58.292969",
   "tasks": [
     {
       "site": "FAST Learning",
@@ -31,6 +31,36 @@
       "is_previous": false,
       "deadline_iso": "2026-09-28T23:00:00",
       "course_clean": "Rekayasa Hidrologi (TB) — Selasa 19:30"
+    },
+    {
+      "site": "FAST Learning",
+      "course_name": "REKAYASA PONDASI 2 - W112500029 - Kamis 19:30-22:00 () (Dosen: Pintor Tua Simatupang, Dr,Ir,MT.Eng)",
+      "task_name": "Forum Pertemuan 2",
+      "task_link": "https://fast.mercubuana.ac.id/mod/forum/view.php?id=78287",
+      "task_type": "FORUM",
+      "deadline": "01 October 2026, 11:15",
+      "submitted": false,
+      "submission_status": "Belum membalas forum",
+      "section_title": "24 September - 30 September",
+      "pertemuan_ke": null,
+      "is_previous": false,
+      "deadline_iso": "2026-10-01T11:15:00",
+      "course_clean": "Rekayasa Pondasi 2 — Kamis 19:30"
+    },
+    {
+      "site": "FAST Learning",
+      "course_name": "REKAYASA PONDASI 2 - W112500029 - Kamis 19:30-22:00 () (Dosen: Pintor Tua Simatupang, Dr,Ir,MT.Eng)",
+      "task_name": "Quiz Pertemuan 2",
+      "task_link": "https://fast.mercubuana.ac.id/mod/quiz/view.php?id=78288",
+      "task_type": "QUIZ",
+      "deadline": "Closes: Wednesday, 30 September 2026, 11:59 PM",
+      "submitted": false,
+      "submission_status": null,
+      "section_title": "24 September - 30 September",
+      "pertemuan_ke": null,
+      "is_previous": false,
+      "deadline_iso": "2026-09-30T23:59:00",
+      "course_clean": "Rekayasa Pondasi 2 — Kamis 19:30"
     },
     {
       "site": "FAST Learning",
@@ -228,6 +258,30 @@
           "url": "https://fast.mercubuana.ac.id/mod/attendance/view.php?id=74759",
           "section_title": "17 September - 23 September",
           "pertemuan_ke": null
+        },
+        {
+          "name": "Pert.2 - Penggunaan Jenis-jenis Turap pada Tanah-tanah Tertentu \nFile",
+          "url": "https://fast.mercubuana.ac.id/mod/resource/view.php?id=78284",
+          "section_title": "24 September - 30 September",
+          "pertemuan_ke": null
+        },
+        {
+          "name": "Pert.2 - Penggunaan Jenis-jenis Turap pada Tanah-tanah Tertentu \nFile",
+          "url": "https://fast.mercubuana.ac.id/mod/resource/view.php?id=78286",
+          "section_title": "24 September - 30 September",
+          "pertemuan_ke": null
+        },
+        {
+          "name": "Forum Pertemuan 2",
+          "url": "https://fast.mercubuana.ac.id/mod/forum/view.php?id=78287",
+          "section_title": "24 September - 30 September",
+          "pertemuan_ke": null
+        },
+        {
+          "name": "Quiz Pertemuan 2",
+          "url": "https://fast.mercubuana.ac.id/mod/quiz/view.php?id=78288",
+          "section_title": "24 September - 30 September",
+          "pertemuan_ke": null
         }
       ]
     },
@@ -284,5 +338,5 @@
   "scan_started_at": null,
   "error": null,
   "request_scan": false,
-  "backend_last_active": "2026-09-24T09:32:46.789271"
+  "backend_last_active": "2026-09-24T19:39:58.293381"
 }
