@@ -1,6 +1,6 @@
 {
   "status": "done",
-  "scanned_at": "2026-10-12T15:40:55.202811",
+  "scanned_at": "2026-10-12T18:59:41.324878",
   "tasks": [
     {
       "site": "FAST Learning",
@@ -189,8 +189,8 @@
       "task_link": "https://fast.mercubuana.ac.id/mod/forum/view.php?id=86672",
       "task_type": "FORUM",
       "deadline": "15 October 2026, 07:18",
-      "submitted": false,
-      "submission_status": "Belum membalas forum",
+      "submitted": true,
+      "submission_status": "Sudah membalas forum",
       "section_title": "8 October - 14 October",
       "pertemuan_ke": null,
       "is_previous": false,
@@ -204,8 +204,8 @@
       "task_link": "https://fast.mercubuana.ac.id/mod/quiz/view.php?id=86673",
       "task_type": "QUIZ",
       "deadline": "Closes: Wednesday, 14 October 2026, 11:59 PM",
-      "submitted": false,
-      "submission_status": null,
+      "submitted": true,
+      "submission_status": "Finished",
       "section_title": "8 October - 14 October",
       "pertemuan_ke": null,
       "is_previous": false,
@@ -890,5 +890,5 @@
   "scan_started_at": null,
   "error": null,
   "request_scan": false,
-  "backend_last_active": "2026-10-12T15:40:55.203245"
+  "backend_last_active": "2026-10-12T18:59:41.325540"
 }
