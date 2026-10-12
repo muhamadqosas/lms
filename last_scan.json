@@ -1,6 +1,6 @@
 {
   "status": "done",
-  "scanned_at": "2026-10-12T09:47:34.451340",
+  "scanned_at": "2026-10-12T11:01:30.867973",
   "tasks": [
     {
       "site": "FAST Learning",
@@ -144,8 +144,8 @@
       "task_link": "https://fast.mercubuana.ac.id/mod/forum/view.php?id=87117",
       "task_type": "FORUM",
       "deadline": "15 October 2026, 23:13",
-      "submitted": false,
-      "submission_status": "Belum membalas forum",
+      "submitted": true,
+      "submission_status": "Sudah membalas forum",
       "section_title": "6 October - 12 October",
       "pertemuan_ke": null,
       "is_previous": false,
@@ -159,8 +159,8 @@
       "task_link": "https://fast.mercubuana.ac.id/mod/assign/view.php?id=87118",
       "task_type": "ASSIGNMENT",
       "deadline": "Due: Monday, 12 October 2026, 11:00 PM",
-      "submitted": false,
-      "submission_status": "No submissions have been made yet",
+      "submitted": true,
+      "submission_status": "Submitted for grading",
       "section_title": "6 October - 12 October",
       "pertemuan_ke": null,
       "is_previous": false,
@@ -279,8 +279,8 @@
       "task_link": "https://fast.mercubuana.ac.id/mod/forum/view.php?id=86314",
       "task_type": "FORUM",
       "deadline": "14 October 2026, 16:50",
-      "submitted": false,
-      "submission_status": "Belum membalas forum",
+      "submitted": true,
+      "submission_status": "Sudah membalas forum",
       "section_title": "7 October - 13 October",
       "pertemuan_ke": null,
       "is_previous": false,
@@ -294,8 +294,8 @@
       "task_link": "https://fast.mercubuana.ac.id/mod/quiz/view.php?id=86315",
       "task_type": "QUIZ",
       "deadline": "Closes: Tuesday, 13 October 2026, 11:59 PM",
-      "submitted": false,
-      "submission_status": null,
+      "submitted": true,
+      "submission_status": "Finished",
       "section_title": "7 October - 13 October",
       "pertemuan_ke": null,
       "is_previous": false,
@@ -890,5 +890,5 @@
   "scan_started_at": null,
   "error": null,
   "request_scan": false,
-  "backend_last_active": "2026-10-12T09:47:34.451721"
+  "backend_last_active": "2026-10-12T11:01:30.868315"
 }
