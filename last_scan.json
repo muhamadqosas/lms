@@ -1,6 +1,6 @@
 {
   "status": "done",
-  "scanned_at": "2026-10-12T11:01:30.867973",
+  "scanned_at": "2026-10-12T15:40:55.202811",
   "tasks": [
     {
       "site": "FAST Learning",
@@ -57,21 +57,6 @@
       "submitted": true,
       "submission_status": "Selesai",
       "section_title": "26 September - 2 October",
-      "pertemuan_ke": null,
-      "is_previous": true,
-      "deadline_iso": null,
-      "course_clean": "Metode Numerik — Sabtu 19:30"
-    },
-    {
-      "site": "FAST Learning",
-      "course_name": "METODE NUMERIK - W112500032 - Sabtu 19:30-22:00 (B-202-2) (Dosen: Suprapti, Dr. S.T., M.T.)",
-      "task_name": "Tugas 1. Metode Numerik\nAssignment",
-      "task_link": "https://fast.mercubuana.ac.id/mod/assign/view.php?id=84979",
-      "task_type": "ASSIGNMENT",
-      "deadline": null,
-      "submitted": true,
-      "submission_status": "Selesai",
-      "section_title": "3 October - 9 October",
       "pertemuan_ke": null,
       "is_previous": true,
       "deadline_iso": null,
@@ -376,6 +361,21 @@
       "is_previous": false,
       "deadline_iso": null,
       "course_clean": "(kelas tidak dikenal)"
+    },
+    {
+      "site": "FAST Learning",
+      "course_name": "METODE NUMERIK - W112500032 - Sabtu 19:30-22:00 (B-202-2) (Dosen: Suprapti, Dr. S.T., M.T.)",
+      "task_name": "https://fast.mercubuana.ac.id/mod/assign/view.php?id=84979",
+      "task_link": "https://fast.mercubuana.ac.id/mod/assign/view.php?id=84979",
+      "task_type": "ASSIGNMENT",
+      "deadline": "Due: Sunday, 1 November 2026, 11:59 PM",
+      "submitted": false,
+      "submission_status": "No submissions have been made yet",
+      "section_title": null,
+      "pertemuan_ke": null,
+      "is_previous": false,
+      "deadline_iso": "2026-11-01T23:59:00",
+      "course_clean": "Metode Numerik — Sabtu 19:30"
     }
   ],
   "courses_checked": [
@@ -890,5 +890,5 @@
   "scan_started_at": null,
   "error": null,
   "request_scan": false,
-  "backend_last_active": "2026-10-12T11:01:30.868315"
+  "backend_last_active": "2026-10-12T15:40:55.203245"
 }
