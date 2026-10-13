@@ -1206,13 +1206,20 @@ body{
     <!-- ===== Tab 1: Tugas Manual (tidak berubah) ===== -->
     <div class="modal-tab-panel active" id="tabPanelManual">
       <div class="form-group">
-        <label class="form-label" for="addTaskCourseTrigger">Mata Kuliah</label>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+          <label class="form-label" for="addTaskCourseTrigger" style="margin-bottom:0;">Mata Kuliah</label>
+          <button type="button" class="btn-text-action" id="toggleCustomCourseBtn" onclick="toggleAddCustomCourseInput()" style="font-size:11.5px; color:var(--blue); background:none; border:none; cursor:pointer; font-weight:600; text-decoration:underline;">+ Tambah Matkul Lainnya</button>
+        </div>
         <div class="custom-select" id="addTaskCourseSelect">
           <button type="button" class="custom-select-trigger" id="addTaskCourseTrigger" onclick="toggleCourseDropdown()">
             <span id="addTaskCourseLabel">Pilih mata kuliah</span>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
           </button>
           <div class="custom-select-options" id="addTaskCourseOptions"></div>
+        </div>
+        <div id="customCourseInputContainer" style="display:none; margin-top:8px;">
+          <input class="form-input" type="text" id="addCustomCourseName" placeholder="Ketik nama mata kuliah manual..." autocomplete="off">
+          <div style="font-size:11px; color:var(--ink-soft); margin-top:4px;">Matkul manual tidak perlu scan LMS, langsung tampil di Overview.</div>
         </div>
       </div>
       <div class="form-group">
@@ -1262,6 +1269,11 @@ body{
       <div class="form-group">
         <label class="form-label" for="pantauTaskCourse">Mata Kuliah (opsional)</label>
         <input class="form-input" type="text" id="pantauTaskCourse" placeholder="Nama kelas di LMS"
+          autocomplete="off" data-lpignore="true">
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="pantauTaskPertemuan">Pertemuan / Minggu (opsional)</label>
+        <input class="form-input" type="text" id="pantauTaskPertemuan" placeholder="Misal: 4 (atau kosongkan untuk deteksi otomatis LMS)"
           autocomplete="off" data-lpignore="true">
       </div>
 
@@ -1662,20 +1674,59 @@ function loadManualTasksLocal(){
   }catch(e){ MANUAL_TASKS = []; }
 }
 
-// Tugas manual yang sudah ditandai selesai tetap muncul terus di "Tugas
-// Sudah Dikerjakan" (tidak otomatis dihapus). Kalau mau dibuang, hapus manual
-// lewat tombol hapus () pada kartu tugas.
+// Tugas manual yang sudah ditandai selesai bertahan selama 1 minggu (7 hari)
+// di "Tugas Sudah Dikerjakan", setelah 1 minggu otomatis hilang.
 function pruneExpiredManualTasks(){
-  // sengaja dikosongkan — tidak ada lagi auto-expire 1 minggu
+  const oneWeekMs = 7 * 24 * 60 * 60 * 1000;
+  const now = Date.now();
+  const prevLen = MANUAL_TASKS.length;
+  MANUAL_TASKS = MANUAL_TASKS.filter(t => {
+    if (!t.done) return true;
+    if (!t.doneAt) return true;
+    const doneTime = new Date(t.doneAt).getTime();
+    return (now - doneTime) < oneWeekMs;
+  });
+  if (MANUAL_TASKS.length !== prevLen) {
+    saveManualTasksLocal();
+  }
+}
+
+let CUSTOM_MANUAL_COURSES = [];
+function loadCustomCoursesLocal(){
+  try{
+    const cached = localStorage.getItem('customManualCourses');
+    CUSTOM_MANUAL_COURSES = cached ? (JSON.parse(cached) || []) : [];
+  }catch(e){ CUSTOM_MANUAL_COURSES = []; }
+}
+function saveCustomCoursesLocal(){
+  try{
+    localStorage.setItem('customManualCourses', JSON.stringify(CUSTOM_MANUAL_COURSES));
+  }catch(e){ console.error('Gagal simpan custom courses:', e); }
+}
+
+function ensureCustomCoursesRegistered(){
+  loadCustomCoursesLocal();
+  (CUSTOM_MANUAL_COURSES||[]).forEach(c => {
+    if(!COURSES_META[c.id]){
+      COURSES_META[c.id] = {
+        name: c.name,
+        abbr: getCourseAbbr(c.name),
+        day: '-',
+        time: '-',
+        endTime: null,
+        dosen: '',
+        type: 'manual',
+        lmsId: null
+      };
+    }
+  });
 }
 
 // Konversi tugas manual jadi bentuk "activity" yang sama seperti tugas hasil
 // scan, supaya bisa dipakai apa adanya oleh renderDashboard/renderSidebar/
-// renderCourseWeeks tanpa perlu logic terpisah. Kalau matkul tujuannya belum/
-// tidak ada lagi di COURSES_META (misal belum pernah scan), tugas tetap
-// disimpan di MANUAL_TASKS tapi disembunyikan dari tampilan sampai matkul-nya
-// tersedia lagi (supaya tidak error saat lookup COURSES_META).
+// renderCourseWeeks tanpa perlu logic terpisah.
 function manualTasksToActivities(){
+  ensureCustomCoursesRegistered();
   return MANUAL_TASKS.filter(t=>COURSES_META[t.courseId]).map(t=>({
     id: t.id,
     courseId: t.courseId,
@@ -1694,6 +1745,7 @@ function manualTasksToActivities(){
 
 function rebuildActivities(){
   pruneExpiredManualTasks();
+  ensureCustomCoursesRegistered();
   ACTIVITIES = SCANNED_ACTIVITIES.concat(manualTasksToActivities());
 }
 
@@ -1776,6 +1828,12 @@ async function submitPantauTask(){
   const url = (document.getElementById('pantauTaskUrl').value||'').trim();
   const name = (document.getElementById('pantauTaskName').value||'').trim();
   const course = (document.getElementById('pantauTaskCourse').value||'').trim();
+  const pertInput = (document.getElementById('pantauTaskPertemuan') ? document.getElementById('pantauTaskPertemuan').value : '').trim();
+  let pertemuan_ke = null;
+  if (pertInput) {
+    const pNum = parseInt(pertInput.replace(/\D+/g, ''));
+    if (!isNaN(pNum)) pertemuan_ke = pNum;
+  }
 
   if(!url){ showToast('Isi URL tugas dulu'); return; }
 
@@ -1790,6 +1848,25 @@ async function submitPantauTask(){
   if(url.includes('fast.mercubuana.ac.id')) site = 'FAST Learning';
   else if(url.includes('ruangkelas.mercubuana.ac.id')) site = 'Ruang Kelas';
 
+  // Enrich dari CLASS_MODULES jika nama atau kelas belum diisi manual
+  let enrichedName = name;
+  let enrichedCourse = course;
+  let section_title = null;
+  if(typeof CLASS_MODULES !== 'undefined'){
+    for(const cm of CLASS_MODULES){
+      if(cm.modules){
+        const m = cm.modules.find(mod => mod.url === url);
+        if(m){
+          if(!enrichedCourse) enrichedCourse = cm.course_name;
+          if(!enrichedName) enrichedName = cleanModuleName(m.name);
+          section_title = m.section_title;
+          if(pertemuan_ke == null && m.pertemuan_ke != null) pertemuan_ke = m.pertemuan_ke;
+          break;
+        }
+      }
+    }
+  }
+
   const btn = document.getElementById('pantauSubmitBtn');
   if(btn){ btn.disabled = true; btn.textContent = 'Menyimpan...'; }
 
@@ -1797,7 +1874,14 @@ async function submitPantauTask(){
     const res = await fetch(getApiBase() + '/api/long-deadline-tasks', {
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({task_link: url, task_name: name, course_name: course, site})
+      body: JSON.stringify({
+        task_link: url,
+        task_name: enrichedName,
+        course_name: enrichedCourse,
+        site,
+        section_title,
+        pertemuan_ke
+      })
     });
     const data = await res.json();
     if(!res.ok){
@@ -1808,6 +1892,7 @@ async function submitPantauTask(){
     document.getElementById('pantauTaskUrl').value = '';
     document.getElementById('pantauTaskName').value = '';
     document.getElementById('pantauTaskCourse').value = '';
+    if(document.getElementById('pantauTaskPertemuan')) document.getElementById('pantauTaskPertemuan').value = '';
     await loadMonitoredTasks();
     renderPantauList();
   }catch(e){
@@ -1854,6 +1939,21 @@ function renderPantauList(){
 }
 
 let selectedCourseIdForAddTask = '';
+let isCustomCourseMode = false;
+
+function toggleAddCustomCourseInput(){
+  isCustomCourseMode = !isCustomCourseMode;
+  const container = document.getElementById('customCourseInputContainer');
+  const selectBox = document.getElementById('addTaskCourseSelect');
+  const btn = document.getElementById('toggleCustomCourseBtn');
+  if(container) container.style.display = isCustomCourseMode ? 'block' : 'none';
+  if(selectBox) selectBox.style.display = isCustomCourseMode ? 'none' : 'block';
+  if(btn) btn.textContent = isCustomCourseMode ? '← Pilih Matkul yang Ada' : '+ Tambah Matkul Lainnya';
+  if(isCustomCourseMode){
+    const inp = document.getElementById('addCustomCourseName');
+    if(inp){ inp.value = ''; inp.focus(); }
+  }
+}
 
 function toggleCourseDropdown(){
   document.getElementById('addTaskCourseSelect').classList.toggle('open');
@@ -1862,7 +1962,7 @@ function toggleCourseDropdown(){
 function selectCourseOption(id){
   selectedCourseIdForAddTask = id;
   const c = COURSES_META[id];
-  document.getElementById('addTaskCourseLabel').textContent = c ? `${c.name} — ${c.day} ${c.time}` : 'Pilih mata kuliah';
+  document.getElementById('addTaskCourseLabel').textContent = c ? (c.type==='manual' ? `${c.name} (Manual)` : `${c.name} — ${c.day} ${c.time}`) : 'Pilih mata kuliah';
   document.getElementById('addTaskCourseSelect').classList.remove('open');
   document.querySelectorAll('#addTaskCourseOptions .custom-select-option').forEach(el=>{
     el.classList.toggle('active', el.dataset.id===id);
@@ -1878,26 +1978,55 @@ document.addEventListener('click', e=>{
 });
 
 function openAddTaskModal(){
+  isCustomCourseMode = false;
+  const customContainer = document.getElementById('customCourseInputContainer');
+  if(customContainer) customContainer.style.display = 'none';
+  const selectBox = document.getElementById('addTaskCourseSelect');
+  if(selectBox) selectBox.style.display = 'block';
+  const toggleBtn = document.getElementById('toggleCustomCourseBtn');
+  if(toggleBtn) toggleBtn.textContent = '+ Tambah Matkul Lainnya';
+  if(document.getElementById('addCustomCourseName')) document.getElementById('addCustomCourseName').value = '';
+
+  loadCustomCoursesLocal();
   const optionsEl = document.getElementById('addTaskCourseOptions');
   const labelEl = document.getElementById('addTaskCourseLabel');
   const courseIds = getCourseOrder();
   selectedCourseIdForAddTask = '';
 
-  if(!courseIds.length){
-    optionsEl.innerHTML = `<div class="custom-select-empty">Belum ada data kelas — refresh dulu</div>`;
+  let optsHtml = '';
+  if(!courseIds.length && !CUSTOM_MANUAL_COURSES.length){
+    optsHtml = `<div class="custom-select-empty">Belum ada data kelas — refresh dulu atau buat manual</div>`;
     labelEl.textContent = 'Pilih mata kuliah';
   } else {
-    optionsEl.innerHTML = courseIds.map(id=>{
-      const c = COURSES_META[id];
-      return `<div class="custom-select-option" data-id="${id}" onclick="selectCourseOption('${id}')">
-        <span>${esc(c.name)}</span>
-        <span class="custom-select-option-sched">${esc(c.day)} ${esc(c.time)}</span>
-      </div>`;
-    }).join('');
-    selectedCourseIdForAddTask = courseIds[0];
-    const c0 = COURSES_META[courseIds[0]];
-    labelEl.textContent = `${c0.name} — ${c0.day} ${c0.time}`;
+    if(courseIds.length){
+      optsHtml += courseIds.map(id=>{
+        const c = COURSES_META[id];
+        return `<div class="custom-select-option" data-id="${id}" onclick="selectCourseOption('${id}')">
+          <span>${esc(c.name)}</span>
+          <span class="custom-select-option-sched">${esc(c.day)} ${esc(c.time)}</span>
+        </div>`;
+      }).join('');
+      selectedCourseIdForAddTask = courseIds[0];
+      const c0 = COURSES_META[courseIds[0]];
+      labelEl.textContent = `${c0.name} — ${c0.day} ${c0.time}`;
+    }
+
+    if(CUSTOM_MANUAL_COURSES.length){
+      optsHtml += `<div style="padding:6px 12px; font-size:10px; font-weight:700; color:var(--ink-soft); text-transform:uppercase; background:var(--paper); border-top:1px solid var(--line);">Matkul Manual</div>`;
+      optsHtml += CUSTOM_MANUAL_COURSES.map(c=>{
+        return `<div class="custom-select-option" data-id="${c.id}" onclick="selectCourseOption('${c.id}')">
+          <span>${esc(c.name)}</span>
+          <span class="custom-select-option-sched" style="color:var(--blue); font-weight:600;">Manual</span>
+        </div>`;
+      }).join('');
+      if(!selectedCourseIdForAddTask){
+        selectedCourseIdForAddTask = CUSTOM_MANUAL_COURSES[0].id;
+        labelEl.textContent = `${CUSTOM_MANUAL_COURSES[0].name} (Manual)`;
+      }
+    }
   }
+  optionsEl.innerHTML = optsHtml;
+
   document.getElementById('addTaskCourseSelect').classList.remove('open');
   requestAnimationFrame(()=>{
     const activeEl = optionsEl.querySelector(`[data-id="${selectedCourseIdForAddTask}"]`);
@@ -1939,7 +2068,28 @@ function switchModalTab(tab){
 }
 
 async function submitAddTask(){
-  const courseId = selectedCourseIdForAddTask;
+  let courseId = selectedCourseIdForAddTask;
+  if(isCustomCourseMode){
+    const customName = (document.getElementById('addCustomCourseName').value||'').trim();
+    if(!customName){ showToast('Ketik nama mata kuliah manual dulu'); return; }
+    courseId = 'manual_' + slugifyCourseName(customName);
+    loadCustomCoursesLocal();
+    if(!CUSTOM_MANUAL_COURSES.some(c=>c.id===courseId)){
+      CUSTOM_MANUAL_COURSES.push({ id: courseId, name: customName, type: 'manual' });
+      saveCustomCoursesLocal();
+    }
+    COURSES_META[courseId] = {
+      name: customName,
+      abbr: getCourseAbbr(customName),
+      day: '-',
+      time: '-',
+      endTime: null,
+      dosen: '',
+      type: 'manual',
+      lmsId: null
+    };
+  }
+
   const title = document.getElementById('addTaskTitle').value.trim();
   const date = document.getElementById('addTaskDate').value;
   const time = document.getElementById('addTaskTime').value || '23:59';
@@ -2064,6 +2214,21 @@ function countdown(iso){
 }
 function typeBadge(t){return{tugas:'Tugas',quiz:'Quiz',forum:'Forum'}[t]||t;}
 function statusBadge(b){return{late:'Terlambat',urgent:'< 3 hari',soon:'< 7 hari',safe:'Aman'}[b];}
+
+function getTaskTimeGroup(iso, now = new Date()){
+  if(!iso) return 'tanpa-deadline';
+  const d = new Date(iso);
+  if(isNaN(d.getTime())) return 'tanpa-deadline';
+  const todayEnd = new Date(now); todayEnd.setHours(23,59,59,999);
+  const tomorrowEnd = new Date(todayEnd); tomorrowEnd.setDate(tomorrowEnd.getDate()+1);
+  const weekEnd = new Date(now.getTime() + 7 * 864e5);
+
+  if(d < now) return 'terlambat';
+  if(d <= todayEnd) return 'hari-ini';
+  if(d <= tomorrowEnd) return 'besok';
+  if(d <= weekEnd) return 'minggu-ini';
+  return 'berikutnya';
+}
 
 function showToast(msg){
   const t=document.getElementById('toast');
@@ -2931,8 +3096,13 @@ function getWeeksWithActivities(courseId){
   courseActs.forEach(act => {
     let matchedWeekIndex = -1;
 
+    // 0. Match by explicit pertemuan_ke if provided
+    if (act.pertemuan_ke != null) {
+      matchedWeekIndex = weeks.findIndex(w => w.pertemuanKe === act.pertemuan_ke);
+    }
+
     // 1. Match by date range from section_title
-    if (act.section_title) {
+    if (matchedWeekIndex === -1 && act.section_title) {
       const actRange = parseWeekRange(act.section_title, false);
       if (actRange) {
         const midTime = (actRange.start.getTime() + actRange.end.getTime()) / 2;
@@ -2943,7 +3113,30 @@ function getWeeksWithActivities(courseId){
       }
     }
 
-    // 2. Match by deadline date range
+    // 1.5. Match from CLASS_MODULES if available
+    if (matchedWeekIndex === -1 && act.url && typeof CLASS_MODULES !== 'undefined') {
+      const cm = CLASS_MODULES.find(c => slugifyCourseName(c.course_name) === courseId);
+      if (cm && cm.modules) {
+        const foundMod = cm.modules.find(m => m.url === act.url);
+        if (foundMod) {
+          if (foundMod.pertemuan_ke != null) {
+            matchedWeekIndex = weeks.findIndex(w => w.pertemuanKe === foundMod.pertemuan_ke);
+          }
+          if (matchedWeekIndex === -1 && foundMod.section_title) {
+            const r = parseWeekRange(foundMod.section_title, false);
+            if (r) {
+              const mid = (r.start.getTime() + r.end.getTime()) / 2;
+              matchedWeekIndex = weeks.findIndex(w => {
+                const wr = parseWeekRange(w.week);
+                return wr && mid >= wr.start.getTime() && mid <= wr.end.getTime();
+              });
+            }
+          }
+        }
+      }
+    }
+
+    // 2. Match by deadline date range (hanya fallback jika tidak ada info pertemuan/section)
     if(matchedWeekIndex === -1 && act.deadline){
       const actDate = new Date(act.deadline);
       matchedWeekIndex = weeks.findIndex(w => {
@@ -2952,7 +3145,7 @@ function getWeeksWithActivities(courseId){
       });
     }
 
-    // 3. Fallback: match by currently ongoing week (since scraper only scans the active week section)
+    // 3. Fallback: match by currently ongoing week
     if(matchedWeekIndex === -1){
       matchedWeekIndex = weeks.findIndex(w => isCurrentWeek(w.week));
     }
@@ -2960,8 +3153,8 @@ function getWeeksWithActivities(courseId){
     // Add to matched week items
     if(matchedWeekIndex !== -1){
       const week = weeks[matchedWeekIndex];
-      const exists = week.items.some(it => it.url === act.url || it.label === act.title);
-      if(!exists){
+      const existing = week.items.find(it => it.url === act.url || it.label === act.title);
+      if(!existing){
         week.items.push({
           type: act.type,
           label: act.title,
@@ -2969,6 +3162,9 @@ function getWeeksWithActivities(courseId){
           due: act.deadline,
           status: act.status
         });
+      } else {
+        if (act.deadline) existing.due = act.deadline;
+        if (act.status) existing.status = act.status;
       }
     }
   });
@@ -3093,12 +3289,14 @@ function renderActivityItem(it){
     ? (it.due.includes('T') ? `Due: ${fmtDeadline(it.due)}` : it.due)
     : '';
   const isOverdue = it.due && it.due.includes('T') && new Date(it.due)<new Date();
-  const doneCheck = it.status === 'done' ? ' <span style="color:var(--forest);font-weight:bold;"> Selesai</span>' : '';
+  const isDone = it.status === 'done';
+  const showRed = isOverdue && !isDone;
+  const doneCheck = isDone ? ' <span style="color:var(--forest);font-weight:bold;"> Selesai</span>' : '';
   return `<div class="activity-item" data-url="${esc(it.url)}" data-label="${esc(it.label)}" onclick="openActivity(this)">
     <div class="ai-icon type-${it.type}">${iconMap[it.type]||''}</div>
     <div class="ai-info">
       <div class="ai-name">${esc(it.label)}${it.meta?' <span style="font-size:10.5px;background:var(--brick-bg);color:var(--brick);padding:1px 5px;border-radius:4px;font-family:JetBrains Mono,monospace;font-weight:600;">'+esc(it.meta)+'</span>':''}${doneCheck}</div>
-      ${dueStr?`<div class="ai-meta" style="${isOverdue?'color:var(--brick);':''}">${esc(dueStr)}</div>`:''}
+      ${dueStr?`<div class="ai-meta" style="${showRed?'color:var(--brick);':(isDone?'color:var(--forest);':'')}">${esc(dueStr)}</div>`:''}
     </div>
   </div>`;
 }
@@ -3137,11 +3335,11 @@ function renderDashboard(){
 
   const rekapEl=document.getElementById('dashRekap');
 
-  function renderTaskCard(act,i){
+  function renderTaskCard(act,i,groupKey){
     const c=COURSES_META[act.courseId];
     const effDeadline=getEffectiveDeadline(act);
     const bk=bucket(effDeadline);
-    return `<div class="task-card s-${bk}" style="animation-delay:${i*0.04}s" data-deadline="${effDeadline||''}">
+    return `<div class="task-card s-${bk}" style="animation-delay:${i*0.04}s" data-deadline="${effDeadline||''}" data-time-group="${groupKey||''}">
       <div class="status-ladder"></div>
       <div class="task-main">
         <div class="task-top-row">
@@ -3205,7 +3403,7 @@ function renderDashboard(){
           </div>
         </div>
         <div class="task-list">
-          ${items.map((act,i)=>renderTaskCard(act,i)).join('')}
+          ${items.map((act,i)=>renderTaskCard(act,i,'matkul')).join('')}
         </div>
       </div>`;
     }).join('');
@@ -3216,13 +3414,6 @@ function renderDashboard(){
   } else {
     // Group by time bracket
     const now=new Date();
-    const todayStart=new Date(now); todayStart.setHours(0,0,0,0);
-    const todayEnd=new Date(now); todayEnd.setHours(23,59,59,999);
-    const tomorrowStart=new Date(todayStart); tomorrowStart.setDate(tomorrowStart.getDate()+1);
-    const tomorrowEnd=new Date(todayEnd); tomorrowEnd.setDate(tomorrowEnd.getDate()+1);
-    const weekEnd=new Date(todayStart); weekEnd.setDate(weekEnd.getDate()+7);
-    const nextWeekEnd=new Date(todayStart); nextWeekEnd.setDate(nextWeekEnd.getDate()+14);
-
     const groups=[
       {key:'terlambat', pill:'rdp-today', title:'Terlambat', items:[]},
       {key:'hari-ini',  pill:'rdp-today', title:'Hari Ini', items:[]},
@@ -3231,16 +3422,13 @@ function renderDashboard(){
       {key:'berikutnya',pill:'rdp-next', title:'Lebih dari 7 Hari', items:[]},
       {key:'tanpa-deadline',pill:'rdp-next', title:'Tanpa Deadline', items:[]},
     ];
+    const groupMap = Object.fromEntries(groups.map(g => [g.key, g]));
 
     sorted.forEach(act=>{
-      const eff=getEffectiveDeadline(act);
-      if(!eff){ groups[5].items.push(act); return; }
-      const d=new Date(eff);
-      if(d<now)              groups[0].items.push(act);
-      else if(d<=todayEnd)   groups[1].items.push(act);
-      else if(d<=tomorrowEnd)groups[2].items.push(act);
-      else if(d<=weekEnd)    groups[3].items.push(act);
-      else                   groups[4].items.push(act);
+      const eff = getEffectiveDeadline(act);
+      const grpKey = getTaskTimeGroup(eff, now);
+      if(groupMap[grpKey]) groupMap[grpKey].items.push(act);
+      else groups[4].items.push(act);
     });
 
     rekapEl.innerHTML=groups.filter(g=>g.items.length).map(g=>`
@@ -3251,7 +3439,7 @@ function renderDashboard(){
           <span style="font-family:JetBrains Mono,monospace;font-size:11px;color:var(--ink-soft);flex-shrink:0;">${g.items.length} item</span>
         </div>
         <div class="task-list">
-          ${g.items.map((act,i)=>renderTaskCard(act,i)).join('')}
+          ${g.items.map((act,i)=>renderTaskCard(act,i,g.key)).join('')}
         </div>
       </div>
     `).join('');
@@ -3419,8 +3607,17 @@ setInterval(tickClock,1000);
 // menit — itu penyebab tampilan kerasa "glitch"/kedip berkala. Sekarang
 // yang di-update cuma teks & class pada elemen yang sudah ada.
 function updateCountdownsOnly(){
+  let needsRegroup = false;
+  const now = new Date();
   document.querySelectorAll('.task-card[data-deadline]').forEach(card=>{
     const iso = card.dataset.deadline || null;
+    const currentGroup = card.dataset.timeGroup;
+    if(currentGroup && currentGroup !== 'matkul'){
+      const expectedGroup = getTaskTimeGroup(iso, now);
+      if(expectedGroup !== currentGroup){
+        needsRegroup = true;
+      }
+    }
     const bk = bucket(iso);
     const newClass = `task-card s-${bk}`;
     if(card.className !== newClass) card.className = newClass;
@@ -3432,6 +3629,9 @@ function updateCountdownsOnly(){
       badgeEl.textContent = statusBadge(bk);
     }
   });
+  if(needsRegroup && dashSortMode !== 'matkul'){
+    renderDashboard();
+  }
 }
 
 // Ini BUKAN refresh data — cuma update teks waktu berjalan dari data yang
